@@ -8,12 +8,14 @@ import com.google.inject.Singleton;
 
 public abstract class ModuleConfigurator extends AbstractModule {
 
-	private final Map<Class<? extends Injectable>, ModuleProvider<? extends Injectable>> providers = new HashMap<>();
+	private final Map<Class<?>, ModuleProvider<? extends Injectable>> providers = new HashMap<>();
 
 	public <T extends Injectable> void regist(final T instance) {
 		@SuppressWarnings("unchecked")
 		final ModuleProvider<T> provider = (ModuleProvider<T>) getModuleProvider(instance.getClass());
-		provider.regist(instance);
+		if (provider != null) {
+			provider.regist(instance);
+		}
 	}
 
 	protected <T extends Injectable> void provide(final Class<T> cls) {

@@ -3,7 +3,7 @@ package hoshisugi.rukoru.app.view;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import hoshisugi.rukoru.flamework.controls.ControllerBase;
+import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.BrowserUtil;
 import javafx.event.ActionEvent;
@@ -12,7 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 
-public class ToolBarController extends ControllerBase {
+public class ToolBarController extends BaseController {
 
 	@FXML
 	private Button mcButton;

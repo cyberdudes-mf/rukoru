@@ -9,12 +9,13 @@ import java.util.function.Function;
 import com.google.common.base.Strings;
 
 import hoshisugi.rukoru.flamework.annotations.FXController;
-import hoshisugi.rukoru.flamework.controls.ControllerBase;
+import hoshisugi.rukoru.flamework.controls.BaseController;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuItem;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -22,7 +23,7 @@ import javafx.stage.Window;
 
 public class FXUtil {
 
-	public static URL getURL(final Class<? extends ControllerBase> controller) throws FileNotFoundException {
+	public static URL getURL(final Class<? extends BaseController> controller) throws FileNotFoundException {
 		String viewName = getViewName(controller);
 		if (viewName == null) {
 			viewName = getFXMLName(controller);
@@ -38,6 +39,9 @@ public class FXUtil {
 		final Object source = event.getSource();
 		if (source instanceof Node) {
 			return getStage((Node) source);
+		} else if (source instanceof MenuItem) {
+			final MenuItem item = (MenuItem) source;
+			return getStage(item.getStyleableNode());
 		}
 		return null;
 	}
@@ -53,7 +57,7 @@ public class FXUtil {
 		return (Stage) scene.getWindow();
 	}
 
-	public static <C extends ControllerBase> C popup(final Class<C> controller, final Window owner) {
+	public static <C extends BaseController> C popup(final Class<C> controller, final Window owner) {
 		try {
 			final FXMLLoader fxmlLoader = new FXMLLoader(getURL(controller));
 			final Parent parent = fxmlLoader.load();
@@ -72,7 +76,7 @@ public class FXUtil {
 		}
 	}
 
-	private static String getAnnotatedValue(final Class<? extends ControllerBase> controller,
+	private static String getAnnotatedValue(final Class<? extends BaseController> controller,
 			final Function<FXController, String> function) {
 		final FXController annotation = controller.getAnnotation(FXController.class);
 		if (annotation == null) {
@@ -81,15 +85,15 @@ public class FXUtil {
 		return Strings.emptyToNull(function.apply(annotation));
 	}
 
-	private static String getViewName(final Class<? extends ControllerBase> controller) {
+	private static String getViewName(final Class<? extends BaseController> controller) {
 		return getAnnotatedValue(controller, FXController::fxml);
 	}
 
-	public static String getTitle(final Class<? extends ControllerBase> controller) {
+	public static String getTitle(final Class<? extends BaseController> controller) {
 		return getAnnotatedValue(controller, FXController::title);
 	}
 
-	private static String getFXMLName(final Class<? extends ControllerBase> controller) {
+	private static String getFXMLName(final Class<? extends BaseController> controller) {
 		final String controllerClassName = controller.getSimpleName();
 		final String baseName = controllerClassName.replace("Controller", "View");
 		return baseName + ".fxml";

@@ -4,9 +4,9 @@ import hoshisugi.rukoru.flamework.inject.Injectable;
 import hoshisugi.rukoru.flamework.inject.Injector;
 import javafx.fxml.Initializable;
 
-public abstract class ControllerBase implements Initializable, Injectable {
+public abstract class BaseController implements Initializable, Injectable {
 
-	public ControllerBase() {
+	public BaseController() {
 		Injector.regist(this);
 		Injector.injectMembers(this);
 	}

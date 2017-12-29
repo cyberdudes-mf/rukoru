@@ -26,7 +26,7 @@
           </Menu>
             <Menu mnemonicParsing="false" text="Settings">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#onLoginSetting" text="Login setting" />
+                <MenuItem mnemonicParsing="false" onAction="#onAuthSetting" text="認証設定" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">
