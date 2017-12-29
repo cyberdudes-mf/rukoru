@@ -1,111 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
-	<classpathentry output="bin/main" kind="src" path="src/main/java">
-		<attributes>
-			<attribute name="gradle_scope" value="main"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry output="bin/main" kind="src" path="src/main/resources">
-		<attributes>
-			<attribute name="gradle_scope" value="main"/>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry output="bin/test" kind="src" path="src/test/java">
-		<attributes>
-			<attribute name="gradle_scope" value="test"/>
-			<attribute name="gradle_used_by_scope" value="test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry output="bin/test" kind="src" path="src/test/resources">
-		<attributes>
-			<attribute name="gradle_scope" value="test"/>
-			<attribute name="gradle_used_by_scope" value="test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry path="bin/default" kind="output"/>
+	<classpathentry path="bin" kind="output"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-9/"/>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/com.google.inject/guice/4.1.0/3f43f7c8743238f310246cfb13ba3e2e1aca6655/guice-4.1.0-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/com.google.inject/guice/4.1.0/eeb69005da379a10071aa4948c48d89250febb07/guice-4.1.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/23.5-jre/15197b545201df091b1170f83d9b2e52ff8932d1/guava-23.5-jre-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/23.5-jre/e9ce4989adf6092a3dab6152860e93d989e8cf88/guava-23.5-jre.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/1.3.9/40719ea6961c0cb6afaeb6a921eaa1f6afd4cfdf/jsr305-1.3.9.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-qual/2.0.0/eb7f7d588d0aef07a2c89178053c2a9e4613947f/checker-qual-2.0.0-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-qual/2.0.0/518929596ee3249127502a8573b2e008e2d51ed3/checker-qual-2.0.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/com.google.errorprone/error_prone_annotations/2.0.18/220c1232fa6d13b427c10ccc1243a87f5f501d31/error_prone_annotations-2.0.18-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/com.google.errorprone/error_prone_annotations/2.0.18/5f65affce1684999e2f4024983835efc3504012e/error_prone_annotations-2.0.18.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/com.google.j2objc/j2objc-annotations/1.1/1efdf5b737b02f9b72ebdec4f72c37ec411302ff/j2objc-annotations-1.1-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/com.google.j2objc/j2objc-annotations/1.1/ed28ded51a8b1c6b112568def5f4b455e6809019/j2objc-annotations-1.1.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.codehaus.mojo/animal-sniffer-annotations/1.14/886474da3f761d39fcbb723d97ecc5089e731f42/animal-sniffer-annotations-1.14-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.codehaus.mojo/animal-sniffer-annotations/1.14/775b7e22fb10026eed3f86e8dc556dfafe35f2d5/animal-sniffer-annotations-1.14.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/a00123f261762a7c5e0ec916a2c7c8298d29c400/javax.inject-1-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/6975da39a7040257bd51d21a231b76c915872d38/javax.inject-1.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/aopalliance/aopalliance/1.0/4a4b6d692e17846a9f3da036438a7ac491d3c814/aopalliance-1.0-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/aopalliance/aopalliance/1.0/235ba8b489512805ac13a8f9ea77a1ca5ebe3e8/aopalliance-1.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-all/1.3/47e033b7ab18c5dbd5fe29fc1bd5a40afe028818/hamcrest-all-1.3-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-all/1.3/63a21ebc981131004ad02e0434e799fd7f3a8d5a/hamcrest-all-1.3.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/5.0.0/fadbe39cb1fd01b65e5114b0e0d140af0621a8ac/junit-jupiter-api-5.0.0-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/5.0.0/f7fe1b74bef74d640493781abecafba191472ad/junit-jupiter-api-5.0.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.0.0/f7fd22e27780bed489d6442ec00e8fdee9b03d99/junit-platform-commons-1.0.0-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.0.0/d2e03d9b21020746d48fe45834ff7d71fbcbd7b2/junit-platform-commons-1.0.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.apiguardian/apiguardian-api/1.0.0/777508fa9f3e03cafb3c1fb2eba3dca317f4b1ee/apiguardian-api-1.0.0-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.apiguardian/apiguardian-api/1.0.0/3ef5276905e36f4d8055fe3cb0bdcc7503ffc85d/apiguardian-api-1.0.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.0.0/a67ba0f50d97fa616f2470c5a48eb7f9eb38391c/opentest4j-1.0.0-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.0.0/6f09c598e9ff64bf0ce2fa7e7de49a99ba83c0b4/opentest4j-1.0.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/5.0.0/4c6857961c360e817cb92c51ca8c35dc84042604/junit-jupiter-engine-5.0.0-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/5.0.0/811b65ec5a499732868f76c1d2a6f5786774ff82/junit-jupiter-engine-5.0.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/1.0.0/8d52c2241a39a19406c25aa21303c5f7ddc3b018/junit-platform-engine-1.0.0-sources.jar" kind="lib" path="C:/Users/willard379/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/1.0.0/fdc6f63a689b894529ea5e9e218b65422748fd/junit-platform-engine-1.0.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="test"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/com.google.inject/guice/4.1.0/3f43f7c8743238f310246cfb13ba3e2e1aca6655/guice-4.1.0-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/com.google.inject/guice/4.1.0/eeb69005da379a10071aa4948c48d89250febb07/guice-4.1.0.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/23.5-jre/15197b545201df091b1170f83d9b2e52ff8932d1/guava-23.5-jre-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/23.5-jre/e9ce4989adf6092a3dab6152860e93d989e8cf88/guava-23.5-jre.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/1.3.9/40719ea6961c0cb6afaeb6a921eaa1f6afd4cfdf/jsr305-1.3.9.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-qual/2.0.0/eb7f7d588d0aef07a2c89178053c2a9e4613947f/checker-qual-2.0.0-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-qual/2.0.0/518929596ee3249127502a8573b2e008e2d51ed3/checker-qual-2.0.0.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/com.google.errorprone/error_prone_annotations/2.0.18/220c1232fa6d13b427c10ccc1243a87f5f501d31/error_prone_annotations-2.0.18-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/com.google.errorprone/error_prone_annotations/2.0.18/5f65affce1684999e2f4024983835efc3504012e/error_prone_annotations-2.0.18.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/com.google.j2objc/j2objc-annotations/1.1/1efdf5b737b02f9b72ebdec4f72c37ec411302ff/j2objc-annotations-1.1-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/com.google.j2objc/j2objc-annotations/1.1/ed28ded51a8b1c6b112568def5f4b455e6809019/j2objc-annotations-1.1.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.codehaus.mojo/animal-sniffer-annotations/1.14/886474da3f761d39fcbb723d97ecc5089e731f42/animal-sniffer-annotations-1.14-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.codehaus.mojo/animal-sniffer-annotations/1.14/775b7e22fb10026eed3f86e8dc556dfafe35f2d5/animal-sniffer-annotations-1.14.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/a00123f261762a7c5e0ec916a2c7c8298d29c400/javax.inject-1-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/6975da39a7040257bd51d21a231b76c915872d38/javax.inject-1.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/aopalliance/aopalliance/1.0/4a4b6d692e17846a9f3da036438a7ac491d3c814/aopalliance-1.0-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/aopalliance/aopalliance/1.0/235ba8b489512805ac13a8f9ea77a1ca5ebe3e8/aopalliance-1.0.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-all/1.3/47e033b7ab18c5dbd5fe29fc1bd5a40afe028818/hamcrest-all-1.3-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-all/1.3/63a21ebc981131004ad02e0434e799fd7f3a8d5a/hamcrest-all-1.3.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/5.0.0/fadbe39cb1fd01b65e5114b0e0d140af0621a8ac/junit-jupiter-api-5.0.0-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/5.0.0/f7fe1b74bef74d640493781abecafba191472ad/junit-jupiter-api-5.0.0.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.0.0/f7fd22e27780bed489d6442ec00e8fdee9b03d99/junit-platform-commons-1.0.0-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.0.0/d2e03d9b21020746d48fe45834ff7d71fbcbd7b2/junit-platform-commons-1.0.0.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.apiguardian/apiguardian-api/1.0.0/777508fa9f3e03cafb3c1fb2eba3dca317f4b1ee/apiguardian-api-1.0.0-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.apiguardian/apiguardian-api/1.0.0/3ef5276905e36f4d8055fe3cb0bdcc7503ffc85d/apiguardian-api-1.0.0.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.0.0/a67ba0f50d97fa616f2470c5a48eb7f9eb38391c/opentest4j-1.0.0-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.0.0/6f09c598e9ff64bf0ce2fa7e7de49a99ba83c0b4/opentest4j-1.0.0.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/5.0.0/4c6857961c360e817cb92c51ca8c35dc84042604/junit-jupiter-engine-5.0.0-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/5.0.0/811b65ec5a499732868f76c1d2a6f5786774ff82/junit-jupiter-engine-5.0.0.jar"/>
+	<classpathentry sourcepath="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/1.0.0/8d52c2241a39a19406c25aa21303c5f7ddc3b018/junit-platform-engine-1.0.0-sources.jar" kind="lib" path="C:/Users/Willard379/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/1.0.0/fdc6f63a689b894529ea5e9e218b65422748fd/junit-platform-engine-1.0.0.jar"/>
 </classpath>

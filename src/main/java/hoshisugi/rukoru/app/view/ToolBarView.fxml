@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.ToolBarController">
+   <children>
+      <Button fx:id="mcButton" alignment="TOP_LEFT" minWidth="100.0" mnemonicParsing="false" onAction="#onMCButtonClicked" text="マネコン" />
+      <ToggleButton fx:id="ec2Button" alignment="TOP_LEFT" minWidth="100.0" mnemonicParsing="false" text="EC2">
+         <toggleGroup>
+            <ToggleGroup fx:id="toolBar" />
+         </toggleGroup>
+      </ToggleButton>
+      <ToggleButton fx:id="s3Button" alignment="TOP_LEFT" minWidth="100.0" mnemonicParsing="false" text="S3" toggleGroup="$toolBar" />
+   </children>
+</VBox>
