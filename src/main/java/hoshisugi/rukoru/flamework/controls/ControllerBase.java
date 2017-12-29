@@ -7,6 +7,7 @@ import javafx.fxml.Initializable;
 public abstract class ControllerBase implements Initializable, Injectable {
 
 	public ControllerBase() {
+		Injector.regist(this);
 		Injector.injectMembers(this);
 	}
 

@@ -38,7 +38,11 @@ public class AssetUtil {
 		return getURI("assets/data", resourceName);
 	}
 
-	public static Image getImage(final String img) throws FileNotFoundException {
+	public static Image getImage(final String img, final double width, final double height) {
+		return new Image(getAssetPath(img), width, height, false, false);
+	}
+
+	public static Image getImage(final String img) {
 		return new Image(getAssetPath(img));
 	}
 
