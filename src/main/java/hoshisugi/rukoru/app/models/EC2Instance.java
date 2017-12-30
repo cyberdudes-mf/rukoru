@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Tag;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -17,12 +19,13 @@ public class EC2Instance implements Serializable {
 
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
+	private final StringProperty instanceId = new SimpleStringProperty(this, "instanceId");
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 	private final StringProperty instanceType = new SimpleStringProperty(this, "instanceType");
 	private final StringProperty state = new SimpleStringProperty(this, "state");
 	private final StringProperty publicIpAddress = new SimpleStringProperty(this, "publicIpAddress");
 	private final StringProperty launchTime = new SimpleStringProperty(this, "launchTime");
-	private final StringProperty autoStop = new SimpleStringProperty(this, "autoStop");
+	private final BooleanProperty autoStop = new SimpleBooleanProperty(this, "autoStop");
 
 	public EC2Instance() {
 	}
@@ -30,14 +33,23 @@ public class EC2Instance implements Serializable {
 	public EC2Instance(final Instance instance) {
 		final Map<String, String> tags = instance.getTags().stream()
 				.collect(Collectors.toMap(Tag::getKey, Tag::getValue));
+		setInstanceId(instance.getInstanceId());
 		setName(tags.get("Name"));
-		setAutoStop(tags.get("AutoStop"));
+		setAutoStop(Boolean.parseBoolean(tags.get("AutoStop")));
 		setInstanceType(instance.getInstanceType());
-		setIpAddress(instance.getPublicIpAddress());
+		setPublicIpAddress(instance.getPublicIpAddress());
 		final LocalDateTime dateTime = LocalDateTime.ofInstant(instance.getLaunchTime().toInstant(),
 				ZoneId.systemDefault());
 		setLaunchTime(formatter.format(dateTime));
 		setState(instance.getState().getName());
+	}
+
+	public String getInstanceId() {
+		return instanceId.get();
+	}
+
+	public void setInstanceId(final String instanceId) {
+		this.instanceId.set(instanceId);
 	}
 
 	public String getName() {
@@ -64,11 +76,11 @@ public class EC2Instance implements Serializable {
 		this.state.set(state);
 	}
 
-	public String getIpAddress() {
+	public String getPublicIpAddress() {
 		return publicIpAddress.get();
 	}
 
-	public void setIpAddress(final String publicIpAddress) {
+	public void setPublicIpAddress(final String publicIpAddress) {
 		this.publicIpAddress.set(publicIpAddress);
 	}
 
@@ -80,12 +92,16 @@ public class EC2Instance implements Serializable {
 		this.launchTime.set(launchTime);
 	}
 
-	public String getAutoStop() {
+	public Boolean getAutoStop() {
 		return autoStop.get();
 	}
 
-	public void setAutoStop(final String autoStop) {
+	public void setAutoStop(final Boolean autoStop) {
 		this.autoStop.set(autoStop);
+	}
+
+	public StringProperty instanceIdProperty() {
+		return instanceId;
 	}
 
 	public StringProperty nameProperty() {
@@ -108,7 +124,7 @@ public class EC2Instance implements Serializable {
 		return launchTime;
 	}
 
-	public StringProperty autoStopProperty() {
+	public BooleanProperty autoStopProperty() {
 		return autoStop;
 	}
 

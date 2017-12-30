@@ -1,1 +1,12 @@
 /* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+.running {
+  -fx-text-fill: #008000;
+}
+
+.stopped {
+  -fx-text-fill: #8B0000;
+}
+
+.pending {
+  -fx-text-fill: #B8860B;
+}

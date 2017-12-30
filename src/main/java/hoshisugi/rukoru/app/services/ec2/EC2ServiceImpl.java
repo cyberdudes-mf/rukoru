@@ -3,6 +3,7 @@ package hoshisugi.rukoru.app.services.ec2;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -10,11 +11,13 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
+import com.amazonaws.services.ec2.model.CreateTagsRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.Tag;
 
 import hoshisugi.rukoru.app.models.AMI;
 import hoshisugi.rukoru.app.models.AuthSetting;
@@ -48,6 +51,15 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 				.withCredentials(new AWSStaticCredentialsProvider(
 						new BasicAWSCredentials(authSetting.getAccessKeyId(), authSetting.getSecretAccessKey())))
 				.withRegion(Regions.AP_NORTHEAST_1).build();
+	}
+
+	@Override
+	public void updateTags(final AuthSetting authSetting, final EC2Instance instance, final Map<String, String> tags) {
+		final AmazonEC2 client = createClient(authSetting);
+		final List<Tag> newTags = tags.entrySet().stream().map(e -> new Tag(e.getKey(), e.getValue()))
+				.collect(Collectors.toList());
+		final CreateTagsRequest request = new CreateTagsRequest(Arrays.asList(instance.getInstanceId()), newTags);
+		client.createTags(request);
 	}
 
 }

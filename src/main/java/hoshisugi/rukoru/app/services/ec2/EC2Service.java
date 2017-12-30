@@ -1,6 +1,7 @@
 package hoshisugi.rukoru.app.services.ec2;
 
 import java.util.List;
+import java.util.Map;
 
 import hoshisugi.rukoru.app.models.AMI;
 import hoshisugi.rukoru.app.models.AuthSetting;
@@ -11,4 +12,6 @@ public interface EC2Service {
 	List<EC2Instance> listInstances(AuthSetting authSetting);
 
 	List<AMI> listImages(AuthSetting authSetting);
+
+	void updateTags(AuthSetting authSetting, EC2Instance instance, Map<String, String> tags);
 }
