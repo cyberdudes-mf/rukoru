@@ -1,13 +1,55 @@
 package hoshisugi.rukoru.app.services;
 
+import static hoshisugi.rukoru.flamework.util.AssetUtil.loadSQL;
+
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+
+import com.google.inject.Inject;
+
+import hoshisugi.rukoru.flamework.database.Database;
 import hoshisugi.rukoru.flamework.services.BaseService;
 
 public class AuthServiceImpl extends BaseService implements AuthService {
 
-	@Override
-	public void save(final String account, final String userName, final String password) {
-		// TODO Auto-generated method stub
+	@Inject
+	private Database database;
 
+	public AuthServiceImpl() {
+		super();
+	}
+
+	@Override
+	public void save(final AuthSetting entity) throws SQLException {
+		if (!database.exists("AUTH_SETTINGS")) {
+			database.executeUpdate(loadSQL("create_auth_settings.sql"));
+		}
+		if (entity.getId() == null) {
+			if (load().isPresent()) {
+				throw new IllegalStateException("Record has been updated from other thread.");
+			}
+			database.executeUpdate(loadSQL("insert_auth_settings.sql"), entity.getAccount(), entity.getAccessKeyId(),
+					entity.getSecretAccessKey());
+		} else {
+			final int result = database.executeUpdate(loadSQL("update_auth_settings.sql"), entity.getAccount(),
+					entity.getAccessKeyId(), entity.getSecretAccessKey(), entity.getId(), entity.getUpdatedAt());
+			if (result == 0) {
+				throw new IllegalStateException("Record has been updated from other thread.");
+			}
+		}
+	}
+
+	@Override
+	public Optional<AuthSetting> load() throws SQLException {
+		if (!database.exists("AUTH_SETTINGS")) {
+			return Optional.empty();
+		}
+		final List<AuthSetting> results = database.executeQuery(AuthSetting::new, loadSQL("select_auth_settings.sql"));
+		if (results.isEmpty()) {
+			return Optional.empty();
+		}
+		return Optional.of(results.get(0));
 	}
 
 }

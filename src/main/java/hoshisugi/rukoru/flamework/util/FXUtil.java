@@ -57,6 +57,10 @@ public class FXUtil {
 		return (Stage) scene.getWindow();
 	}
 
+	public static Stage getStage() {
+		return Window.getWindows().stream().filter(Stage.class::isInstance).map(Stage.class::cast).findFirst().get();
+	}
+
 	public static <C extends BaseController> C popup(final Class<C> controller, final Window owner) {
 		try {
 			final FXMLLoader fxmlLoader = new FXMLLoader(getURL(controller));

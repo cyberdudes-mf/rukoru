@@ -12,8 +12,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.stage.Window;
 
 @FXController(title = "星杉☆るこる")
 public class MainController extends BaseController {
@@ -37,8 +35,6 @@ public class MainController extends BaseController {
 
 	@FXML
 	private void onAuthSetting(final ActionEvent event) throws Exception {
-		final MenuItem item = (MenuItem) event.getSource();
-		final Window window = item.getStyleableNode().getScene().getWindow();
-		FXUtil.popup(AuthSettingController.class, window);
+		FXUtil.popup(AuthSettingController.class, FXUtil.getStage());
 	}
 }

@@ -1,18 +1,22 @@
 package hoshisugi.rukoru.flamework.database;
 
+import static hoshisugi.rukoru.flamework.util.AssetUtil.loadSQL;
+
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-import hoshisugi.rukoru.flamework.inject.Injectable;
-
-public class DatabaseImpl implements Database, Injectable {
+public class DatabaseImpl implements Database {
 
 	static {
 		try {
@@ -23,10 +27,33 @@ public class DatabaseImpl implements Database, Injectable {
 	}
 
 	@Override
-	public int executeUpdate(final String sql) throws SQLException {
+	public <T> List<T> executeQuery(final Function<ResultSet, T> generator, final String sql, final Object... params)
+			throws SQLException {
+		final ArrayList<T> result = new ArrayList<>();
 		try (final Connection conn = DriverManager.getConnection(getJdbcUrl(), "sa", "")) {
-			final Statement stmt = conn.createStatement();
-			return stmt.executeUpdate(sql);
+			try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+				for (int i = 0; i < params.length; i++) {
+					stmt.setObject(i + 1, params[i]);
+				}
+				try (ResultSet rs = stmt.executeQuery()) {
+					while (rs.next()) {
+						result.add(generator.apply(rs));
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public int executeUpdate(final String sql, final Object... params) throws SQLException {
+		try (final Connection conn = DriverManager.getConnection(getJdbcUrl(), "sa", "")) {
+			try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+				for (int i = 0; i < params.length; i++) {
+					stmt.setObject(i + 1, params[i]);
+				}
+				return stmt.executeUpdate();
+			}
 		}
 	}
 
@@ -37,6 +64,19 @@ public class DatabaseImpl implements Database, Injectable {
 			return String.format("jdbc:h2:%s", databasePath);
 		} catch (final URISyntaxException e) {
 			throw new UncheckedExecutionException(e);
+		}
+	}
+
+	@Override
+	public boolean exists(final String tableName) throws SQLException {
+		return executeQuery(this::toBoolean, loadSQL("select_table_exist.sql"), tableName).get(0);
+	}
+
+	private Boolean toBoolean(final ResultSet rs) {
+		try {
+			return Boolean.valueOf(rs.getBoolean("result"));
+		} catch (final SQLException e) {
+			return Boolean.FALSE;
 		}
 	}
 }

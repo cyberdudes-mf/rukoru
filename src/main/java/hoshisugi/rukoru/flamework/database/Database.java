@@ -1,8 +1,17 @@
 package hoshisugi.rukoru.flamework.database;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.function.Function;
 
-public interface Database {
+import hoshisugi.rukoru.flamework.inject.Injectable;
 
-	int executeUpdate(String sql) throws SQLException;
+public interface Database extends Injectable {
+
+	int executeUpdate(String sql, Object... params) throws SQLException;
+
+	<T> List<T> executeQuery(Function<ResultSet, T> generator, String sql, Object... params) throws SQLException;
+
+	boolean exists(String tableName) throws SQLException;
 }

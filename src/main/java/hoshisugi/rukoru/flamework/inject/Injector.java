@@ -14,7 +14,7 @@ public class Injector {
 	}
 
 	private Injector(final ModuleConfigurator configurator) {
-		injector = Guice.createInjector(configurator);
+		injector = Guice.createInjector(new BasicModuleConfigurator(), configurator);
 		this.configurator = configurator;
 	}
 
