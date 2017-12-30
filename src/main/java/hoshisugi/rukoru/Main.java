@@ -4,6 +4,7 @@ import hoshisugi.rukoru.app.inject.RukoruModuleConfigurator;
 import hoshisugi.rukoru.app.view.MainController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.inject.Injector;
+import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.Assets;
 import hoshisugi.rukoru.flamework.util.FXUtil;
 import javafx.application.Application;
@@ -25,6 +26,7 @@ public class Main extends Application {
 			scene.getStylesheets().add(Assets.APPLICATION_CSS);
 			primaryStage.setScene(scene);
 			primaryStage.setTitle(FXUtil.getTitle(controllerClass));
+			primaryStage.getIcons().add(AssetUtil.getImage("icon.png"));
 			primaryStage.show();
 		} catch (final Exception e) {
 			e.printStackTrace();

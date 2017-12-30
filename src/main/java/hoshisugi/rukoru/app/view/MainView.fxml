@@ -43,7 +43,7 @@
       </MenuBar>
    </top>
    <center>
-      <fx:include source="ConsoleView.fxml" />
+      <fx:include source="ContentView.fxml" />
    </center>
    <left>
       <fx:include source="ToolBarView.fxml" />

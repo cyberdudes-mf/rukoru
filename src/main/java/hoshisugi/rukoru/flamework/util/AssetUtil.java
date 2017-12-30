@@ -37,7 +37,7 @@ public class AssetUtil {
 	}
 
 	public static Image getImage(final String img, final double width, final double height) {
-		return new Image(getAssetPath(img), width, height, false, false);
+		return new Image(getAssetPath(img), width, height, false, true);
 	}
 
 	public static Image getImage(final String img) {

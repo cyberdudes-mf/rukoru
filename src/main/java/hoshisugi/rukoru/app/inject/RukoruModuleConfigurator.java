@@ -4,7 +4,7 @@ import com.google.inject.Singleton;
 
 import hoshisugi.rukoru.app.services.AuthService;
 import hoshisugi.rukoru.app.services.AuthServiceImpl;
-import hoshisugi.rukoru.app.view.ConsoleController;
+import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.app.view.MainController;
 import hoshisugi.rukoru.app.view.ToolBarController;
 import hoshisugi.rukoru.flamework.inject.ModuleConfigurator;
@@ -19,7 +19,7 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 
 	private void configureControllers() {
 		provide(MainController.class);
-		provide(ConsoleController.class);
+		provide(ContentController.class);
 		provide(ToolBarController.class);
 	}
 

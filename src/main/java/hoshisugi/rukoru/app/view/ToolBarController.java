@@ -8,14 +8,20 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.services.AuthService;
 import hoshisugi.rukoru.app.services.AuthSetting;
+import hoshisugi.rukoru.app.view.content.EC2ContentController;
+import hoshisugi.rukoru.app.view.content.RepositoryDBContentController;
+import hoshisugi.rukoru.app.view.content.S3ContentController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.BrowserUtil;
 import hoshisugi.rukoru.flamework.util.DialogUtil;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
 
 public class ToolBarController extends BaseController {
@@ -27,16 +33,27 @@ public class ToolBarController extends BaseController {
 	private ToggleButton ec2Button;
 
 	@FXML
+	private ToggleButton repositoryDBButton;
+
+	@FXML
 	private ToggleButton s3Button;
+
+	@FXML
+	private ToggleGroup toolBar;
 
 	@Inject
 	private AuthService authService;
 
+	@Inject
+	private ContentController contentController;
+
 	@Override
 	public void initialize(final URL arg0, final ResourceBundle arg1) {
-		mcButton.setGraphic(new ImageView(AssetUtil.getImage("MC.png", 30, 30)));
-		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("EC2.png", 30, 30)));
-		s3Button.setGraphic(new ImageView(AssetUtil.getImage("S3.png", 30, 30)));
+		mcButton.setGraphic(new ImageView(AssetUtil.getImage("MC.png", 25, 25)));
+		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("EC2.png", 25, 25)));
+		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("DB.png", 25, 25)));
+		s3Button.setGraphic(new ImageView(AssetUtil.getImage("S3.png", 25, 25)));
+		toolBar.selectedToggleProperty().addListener(this::toolBarSelectionChanged);
 	}
 
 	@FXML
@@ -47,6 +64,28 @@ public class ToolBarController extends BaseController {
 					.browse(String.format("https://%s.signin.aws.amazon.com/console", authSetting.get().getAccount()));
 		} else {
 			DialogUtil.showWarningDialog("ムリ", "先に認証情報を設定してくれないと URL が分からないす。。。\n[メニュー] - [Settings] - [認証設定]");
+		}
+	}
+
+	@FXML
+	private void onEC2ButtonClick(final ActionEvent event) {
+		contentController.showContent(EC2ContentController.class);
+	}
+
+	@FXML
+	private void onS3ButtonCLick(final ActionEvent event) {
+		contentController.showContent(S3ContentController.class);
+	}
+
+	@FXML
+	private void onRepositoryDBButtonCLick(final ActionEvent event) {
+		contentController.showContent(RepositoryDBContentController.class);
+	}
+
+	private void toolBarSelectionChanged(final ObservableValue<? extends Toggle> observable, final Toggle oldValue,
+			final Toggle newValue) {
+		if (newValue == null) {
+			toolBar.selectToggle(oldValue);
 		}
 	}
 }
