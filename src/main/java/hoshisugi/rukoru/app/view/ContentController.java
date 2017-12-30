@@ -11,8 +11,8 @@ import hoshisugi.rukoru.app.view.content.EC2ContentController;
 import hoshisugi.rukoru.app.view.content.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.content.S3ContentController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
+import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
 import hoshisugi.rukoru.flamework.util.FXUtil;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -27,7 +27,7 @@ public class ContentController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		Platform.runLater(() -> {
+		ConcurrentUtil.run(() -> {
 			loadContent(EC2ContentController.class);
 			loadContent(RepositoryDBContentController.class);
 			loadContent(S3ContentController.class);
@@ -36,7 +36,12 @@ public class ContentController extends BaseController {
 
 	public void showContent(final Class<? extends BaseController> controller) {
 		layoutRoot.getChildren().clear();
-		layoutRoot.getChildren().add(contents.get(controller));
+		final Parent parent = contents.get(controller);
+		layoutRoot.getChildren().add(parent);
+		AnchorPane.setTopAnchor(parent, 0.0);
+		AnchorPane.setLeftAnchor(parent, 0.0);
+		AnchorPane.setRightAnchor(parent, 0.0);
+		AnchorPane.setBottomAnchor(parent, 0.0);
 	}
 
 	private void loadContent(final Class<? extends BaseController> controller) {

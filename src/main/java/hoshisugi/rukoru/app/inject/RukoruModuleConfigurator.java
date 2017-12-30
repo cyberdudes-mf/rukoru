@@ -2,8 +2,10 @@ package hoshisugi.rukoru.app.inject;
 
 import com.google.inject.Singleton;
 
-import hoshisugi.rukoru.app.services.AuthService;
-import hoshisugi.rukoru.app.services.AuthServiceImpl;
+import hoshisugi.rukoru.app.services.auth.AuthService;
+import hoshisugi.rukoru.app.services.auth.AuthServiceImpl;
+import hoshisugi.rukoru.app.services.ec2.EC2Service;
+import hoshisugi.rukoru.app.services.ec2.EC2ServiceImpl;
 import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.app.view.MainController;
 import hoshisugi.rukoru.app.view.ToolBarController;
@@ -25,5 +27,6 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 
 	private void configureServices() {
 		bind(AuthService.class).toProvider(() -> new AuthServiceImpl()).in(Singleton.class);
+		bind(EC2Service.class).toProvider(() -> new EC2ServiceImpl()).in(Singleton.class);
 	}
 }

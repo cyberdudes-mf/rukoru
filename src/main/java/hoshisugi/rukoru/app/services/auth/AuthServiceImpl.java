@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.app.services;
+package hoshisugi.rukoru.app.services.auth;
 
 import static hoshisugi.rukoru.flamework.util.AssetUtil.loadSQL;
 
@@ -6,8 +6,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.inject.Inject;
 
+import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.flamework.database.Database;
 import hoshisugi.rukoru.flamework.services.BaseService;
 
@@ -41,15 +43,20 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 	}
 
 	@Override
-	public Optional<AuthSetting> load() throws SQLException {
-		if (!database.exists("AUTH_SETTINGS")) {
-			return Optional.empty();
+	public Optional<AuthSetting> load() {
+		try {
+			if (!database.exists("AUTH_SETTINGS")) {
+				return Optional.empty();
+			}
+			final List<AuthSetting> results = database.executeQuery(AuthSetting::new,
+					loadSQL("select_auth_settings.sql"));
+			if (results.isEmpty()) {
+				return Optional.empty();
+			}
+			return Optional.of(results.get(0));
+		} catch (final SQLException e) {
+			throw new UncheckedExecutionException(e);
 		}
-		final List<AuthSetting> results = database.executeQuery(AuthSetting::new, loadSQL("select_auth_settings.sql"));
-		if (results.isEmpty()) {
-			return Optional.empty();
-		}
-		return Optional.of(results.get(0));
 	}
 
 }

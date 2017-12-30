@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.VBox?>
 
-
-<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/9.0.1">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.content.EC2ContentController">
    <children>
-      <Label text="EC2" />
+      <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="インスタンス">
+            <content>
+              <fx:include source="EC2InstanceTabView.fxml" />
+            </content>
+          </Tab>
+          <Tab text="AMI">
+            <content>
+              <fx:include source="AMITabView.fxml" />
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
    </children>
 </VBox>

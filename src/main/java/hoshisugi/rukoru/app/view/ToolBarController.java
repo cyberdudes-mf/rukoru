@@ -6,8 +6,8 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.services.AuthService;
-import hoshisugi.rukoru.app.services.AuthSetting;
+import hoshisugi.rukoru.app.models.AuthSetting;
+import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.view.content.EC2ContentController;
 import hoshisugi.rukoru.app.view.content.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.content.S3ContentController;

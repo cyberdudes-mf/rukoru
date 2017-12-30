@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.content.EC2InstanceTabController">
+	<children>
+		<TableView fx:id="tableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+			<columns>
+				<TableColumn fx:id="nameColumn" maxWidth="1.7976931348623157E308" minWidth="250.0" prefWidth="250.0" text="Name">
+					<cellValueFactory>
+						<PropertyValueFactory property="name" />
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn fx:id="instanceTypeColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="100.0" text="インスタンスタイプ">
+					<cellValueFactory>
+						<PropertyValueFactory property="instanceType" />
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn fx:id="stateColumn" maxWidth="1.7976931348623157E308" minWidth="70.0" prefWidth="70.0" text="状態">
+					<cellValueFactory>
+						<PropertyValueFactory property="state" />
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn fx:id="publicIpAddressColumn" maxWidth="1.7976931348623157E308" minWidth="120.0" prefWidth="120.0" text="IPアドレス">
+					<cellValueFactory>
+						<PropertyValueFactory property="publicIpAddress" />
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn fx:id="operationColumn" maxWidth="1.7976931348623157E308" minWidth="70.0" prefWidth="70.0" text="操作">
+				</TableColumn>
+				<TableColumn fx:id="launchTimeColumn" maxWidth="1.7976931348623157E308" minWidth="200.0" prefWidth="200.0" text="起動時刻">
+					<cellValueFactory>
+						<PropertyValueFactory property="launchTime" />
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn fx:id="autoStopColumn" maxWidth="1.7976931348623157E308" minWidth="70.0" prefWidth="70.0" text="自動停止">
+					<cellValueFactory>
+						<PropertyValueFactory property="autoStop" />
+					</cellValueFactory>
+				</TableColumn>
+			</columns>
+		</TableView>
+	</children>
+</AnchorPane>

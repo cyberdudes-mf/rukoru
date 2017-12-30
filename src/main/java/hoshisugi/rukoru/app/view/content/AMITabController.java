@@ -5,10 +5,12 @@ import java.util.ResourceBundle;
 
 import hoshisugi.rukoru.flamework.controls.BaseController;
 
-public class EC2ContentController extends BaseController {
+public class AMITabController extends BaseController {
 
 	@Override
-	public void initialize(final URL url, final ResourceBundle resource) {
+	public void initialize(URL arg0, ResourceBundle arg1) {
+		// TODO Auto-generated method stub
+
 	}
 
 }
