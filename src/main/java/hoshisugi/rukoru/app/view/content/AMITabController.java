@@ -47,7 +47,7 @@ public class AMITabController extends BaseController {
 	private void loadImages() {
 		final Optional<AuthSetting> optional = authService.load();
 		if (optional.isPresent()) {
-			final AuthSetting authSetting = authService.load().get();
+			final AuthSetting authSetting = optional.get();
 			final List<AMI> images = ec2Service.listImages(authSetting);
 			Platform.runLater(() -> {
 				tableView.getItems().addAll(FXCollections.observableArrayList(images));

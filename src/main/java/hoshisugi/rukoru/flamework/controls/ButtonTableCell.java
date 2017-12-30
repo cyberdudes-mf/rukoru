@@ -25,14 +25,12 @@ public class ButtonTableCell<S> extends TableCell<S, String> {
 	@Override
 	protected void updateItem(final String text, final boolean empty) {
 		super.updateItem(text, empty);
-		if (!empty) {
-			if (!Strings.isNullOrEmpty(text)) {
-				final Button button = new Button(text);
-				button.setOnAction(handler);
-				setGraphic(button);
-				button.setPrefWidth(getTableColumn().getWidth());
-
-			}
+		if (!empty && !Strings.isNullOrEmpty(text)) {
+			final Button button = new Button(text);
+			button.setOnAction(handler);
+			setGraphic(button);
+		} else {
+			setGraphic(null);
 		}
 	}
 

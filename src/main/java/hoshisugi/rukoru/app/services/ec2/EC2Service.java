@@ -14,4 +14,9 @@ public interface EC2Service {
 	List<AMI> listImages(AuthSetting authSetting);
 
 	void updateTags(AuthSetting authSetting, EC2Instance instance, Map<String, String> tags);
+
+	void startInstance(AuthSetting authSetting, EC2Instance instance);
+
+	void stopInstance(AuthSetting authSetting, EC2Instance instance);
+
 }

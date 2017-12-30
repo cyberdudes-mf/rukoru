@@ -17,12 +17,17 @@ import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.StartInstancesRequest;
+import com.amazonaws.services.ec2.model.StartInstancesResult;
+import com.amazonaws.services.ec2.model.StopInstancesRequest;
+import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.Tag;
 
 import hoshisugi.rukoru.app.models.AMI;
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.flamework.services.BaseService;
+import javafx.application.Platform;
 
 public class EC2ServiceImpl extends BaseService implements EC2Service {
 
@@ -62,4 +67,60 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 		client.createTags(request);
 	}
 
+	@Override
+	public void startInstance(final AuthSetting authSetting, final EC2Instance instance) {
+		final AmazonEC2 client = createClient(authSetting);
+		final StartInstancesRequest request = new StartInstancesRequest().withInstanceIds(instance.getInstanceId());
+		final StartInstancesResult result = client.startInstances(request);
+		Platform.runLater(() -> {
+			result.getStartingInstances().stream().filter(s -> s.getInstanceId().equals(instance.getInstanceId()))
+					.findFirst().ifPresent(s -> instance.setState(s.getCurrentState().getName()));
+		});
+		final DescribeInstancesRequest describeRequest = createDescribeRequestById(instance);
+		while (!instance.getState().equals("running")) {
+			final DescribeInstancesResult describeResult = client.describeInstances(describeRequest);
+			Platform.runLater(() -> {
+				describeResult.getReservations().stream().flatMap(r -> r.getInstances().stream())
+						.filter(i -> i.getInstanceId().equals(instance.getInstanceId())).findFirst().ifPresent(i -> {
+							instance.setState(i.getState().getName());
+							instance.setPublicIpAddress(i.getPublicIpAddress());
+						});
+			});
+			sleep(5000);
+		}
+	}
+
+	@Override
+	public void stopInstance(final AuthSetting authSetting, final EC2Instance instance) {
+		final AmazonEC2 client = createClient(authSetting);
+		final StopInstancesRequest request = new StopInstancesRequest().withInstanceIds(instance.getInstanceId());
+		final StopInstancesResult result = client.stopInstances(request);
+		Platform.runLater(() -> {
+			result.getStoppingInstances().stream().filter(s -> s.getInstanceId().equals(instance.getInstanceId()))
+					.findFirst().ifPresent(s -> instance.setState(s.getCurrentState().getName()));
+		});
+		final DescribeInstancesRequest describeRequest = createDescribeRequestById(instance);
+		while (!instance.getState().equals("stopped")) {
+			final DescribeInstancesResult describeResult = client.describeInstances(describeRequest);
+			Platform.runLater(() -> {
+				describeResult.getReservations().stream().flatMap(r -> r.getInstances().stream())
+						.filter(i -> i.getInstanceId().equals(instance.getInstanceId())).findFirst().ifPresent(i -> {
+							instance.setState(i.getState().getName());
+							instance.setPublicIpAddress(i.getPublicIpAddress());
+						});
+			});
+			sleep(5000);
+		}
+	}
+
+	private DescribeInstancesRequest createDescribeRequestById(final EC2Instance instance) {
+		return new DescribeInstancesRequest().withInstanceIds(instance.getInstanceId());
+	}
+
+	private void sleep(final int millis) {
+		try {
+			Thread.sleep(5000);
+		} catch (final InterruptedException e) {
+		}
+	}
 }

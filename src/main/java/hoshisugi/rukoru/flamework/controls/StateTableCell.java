@@ -13,6 +13,7 @@ public class StateTableCell<S> extends TableCell<S, String> {
 	@Override
 	protected void updateItem(final String state, final boolean empty) {
 		super.updateItem(state, empty);
+		getStyleClass().clear();
 		if (!empty) {
 			setText(state);
 			switch (state) {
@@ -23,9 +24,12 @@ public class StateTableCell<S> extends TableCell<S, String> {
 				getStyleClass().add("stopped");
 				break;
 			case "pending":
+			case "stopping":
 				getStyleClass().add("pending");
 				break;
 			}
+		} else {
+			setText("");
 		}
 	}
 
