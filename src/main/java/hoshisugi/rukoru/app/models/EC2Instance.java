@@ -1,24 +1,27 @@
 package hoshisugi.rukoru.app.models;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Tag;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class EC2Instance {
+public class EC2Instance implements Serializable {
+
+	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 	private final StringProperty instanceType = new SimpleStringProperty(this, "instanceType");
 	private final StringProperty state = new SimpleStringProperty(this, "state");
 	private final StringProperty publicIpAddress = new SimpleStringProperty(this, "publicIpAddress");
-	private final ObjectProperty<Date> launchTime = new SimpleObjectProperty<>(this, "launchTime");
+	private final StringProperty launchTime = new SimpleStringProperty(this, "launchTime");
 	private final StringProperty autoStop = new SimpleStringProperty(this, "autoStop");
 
 	public EC2Instance() {
@@ -31,7 +34,9 @@ public class EC2Instance {
 		setAutoStop(tags.get("AutoStop"));
 		setInstanceType(instance.getInstanceType());
 		setIpAddress(instance.getPublicIpAddress());
-		setLaunchTime(instance.getLaunchTime());
+		final LocalDateTime dateTime = LocalDateTime.ofInstant(instance.getLaunchTime().toInstant(),
+				ZoneId.systemDefault());
+		setLaunchTime(formatter.format(dateTime));
 		setState(instance.getState().getName());
 	}
 
@@ -67,11 +72,11 @@ public class EC2Instance {
 		this.publicIpAddress.set(publicIpAddress);
 	}
 
-	public Date getLaunchTime() {
+	public String getLaunchTime() {
 		return launchTime.get();
 	}
 
-	public void setLaunchTime(final Date launchTime) {
+	public void setLaunchTime(final String launchTime) {
 		this.launchTime.set(launchTime);
 	}
 
@@ -99,7 +104,7 @@ public class EC2Instance {
 		return publicIpAddress;
 	}
 
-	public ObjectProperty<Date> launchTimeProperty() {
+	public StringProperty launchTimeProperty() {
 		return launchTime;
 	}
 

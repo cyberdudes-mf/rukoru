@@ -31,7 +31,7 @@
 				</TableColumn>
 				<TableColumn fx:id="operationColumn" maxWidth="1.7976931348623157E308" minWidth="70.0" prefWidth="70.0" text="操作">
 				</TableColumn>
-				<TableColumn fx:id="launchTimeColumn" maxWidth="1.7976931348623157E308" minWidth="200.0" prefWidth="200.0" text="起動時刻">
+				<TableColumn fx:id="launchTimeColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" text="起動時刻">
 					<cellValueFactory>
 						<PropertyValueFactory property="launchTime" />
 					</cellValueFactory>

@@ -1,7 +1,6 @@
 package hoshisugi.rukoru.app.view.content;
 
 import java.net.URL;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -41,7 +40,7 @@ public class EC2InstanceTabController extends BaseController {
 	private TableColumn<EC2Instance, String> operationColumn;
 
 	@FXML
-	private TableColumn<EC2Instance, Date> launchTimeColumn;
+	private TableColumn<EC2Instance, String> launchTimeColumn;
 
 	@FXML
 	private TableColumn<EC2Instance, String> autoStopColumn;

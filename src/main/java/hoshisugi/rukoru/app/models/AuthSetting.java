@@ -1,5 +1,6 @@
 package hoshisugi.rukoru.app.models;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -11,7 +12,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class AuthSetting {
+public class AuthSetting implements Serializable {
 
 	private final ObjectProperty<Integer> id = new SimpleObjectProperty<>(this, "id");
 

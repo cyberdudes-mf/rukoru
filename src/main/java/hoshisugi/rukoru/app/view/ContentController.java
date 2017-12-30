@@ -36,12 +36,12 @@ public class ContentController extends BaseController {
 
 	public void showContent(final Class<? extends BaseController> controller) {
 		layoutRoot.getChildren().clear();
-		final Parent parent = contents.get(controller);
-		layoutRoot.getChildren().add(parent);
-		AnchorPane.setTopAnchor(parent, 0.0);
-		AnchorPane.setLeftAnchor(parent, 0.0);
-		AnchorPane.setRightAnchor(parent, 0.0);
-		AnchorPane.setBottomAnchor(parent, 0.0);
+		final Parent content = contents.get(controller);
+		layoutRoot.getChildren().add(content);
+		AnchorPane.setTopAnchor(content, 0.0);
+		AnchorPane.setLeftAnchor(content, 0.0);
+		AnchorPane.setRightAnchor(content, 0.0);
+		AnchorPane.setBottomAnchor(content, 0.0);
 	}
 
 	private void loadContent(final Class<? extends BaseController> controller) {

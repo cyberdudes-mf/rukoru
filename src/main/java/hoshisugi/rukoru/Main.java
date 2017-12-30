@@ -22,7 +22,7 @@ public class Main extends Application {
 			Injector.init(new RukoruModuleConfigurator());
 			final Class<? extends BaseController> controllerClass = MainController.class;
 			final Parent root = (BorderPane) FXMLLoader.load(FXUtil.getURL(controllerClass));
-			final Scene scene = new Scene(root, 800, 600);
+			final Scene scene = new Scene(root, 1280, 720);
 			scene.getStylesheets().add(Assets.APPLICATION_CSS);
 			primaryStage.setScene(scene);
 			primaryStage.setTitle(FXUtil.getTitle(controllerClass));
