@@ -21,6 +21,7 @@ import hoshisugi.rukoru.flamework.controls.GraphicTableCell;
 import hoshisugi.rukoru.flamework.controls.StateTableCell;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
+import hoshisugi.rukoru.flamework.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;
@@ -32,13 +33,13 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.HBox;
 
 public class EC2InstanceTabController extends BaseController {
 
@@ -58,13 +59,19 @@ public class EC2InstanceTabController extends BaseController {
 	private TableColumn<EC2Instance, String> publicIpAddressColumn;
 
 	@FXML
-	private TableColumn<EC2Instance, EC2Instance> operationColumn;
+	private TableColumn<EC2Instance, EC2Instance> runAndStopColumn;
 
 	@FXML
 	private TableColumn<EC2Instance, String> launchTimeColumn;
 
 	@FXML
 	private TableColumn<EC2Instance, Boolean> autoStopColumn;
+
+	@FXML
+	private TableColumn<EC2Instance, EC2Instance> deleteColumn;
+
+	@FXML
+	private TableColumn<EC2Instance, EC2Instance> imageColumn;
 
 	@FXML
 	private Button refreshButton;
@@ -86,9 +93,12 @@ public class EC2InstanceTabController extends BaseController {
 		stateColumn.setCellFactory(StateTableCell.forTableCellFactory());
 		publicIpAddressColumn.setCellFactory(ButtonTableCell.forTableCellFactory(this::onCopyButtonClick));
 		autoStopColumn.setCellFactory(CheckBoxTableCell.forTableColumn(autoStopColumn));
-		operationColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
-		operationColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createRunAndStopButton));
-		// operationColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createOperationButtons));
+		runAndStopColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
+		runAndStopColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createRunAndStopButton));
+		deleteColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
+		deleteColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createDeleteButton));
+		imageColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
+		imageColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createImageButton));
 		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("refresh_24x24.png")));
 		tableView.setItems(items);
 		ConcurrentUtil.run(this::loadInstances);
@@ -121,16 +131,6 @@ public class EC2InstanceTabController extends BaseController {
 		final ClipboardContent content = new ClipboardContent();
 		content.putString(button.getText());
 		Clipboard.getSystemClipboard().setContent(content);
-	}
-
-	private HBox createOperationButtons(final EC2Instance entity) {
-		final HBox box = new HBox();
-		box.setSpacing(5);
-		final Button runAndStopButton = createRunAndStopButton(entity);
-		final Button deleteButton = createDeleteButton(entity);
-		final Button imageButton = createImageButton(entity);
-		box.getChildren().addAll(runAndStopButton, deleteButton, imageButton);
-		return box;
 	}
 
 	private Button createImageButton(final EC2Instance entity) {
@@ -199,7 +199,19 @@ public class EC2InstanceTabController extends BaseController {
 	private void onDeleteButtonClick(final ActionEvent event) {
 		final Button button = (Button) event.getSource();
 		final EC2Instance instance = (EC2Instance) button.getUserData();
-		System.out.println(instance.getName() + "を削除します。");
+
+		final Optional<ButtonType> result = DialogUtil.showConfirmDialog("インスタンス削除",
+				String.format("[%s] を削除します。よろしいですか？", instance.getName()));
+		if (!result.map(type -> type == ButtonType.OK).orElse(false)) {
+			return;
+		}
+
+		ConcurrentUtil.run(() -> {
+			final Optional<AuthSetting> optional = authService.load();
+			if (optional.isPresent()) {
+				ec2Service.terminateInstance(optional.get(), instance);
+			}
+		});
 	}
 
 	private void onCreateImageButtonClick(final ActionEvent event) {

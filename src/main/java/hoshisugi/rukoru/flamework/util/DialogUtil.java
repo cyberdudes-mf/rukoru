@@ -2,6 +2,7 @@ package hoshisugi.rukoru.flamework.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -17,27 +18,37 @@ import javafx.stage.Window;
 
 public class DialogUtil {
 
-	public static void showErrorDialog(final Throwable t) {
-		createExceptionDialog(t);
+	public static Optional<ButtonType> showErrorDialog(final Throwable t) {
+		return createExceptionDialog(t);
 	}
 
-	public static void showInfoDialog(final String title, final String message) {
-		showInfoDialog(FXUtil.getStage(), title, message);
+	public static Optional<ButtonType> showConfirmDialog(final String title, final String message) {
+		return showConfirmDialog(FXUtil.getStage(), title, message);
 	}
 
-	public static void showInfoDialog(final Window window, final String title, final String message) {
-		showAlert(window, AlertType.INFORMATION, title, message);
+	public static Optional<ButtonType> showConfirmDialog(final Window window, final String title,
+			final String message) {
+		return showAlert(window, AlertType.CONFIRMATION, title, message);
 	}
 
-	public static void showWarningDialog(final String title, final String message) {
-		showWarningDialog(FXUtil.getStage(), title, message);
+	public static Optional<ButtonType> showInfoDialog(final String title, final String message) {
+		return showInfoDialog(FXUtil.getStage(), title, message);
 	}
 
-	public static void showWarningDialog(final Window window, final String title, final String message) {
-		showAlert(window, AlertType.WARNING, title, message);
+	public static Optional<ButtonType> showInfoDialog(final Window window, final String title, final String message) {
+		return showAlert(window, AlertType.INFORMATION, title, message);
 	}
 
-	public static Dialog<ButtonType> createExceptionDialog(final Throwable th) {
+	public static Optional<ButtonType> showWarningDialog(final String title, final String message) {
+		return showWarningDialog(FXUtil.getStage(), title, message);
+	}
+
+	public static Optional<ButtonType> showWarningDialog(final Window window, final String title,
+			final String message) {
+		return showAlert(window, AlertType.WARNING, title, message);
+	}
+
+	public static Optional<ButtonType> createExceptionDialog(final Throwable th) {
 		final Dialog<ButtonType> dialog = new Dialog<>();
 
 		dialog.setTitle("Program exception");
@@ -70,18 +81,17 @@ public class DialogUtil {
 		root.add(label, 0, 0);
 		root.add(textArea, 0, 1);
 		dialogPane.setExpandableContent(root);
-		dialog.showAndWait();
-		return dialog;
+		return dialog.showAndWait();
 	}
 
-	private static Alert showAlert(final Window owner, final AlertType type, final String title, final String message) {
+	private static Optional<ButtonType> showAlert(final Window owner, final AlertType type, final String title,
+			final String message) {
 		final Alert alert = new Alert(type, "");
 		alert.initModality(Modality.APPLICATION_MODAL);
 		alert.initOwner(owner);
 		alert.setTitle(title);
 		alert.getDialogPane().setContentText(message);
 		alert.getDialogPane().setHeaderText(null);
-		alert.showAndWait();
-		return alert;
+		return alert.showAndWait();
 	}
 }

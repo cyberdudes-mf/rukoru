@@ -18,7 +18,6 @@ import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.ResourceType;
 import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.amazonaws.services.ec2.model.RunInstancesResult;
@@ -28,6 +27,8 @@ import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.TagSpecification;
+import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
+import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 
 import hoshisugi.rukoru.app.models.AMI;
 import hoshisugi.rukoru.app.models.AuthSetting;
@@ -122,6 +123,18 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 		return result.getReservation().getInstances().stream().map(EC2Instance::new).collect(Collectors.toList());
 	}
 
+	@Override
+	public void terminateInstance(final AuthSetting authSetting, final EC2Instance instance) {
+		final AmazonEC2 client = createClient(authSetting);
+		final TerminateInstancesRequest request = new TerminateInstancesRequest()
+				.withInstanceIds(instance.getInstanceId());
+		final TerminateInstancesResult result = client.terminateInstances(request);
+		Platform.runLater(() -> {
+			result.getTerminatingInstances().stream().filter(i -> i.getInstanceId().equals(instance.getInstanceId()))
+					.forEach(i -> instance.setState(i.getCurrentState().getName()));
+		});
+	}
+
 	private AmazonEC2 createClient(final AuthSetting authSetting) {
 		return AmazonEC2ClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(
@@ -157,7 +170,4 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 		return request;
 	}
 
-	private boolean isNotTerminated(final Instance instance) {
-		return !instance.getState().getName().equals("terminated");
-	}
 }

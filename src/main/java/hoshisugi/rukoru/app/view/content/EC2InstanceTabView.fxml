@@ -24,24 +24,24 @@
       						<PropertyValueFactory property="name" />
       					</cellValueFactory>
       				</TableColumn>
+      				<TableColumn fx:id="stateColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="100.0" text="状態">
+      					<cellValueFactory>
+      						<PropertyValueFactory property="state" />
+      					</cellValueFactory>
+      				</TableColumn>
+      				<TableColumn fx:id="runAndStopColumn" maxWidth="1.7976931348623157E308" minWidth="80.0" text="起動/停止">
+				</TableColumn>
+      				<TableColumn fx:id="publicIpAddressColumn" maxWidth="1.7976931348623157E308" minWidth="110.0" prefWidth="110.0" text="IPアドレス">
+      					<cellValueFactory>
+      						<PropertyValueFactory property="publicIpAddress" />
+      					</cellValueFactory>
+      				</TableColumn>
       				<TableColumn fx:id="instanceTypeColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="100.0" text="インスタンスタイプ">
       					<cellValueFactory>
       						<PropertyValueFactory property="instanceType" />
       					</cellValueFactory>
       				</TableColumn>
-      				<TableColumn fx:id="stateColumn" maxWidth="1.7976931348623157E308" minWidth="70.0" prefWidth="70.0" text="状態">
-      					<cellValueFactory>
-      						<PropertyValueFactory property="state" />
-      					</cellValueFactory>
-      				</TableColumn>
-      				<TableColumn fx:id="publicIpAddressColumn" maxWidth="1.7976931348623157E308" minWidth="120.0" prefWidth="120.0" text="IPアドレス">
-      					<cellValueFactory>
-      						<PropertyValueFactory property="publicIpAddress" />
-      					</cellValueFactory>
-      				</TableColumn>
-      				<TableColumn fx:id="operationColumn" maxWidth="1.7976931348623157E308" minWidth="80.0" text="起動/停止">
-				</TableColumn>
-      				<TableColumn fx:id="launchTimeColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" text="起動時刻">
+      				<TableColumn fx:id="launchTimeColumn" maxWidth="1.7976931348623157E308" minWidth="120.0" prefWidth="120.0" text="起動時刻">
       					<cellValueFactory>
       						<PropertyValueFactory property="launchTime" />
       					</cellValueFactory>
@@ -51,6 +51,8 @@
       						<PropertyValueFactory property="autoStop" />
       					</cellValueFactory>
       				</TableColumn>
+                  <TableColumn fx:id="deleteColumn" minWidth="80.0" text="削除" />
+                  <TableColumn fx:id="imageColumn" minWidth="80.0" text="イメージ" />
       			</columns>
       		</TableView>
          </children>

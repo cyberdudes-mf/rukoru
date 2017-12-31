@@ -21,4 +21,6 @@ public interface EC2Service {
 	void stopInstance(AuthSetting authSetting, EC2Instance instance);
 
 	List<EC2Instance> createInstance(AuthSetting authSetting, CreateInstanceRequest request);
+
+	void terminateInstance(AuthSetting authSetting, EC2Instance instance);
 }

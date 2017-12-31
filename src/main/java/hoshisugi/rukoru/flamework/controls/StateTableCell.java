@@ -2,6 +2,7 @@ package hoshisugi.rukoru.flamework.controls;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 public class StateTableCell<S> extends TableCell<S, String> {
@@ -13,23 +14,27 @@ public class StateTableCell<S> extends TableCell<S, String> {
 	@Override
 	protected void updateItem(final String state, final boolean empty) {
 		super.updateItem(state, empty);
-		getStyleClass().clear();
 		if (!empty) {
 			setText(state);
 			switch (state) {
 			case "running":
-				getStyleClass().add("running");
+				setTextFill(Color.GREEN);
 				break;
 			case "stopped":
-				getStyleClass().add("stopped");
+				setTextFill(Color.RED);
 				break;
 			case "pending":
 			case "stopping":
-				getStyleClass().add("pending");
+			case "shutting-down":
+				setTextFill(Color.GOLDENROD);
+				break;
+			case "terminated":
+				setTextFill(Color.PURPLE);
 				break;
 			}
 		} else {
 			setText("");
+			setTextFill(Color.BLACK);
 		}
 	}
 

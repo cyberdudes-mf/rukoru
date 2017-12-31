@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -31,16 +32,13 @@ public class EC2Instance implements Serializable {
 	}
 
 	public EC2Instance(final Instance instance) {
-		final Map<String, String> tags = instance.getTags().stream()
-				.collect(Collectors.toMap(Tag::getKey, Tag::getValue));
+		final Map<String, String> tags = createTagMap(instance);
 		setInstanceId(instance.getInstanceId());
 		setName(tags.get("Name"));
 		setAutoStop(Boolean.parseBoolean(tags.get("AutoStop")));
 		setInstanceType(instance.getInstanceType());
 		setPublicIpAddress(instance.getPublicIpAddress());
-		final LocalDateTime dateTime = LocalDateTime.ofInstant(instance.getLaunchTime().toInstant(),
-				ZoneId.systemDefault());
-		setLaunchTime(formatter.format(dateTime));
+		setLaunchTime(formatter.format(toDateTime(instance.getLaunchTime())));
 		setState(instance.getState().getName());
 	}
 
@@ -126,6 +124,14 @@ public class EC2Instance implements Serializable {
 
 	public BooleanProperty autoStopProperty() {
 		return autoStop;
+	}
+
+	private Map<String, String> createTagMap(final Instance instance) {
+		return instance.getTags().stream().collect(Collectors.toMap(Tag::getKey, Tag::getValue));
+	}
+
+	private LocalDateTime toDateTime(final Date launchTime) {
+		return LocalDateTime.ofInstant(launchTime.toInstant(), ZoneId.systemDefault());
 	}
 
 }
