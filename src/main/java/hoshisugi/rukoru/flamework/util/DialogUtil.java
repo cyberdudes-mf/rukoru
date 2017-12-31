@@ -18,7 +18,7 @@ import javafx.stage.Window;
 public class DialogUtil {
 
 	public static void showErrorDialog(final Throwable t) {
-		createExceptionDialog(t).show();
+		createExceptionDialog(t);
 	}
 
 	public static void showWarningDialog(final String title, final String message) {

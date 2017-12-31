@@ -71,8 +71,14 @@ public class EC2InstanceTabController extends BaseController {
 		publicIpAddressColumn.setCellFactory(ButtonTableCell.forTableCellFactory(this::onCopyButtonClick));
 		autoStopColumn.setCellFactory(CheckBoxTableCell.forTableColumn(autoStopColumn));
 		operationColumn.setCellValueFactory(ButtonOperationTableCell.forTableCellValueFactory());
-		operationColumn.setCellFactory(ButtonOperationTableCell.forTableCellFactory(this::getOperationButtonLabel,
-				this::getDisableBinding, this::onOperationButtonClick));
+		operationColumn
+				.setCellFactory(ButtonOperationTableCell.forTableCellFactory(this::getOperationButtonLabelBinding,
+						this::getOperationButtonDisableBinding, this::onOperationButtonClick));
+		ConcurrentUtil.run(this::loadInstances);
+	}
+
+	@FXML
+	private void onRefleshButtonClick(final ActionEvent event) {
 		ConcurrentUtil.run(this::loadInstances);
 	}
 
@@ -97,11 +103,11 @@ public class EC2InstanceTabController extends BaseController {
 		Clipboard.getSystemClipboard().setContent(content);
 	}
 
-	private StringBinding getOperationButtonLabel(final EC2Instance entity) {
+	private StringBinding getOperationButtonLabelBinding(final EC2Instance entity) {
 		return Bindings.when(entity.stateProperty().isEqualTo("stopped")).then("起動").otherwise("停止");
 	}
 
-	private BooleanBinding getDisableBinding(final EC2Instance entity) {
+	private BooleanBinding getOperationButtonDisableBinding(final EC2Instance entity) {
 		return entity.stateProperty().isNotEqualTo("running").and(entity.stateProperty().isNotEqualTo("stopped"));
 	}
 
@@ -136,8 +142,4 @@ public class EC2InstanceTabController extends BaseController {
 		});
 	}
 
-	@FXML
-	private void onRefleshButtonClick(final ActionEvent event) {
-		ConcurrentUtil.run(this::loadInstances);
-	}
 }
