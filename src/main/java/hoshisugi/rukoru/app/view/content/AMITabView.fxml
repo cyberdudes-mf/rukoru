@@ -1,26 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 
 <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.content.AMITabController">
    <children>
-      <TableView fx:id="tableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <columns>
-          <TableColumn fx:id="nameColumn" minWidth="250.0" prefWidth="250.0" text="AMI名">
-					<cellValueFactory>
-						<PropertyValueFactory property="name" />
-					</cellValueFactory>
-				</TableColumn>
-          <TableColumn fx:id="creationDateColumn" minWidth="130.0" prefWidth="130.0" text="作成日">
-					<cellValueFactory>
-						<PropertyValueFactory property="creationDate" />
-					</cellValueFactory>
-				</TableColumn>
-            <TableColumn fx:id="operationColumn" minWidth="100.0" prefWidth="100.0" text="操作" />
-        </columns>
-      </TableView>
+      <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <ButtonBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0" prefWidth="200.0">
+              <buttons>
+                <Button fx:id="refreshButton" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Refresh" />
+              </buttons>
+            </ButtonBar>
+            <TableView fx:id="tableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+              <columns>
+                <TableColumn fx:id="nameColumn" minWidth="250.0" prefWidth="250.0" text="AMI名">
+      					<cellValueFactory>
+      						<PropertyValueFactory property="name" />
+      					</cellValueFactory>
+      				</TableColumn>
+                <TableColumn fx:id="creationDateColumn" minWidth="130.0" prefWidth="130.0" text="作成日">
+      					<cellValueFactory>
+      						<PropertyValueFactory property="creationDate" />
+      					</cellValueFactory>
+      				</TableColumn>
+                  <TableColumn fx:id="operationColumn" minWidth="80.0" text="操作" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

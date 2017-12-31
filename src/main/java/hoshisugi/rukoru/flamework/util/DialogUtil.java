@@ -21,9 +21,16 @@ public class DialogUtil {
 		createExceptionDialog(t);
 	}
 
+	public static void showInfoDialog(final String title, final String message) {
+		showInfoDialog(FXUtil.getStage(), title, message);
+	}
+
+	public static void showInfoDialog(final Window window, final String title, final String message) {
+		showAlert(window, AlertType.INFORMATION, title, message);
+	}
+
 	public static void showWarningDialog(final String title, final String message) {
 		showWarningDialog(FXUtil.getStage(), title, message);
-
 	}
 
 	public static void showWarningDialog(final Window window, final String title, final String message) {

@@ -39,7 +39,7 @@
       						<PropertyValueFactory property="publicIpAddress" />
       					</cellValueFactory>
       				</TableColumn>
-      				<TableColumn fx:id="operationColumn" maxWidth="1.7976931348623157E308" minWidth="70.0" prefWidth="70.0" text="操作">
+      				<TableColumn fx:id="operationColumn" maxWidth="1.7976931348623157E308" minWidth="80.0" text="起動/停止">
 				</TableColumn>
       				<TableColumn fx:id="launchTimeColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" text="起動時刻">
       					<cellValueFactory>

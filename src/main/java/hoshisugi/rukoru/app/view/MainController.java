@@ -3,7 +3,7 @@ package hoshisugi.rukoru.app.view;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import hoshisugi.rukoru.app.view.settings.AuthSettingController;
+import hoshisugi.rukoru.app.view.popup.AuthSettingController;
 import hoshisugi.rukoru.flamework.annotations.FXController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.util.BrowserUtil;

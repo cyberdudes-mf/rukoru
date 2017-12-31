@@ -15,6 +15,7 @@ public class AMI implements Serializable {
 
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
+	private final StringProperty imageId = new SimpleStringProperty(this, "imageId");
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 	private final StringProperty creationDate = new SimpleStringProperty(this, "creationDate");
 
@@ -22,8 +23,17 @@ public class AMI implements Serializable {
 	}
 
 	public AMI(final Image image) {
+		setImageId(image.getImageId());
 		setName(image.getName());
 		setCreationDate(formatter.format(LocalDateTime.parse(image.getCreationDate(), ISO_DATE_TIME)));
+	}
+
+	public String getImageId() {
+		return imageId.get();
+	}
+
+	public void setImageId(final String imageId) {
+		this.imageId.set(imageId);
 	}
 
 	public String getName() {
@@ -40,6 +50,10 @@ public class AMI implements Serializable {
 
 	public void setCreationDate(final String creationDate) {
 		this.creationDate.set(creationDate);
+	}
+
+	public StringProperty imageIdProperty() {
+		return imageId;
 	}
 
 	public StringProperty nameProperty() {

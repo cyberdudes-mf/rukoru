@@ -28,6 +28,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -37,6 +38,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.HBox;
 
 public class EC2InstanceTabController extends BaseController {
 
@@ -73,14 +75,22 @@ public class EC2InstanceTabController extends BaseController {
 	@Inject
 	private EC2Service ec2Service;
 
+	private final ObservableList<EC2Instance> items = FXCollections.observableArrayList();
+
+	public ObservableList<EC2Instance> getItems() {
+		return items;
+	}
+
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
 		stateColumn.setCellFactory(StateTableCell.forTableCellFactory());
 		publicIpAddressColumn.setCellFactory(ButtonTableCell.forTableCellFactory(this::onCopyButtonClick));
 		autoStopColumn.setCellFactory(CheckBoxTableCell.forTableColumn(autoStopColumn));
 		operationColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
-		operationColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createOperationButton));
+		operationColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createRunAndStopButton));
+		// operationColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createOperationButtons));
 		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("refresh_24x24.png")));
+		tableView.setItems(items);
 		ConcurrentUtil.run(this::loadInstances);
 	}
 
@@ -90,16 +100,19 @@ public class EC2InstanceTabController extends BaseController {
 	}
 
 	private void loadInstances() {
-		tableView.getItems().stream().forEach(i -> i.autoStopProperty().removeListener(this::onAutoStopChanged));
-		tableView.getItems().clear();
-		final Optional<AuthSetting> optional = authService.load();
-		if (optional.isPresent()) {
-			final AuthSetting authSetting = optional.get();
-			final List<EC2Instance> instances = ec2Service.listInstances(authSetting);
-			instances.stream().forEach(i -> i.autoStopProperty().addListener(this::onAutoStopChanged));
-			Platform.runLater(() -> {
-				tableView.getItems().addAll(FXCollections.observableArrayList(instances));
-			});
+		try {
+			Platform.runLater(() -> refreshButton.setDisable(true));
+			items.stream().forEach(i -> i.autoStopProperty().removeListener(this::onAutoStopChanged));
+			items.clear();
+			final Optional<AuthSetting> optional = authService.load();
+			if (optional.isPresent()) {
+				final AuthSetting authSetting = optional.get();
+				final List<EC2Instance> instances = ec2Service.listInstances(authSetting);
+				instances.stream().forEach(i -> i.autoStopProperty().addListener(this::onAutoStopChanged));
+				items.addAll(instances);
+			}
+		} finally {
+			Platform.runLater(() -> refreshButton.setDisable(false));
 		}
 	}
 
@@ -110,33 +123,63 @@ public class EC2InstanceTabController extends BaseController {
 		Clipboard.getSystemClipboard().setContent(content);
 	}
 
-	private Button createOperationButton(final EC2Instance entity) {
-		final Button button = new Button();
+	private HBox createOperationButtons(final EC2Instance entity) {
+		final HBox box = new HBox();
+		box.setSpacing(5);
+		final Button runAndStopButton = createRunAndStopButton(entity);
+		final Button deleteButton = createDeleteButton(entity);
+		final Button imageButton = createImageButton(entity);
+		box.getChildren().addAll(runAndStopButton, deleteButton, imageButton);
+		return box;
+	}
+
+	private Button createImageButton(final EC2Instance entity) {
+		final Button button = new Button("イメージ");
 		final StringProperty state = entity.stateProperty();
-		button.textProperty().bind(createButtonTextBinding(state));
-		button.disableProperty().bind(createButtonDisableBinding(state));
-		button.setGraphic(createButtonImage(state));
-		button.setOnAction(this::onOperationButtonClick);
+		button.disableProperty().bind(state.isEqualTo("terminated"));
+		button.setGraphic(new ImageView(AssetUtil.getImage("image_16x16.png")));
+		button.setOnAction(this::onCreateImageButtonClick);
 		button.setUserData(entity);
 		return button;
 	}
 
-	private ImageView createButtonImage(final StringProperty state) {
+	private Button createDeleteButton(final EC2Instance entity) {
+		final Button button = new Button("削除");
+		final StringProperty state = entity.stateProperty();
+		button.disableProperty().bind(state.isEqualTo("terminated"));
+		button.setGraphic(new ImageView(AssetUtil.getImage("delete_16x16.png")));
+		button.setOnAction(this::onDeleteButtonClick);
+		button.setUserData(entity);
+		return button;
+	}
+
+	private Button createRunAndStopButton(final EC2Instance entity) {
+		final Button button = new Button();
+		final StringProperty state = entity.stateProperty();
+		button.textProperty().bind(createRunAndStopButtonText(state));
+		button.disableProperty().bind(createRunAndStopButtonDisable(state));
+		button.setGraphic(createRunAndStopButtonImage(state));
+		button.setOnAction(this::onRunAndStopButtonClick);
+		button.setUserData(entity);
+		return button;
+	}
+
+	private ImageView createRunAndStopButtonImage(final StringProperty state) {
 		final ImageView imageView = new ImageView();
 		imageView.imageProperty().bind(
 				when(state.isEqualTo("stopped")).then(getImage("run_16x16.png")).otherwise(getImage("stop_16x16.png")));
 		return imageView;
 	}
 
-	private StringBinding createButtonTextBinding(final StringProperty state) {
+	private StringBinding createRunAndStopButtonText(final StringProperty state) {
 		return when(state.isEqualTo("stopped")).then("起動").otherwise("停止");
 	}
 
-	private BooleanBinding createButtonDisableBinding(final StringProperty state) {
+	private BooleanBinding createRunAndStopButtonDisable(final StringProperty state) {
 		return state.isNotEqualTo("running").and(state.isNotEqualTo("stopped"));
 	}
 
-	private void onOperationButtonClick(final ActionEvent event) {
+	private void onRunAndStopButtonClick(final ActionEvent event) {
 		ConcurrentUtil.run(() -> {
 			final Button button = (Button) event.getSource();
 			final EC2Instance instance = (EC2Instance) button.getUserData();
@@ -153,6 +196,18 @@ public class EC2InstanceTabController extends BaseController {
 		});
 	}
 
+	private void onDeleteButtonClick(final ActionEvent event) {
+		final Button button = (Button) event.getSource();
+		final EC2Instance instance = (EC2Instance) button.getUserData();
+		System.out.println(instance.getName() + "を削除します。");
+	}
+
+	private void onCreateImageButtonClick(final ActionEvent event) {
+		final Button button = (Button) event.getSource();
+		final EC2Instance instance = (EC2Instance) button.getUserData();
+		System.out.println(instance.getName() + "のイメージを作成します。");
+	}
+
 	private void onAutoStopChanged(final ObservableValue<? extends Boolean> observable, final Boolean oldValue,
 			final Boolean newValue) {
 		ConcurrentUtil.run(() -> {
@@ -166,5 +221,4 @@ public class EC2InstanceTabController extends BaseController {
 			}
 		});
 	}
-
 }

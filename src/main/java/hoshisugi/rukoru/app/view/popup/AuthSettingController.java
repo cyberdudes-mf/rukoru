@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.app.view.settings;
+package hoshisugi.rukoru.app.view.popup;
 
 import java.net.URL;
 import java.sql.SQLException;

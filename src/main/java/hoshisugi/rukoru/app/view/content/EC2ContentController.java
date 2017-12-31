@@ -7,9 +7,13 @@ import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
 
 public class EC2ContentController extends BaseController {
+
+	@FXML
+	private TabPane tabPane;
 
 	@FXML
 	private Tab instanceTab;

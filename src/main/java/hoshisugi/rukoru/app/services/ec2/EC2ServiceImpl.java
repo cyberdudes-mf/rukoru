@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -17,14 +18,20 @@ import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.ResourceType;
+import com.amazonaws.services.ec2.model.RunInstancesRequest;
+import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.Tag;
+import com.amazonaws.services.ec2.model.TagSpecification;
 
 import hoshisugi.rukoru.app.models.AMI;
 import hoshisugi.rukoru.app.models.AuthSetting;
+import hoshisugi.rukoru.app.models.CreateInstanceRequest;
 import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.flamework.services.BaseService;
 import javafx.application.Platform;
@@ -49,13 +56,6 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 		final DescribeImagesResult result = client.describeImages(request);
 		return result.getImages().stream().map(AMI::new).sorted(Comparator.comparing(AMI::getCreationDate).reversed())
 				.collect(Collectors.toList());
-	}
-
-	private AmazonEC2 createClient(final AuthSetting authSetting) {
-		return AmazonEC2ClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(
-						new BasicAWSCredentials(authSetting.getAccessKeyId(), authSetting.getSecretAccessKey())))
-				.withRegion(Regions.AP_NORTHEAST_1).build();
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 							instance.setPublicIpAddress(i.getPublicIpAddress());
 						});
 			});
-			sleep(5000);
+			sleep(3000);
 		}
 	}
 
@@ -109,8 +109,24 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 							instance.setPublicIpAddress(i.getPublicIpAddress());
 						});
 			});
-			sleep(5000);
+			sleep(3000);
 		}
+	}
+
+	@Override
+	public List<EC2Instance> createInstance(final AuthSetting authSetting,
+			final CreateInstanceRequest createInstanceRequest) {
+		final AmazonEC2 client = createClient(authSetting);
+		final RunInstancesRequest request = createRunInstanceRequest(createInstanceRequest);
+		final RunInstancesResult result = client.runInstances(request);
+		return result.getReservation().getInstances().stream().map(EC2Instance::new).collect(Collectors.toList());
+	}
+
+	private AmazonEC2 createClient(final AuthSetting authSetting) {
+		return AmazonEC2ClientBuilder.standard()
+				.withCredentials(new AWSStaticCredentialsProvider(
+						new BasicAWSCredentials(authSetting.getAccessKeyId(), authSetting.getSecretAccessKey())))
+				.withRegion(Regions.AP_NORTHEAST_1).build();
 	}
 
 	private DescribeInstancesRequest createDescribeRequestById(final EC2Instance instance) {
@@ -119,8 +135,29 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 
 	private void sleep(final int millis) {
 		try {
-			Thread.sleep(5000);
+			Thread.sleep(millis);
 		} catch (final InterruptedException e) {
 		}
+	}
+
+	private RunInstancesRequest createRunInstanceRequest(final CreateInstanceRequest createInstanceRequest) {
+		final RunInstancesRequest request = new RunInstancesRequest();
+		request.setImageId(createInstanceRequest.getImageId());
+		request.setInstanceType(createInstanceRequest.getInstanceType().getValue());
+		request.setMinCount(createInstanceRequest.getMinCount());
+		request.setMaxCount(createInstanceRequest.getMaxCount());
+		request.setKeyName(createInstanceRequest.getKeyName());
+		request.withSecurityGroups(createInstanceRequest.getSecurityGroup());
+		final List<Tag> tags = createInstanceRequest.getTags().stream().filter(Objects::nonNull)
+				.map(t -> new Tag(t.getKey(), t.getValue())).collect(Collectors.toList());
+		final TagSpecification instanceTag = new TagSpecification().withResourceType(ResourceType.Instance)
+				.withTags(tags);
+		final TagSpecification volumeTag = new TagSpecification().withResourceType(ResourceType.Volume).withTags(tags);
+		request.withTagSpecifications(instanceTag, volumeTag);
+		return request;
+	}
+
+	private boolean isNotTerminated(final Instance instance) {
+		return !instance.getState().getName().equals("terminated");
 	}
 }
