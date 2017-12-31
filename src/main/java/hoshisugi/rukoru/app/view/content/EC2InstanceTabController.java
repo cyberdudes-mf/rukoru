@@ -1,5 +1,8 @@
 package hoshisugi.rukoru.app.view.content;
 
+import static hoshisugi.rukoru.flamework.util.AssetUtil.getImage;
+import static javafx.beans.binding.Bindings.when;
+
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -13,15 +16,16 @@ import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.flamework.controls.BaseController;
-import hoshisugi.rukoru.flamework.controls.ButtonOperationTableCell;
 import hoshisugi.rukoru.flamework.controls.ButtonTableCell;
+import hoshisugi.rukoru.flamework.controls.GraphicTableCell;
 import hoshisugi.rukoru.flamework.controls.StateTableCell;
+import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -30,6 +34,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 
@@ -59,6 +64,9 @@ public class EC2InstanceTabController extends BaseController {
 	@FXML
 	private TableColumn<EC2Instance, Boolean> autoStopColumn;
 
+	@FXML
+	private Button refreshButton;
+
 	@Inject
 	private AuthService authService;
 
@@ -70,15 +78,14 @@ public class EC2InstanceTabController extends BaseController {
 		stateColumn.setCellFactory(StateTableCell.forTableCellFactory());
 		publicIpAddressColumn.setCellFactory(ButtonTableCell.forTableCellFactory(this::onCopyButtonClick));
 		autoStopColumn.setCellFactory(CheckBoxTableCell.forTableColumn(autoStopColumn));
-		operationColumn.setCellValueFactory(ButtonOperationTableCell.forTableCellValueFactory());
-		operationColumn
-				.setCellFactory(ButtonOperationTableCell.forTableCellFactory(this::getOperationButtonLabelBinding,
-						this::getOperationButtonDisableBinding, this::onOperationButtonClick));
+		operationColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
+		operationColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createOperationButton));
+		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("refresh_24x24.png")));
 		ConcurrentUtil.run(this::loadInstances);
 	}
 
 	@FXML
-	private void onRefleshButtonClick(final ActionEvent event) {
+	private void onRefreshButtonClick(final ActionEvent event) {
 		ConcurrentUtil.run(this::loadInstances);
 	}
 
@@ -103,12 +110,30 @@ public class EC2InstanceTabController extends BaseController {
 		Clipboard.getSystemClipboard().setContent(content);
 	}
 
-	private StringBinding getOperationButtonLabelBinding(final EC2Instance entity) {
-		return Bindings.when(entity.stateProperty().isEqualTo("stopped")).then("起動").otherwise("停止");
+	private Button createOperationButton(final EC2Instance entity) {
+		final Button button = new Button();
+		final StringProperty state = entity.stateProperty();
+		button.textProperty().bind(createButtonTextBinding(state));
+		button.disableProperty().bind(createButtonDisableBinding(state));
+		button.setGraphic(createButtonImage(state));
+		button.setOnAction(this::onOperationButtonClick);
+		button.setUserData(entity);
+		return button;
 	}
 
-	private BooleanBinding getOperationButtonDisableBinding(final EC2Instance entity) {
-		return entity.stateProperty().isNotEqualTo("running").and(entity.stateProperty().isNotEqualTo("stopped"));
+	private ImageView createButtonImage(final StringProperty state) {
+		final ImageView imageView = new ImageView();
+		imageView.imageProperty().bind(
+				when(state.isEqualTo("stopped")).then(getImage("run_16x16.png")).otherwise(getImage("stop_16x16.png")));
+		return imageView;
+	}
+
+	private StringBinding createButtonTextBinding(final StringProperty state) {
+		return when(state.isEqualTo("stopped")).then("起動").otherwise("停止");
+	}
+
+	private BooleanBinding createButtonDisableBinding(final StringProperty state) {
+		return state.isNotEqualTo("running").and(state.isNotEqualTo("stopped"));
 	}
 
 	private void onOperationButtonClick(final ActionEvent event) {

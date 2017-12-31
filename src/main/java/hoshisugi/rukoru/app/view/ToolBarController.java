@@ -30,6 +30,9 @@ public class ToolBarController extends BaseController {
 	private Button mcButton;
 
 	@FXML
+	private Button testPortalButton;
+
+	@FXML
 	private ToggleButton ec2Button;
 
 	@FXML
@@ -48,16 +51,17 @@ public class ToolBarController extends BaseController {
 	private ContentController contentController;
 
 	@Override
-	public void initialize(final URL arg0, final ResourceBundle arg1) {
-		mcButton.setGraphic(new ImageView(AssetUtil.getImage("MC.png", 25, 25)));
-		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("EC2.png", 25, 25)));
-		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("DB.png", 25, 25)));
-		s3Button.setGraphic(new ImageView(AssetUtil.getImage("S3.png", 25, 25)));
+	public void initialize(final URL url, final ResourceBundle resource) {
+		mcButton.setGraphic(new ImageView(AssetUtil.getImage("AWS_32x32.png")));
+		testPortalButton.setGraphic(new ImageView(AssetUtil.getImage("DS_32x32.png")));
+		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("EC2_32x32.png")));
+		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("DB_32x32.png")));
+		s3Button.setGraphic(new ImageView(AssetUtil.getImage("S3_32x32.png")));
 		toolBar.selectedToggleProperty().addListener(this::toolBarSelectionChanged);
 	}
 
 	@FXML
-	private void onMCButtonClicked(final ActionEvent event) throws Exception {
+	private void onMCButtonClick(final ActionEvent event) throws Exception {
 		final Optional<AuthSetting> authSetting = authService.load();
 		if (authSetting.isPresent()) {
 			BrowserUtil
@@ -65,6 +69,11 @@ public class ToolBarController extends BaseController {
 		} else {
 			DialogUtil.showWarningDialog("ムリ", "先に認証情報を設定してくれないと URL が分からないす。。。\n[メニュー] - [Settings] - [認証設定]");
 		}
+	}
+
+	@FXML
+	private void onTestPortalButtonClick(final ActionEvent event) throws Exception {
+		BrowserUtil.browse(String.format("http://front.dataspidercloud.tokyo/"));
 	}
 
 	@FXML

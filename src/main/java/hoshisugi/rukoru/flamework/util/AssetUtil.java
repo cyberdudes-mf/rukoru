@@ -36,10 +36,6 @@ public class AssetUtil {
 		return getURL("assets", resourceName).toExternalForm();
 	}
 
-	public static Image getImage(final String img, final double width, final double height) {
-		return new Image(getAssetPath(img), width, height, false, true);
-	}
-
 	public static Image getImage(final String img) {
 		return new Image(getAssetPath(img));
 	}

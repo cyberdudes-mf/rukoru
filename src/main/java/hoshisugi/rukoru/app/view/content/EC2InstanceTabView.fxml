@@ -14,7 +14,7 @@
          <children>
             <ButtonBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0" prefWidth="200.0">
               <buttons>
-                <Button mnemonicParsing="false" onAction="#onRefleshButtonClick" text="Reflesh" />
+                <Button fx:id="refreshButton" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Refresh" />
               </buttons>
             </ButtonBar>
       		<TableView fx:id="tableView" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
