@@ -7,7 +7,7 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.AMI;
+import hoshisugi.rukoru.app.models.MachineImage;
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
@@ -26,19 +26,19 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 
-public class AMITabController extends BaseController {
+public class ImageTabController extends BaseController {
 
 	@FXML
-	private TableView<AMI> tableView;
+	private TableView<MachineImage> tableView;
 
 	@FXML
-	private TableColumn<AMI, String> nameColumn;
+	private TableColumn<MachineImage, String> nameColumn;
 
 	@FXML
-	private TableColumn<AMI, String> creationDateColumn;
+	private TableColumn<MachineImage, String> creationDateColumn;
 
 	@FXML
-	private TableColumn<AMI, AMI> operationColumn;
+	private TableColumn<MachineImage, MachineImage> operationColumn;
 
 	@FXML
 	private Button refreshButton;
@@ -48,8 +48,6 @@ public class AMITabController extends BaseController {
 
 	@Inject
 	private EC2Service ec2Service;
-
-	private AMI selectedEntity;
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
@@ -71,7 +69,7 @@ public class AMITabController extends BaseController {
 			final Optional<AuthSetting> optional = authService.load();
 			if (optional.isPresent()) {
 				final AuthSetting authSetting = optional.get();
-				final List<AMI> images = ec2Service.listImages(authSetting);
+				final List<MachineImage> images = ec2Service.listImages(authSetting);
 				Platform.runLater(() -> tableView.getItems().addAll(FXCollections.observableArrayList(images)));
 			}
 		} finally {
@@ -79,7 +77,7 @@ public class AMITabController extends BaseController {
 		}
 	}
 
-	private Button createOperationButton(final AMI entity) {
+	private Button createOperationButton(final MachineImage entity) {
 		final Button button = new Button("作成");
 		button.setGraphic(new ImageView(AssetUtil.getImage("add_16x16.png")));
 		button.setOnAction(this::onCreateButtonClick);
@@ -89,12 +87,10 @@ public class AMITabController extends BaseController {
 
 	private void onCreateButtonClick(final ActionEvent event) {
 		final Button button = (Button) event.getSource();
-		selectedEntity = (AMI) button.getUserData();
-		FXUtil.popup(CreateInstanceController.class, FXUtil.getStage(event));
-	}
-
-	public AMI getSelectedEntity() {
-		return selectedEntity;
+		final MachineImage entity = (MachineImage) button.getUserData();
+		final CreateInstanceController controller = FXUtil.popup(CreateInstanceController.class,
+				FXUtil.getStage(event));
+		controller.targetProperty().set(entity);
 	}
 
 }

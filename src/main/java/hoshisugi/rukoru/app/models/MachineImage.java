@@ -11,7 +11,7 @@ import com.amazonaws.services.ec2.model.Image;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class AMI implements Serializable {
+public class MachineImage implements Serializable {
 
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
@@ -19,10 +19,10 @@ public class AMI implements Serializable {
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 	private final StringProperty creationDate = new SimpleStringProperty(this, "creationDate");
 
-	public AMI() {
+	public MachineImage() {
 	}
 
-	public AMI(final Image image) {
+	public MachineImage(final Image image) {
 		setImageId(image.getImageId());
 		setName(image.getName());
 		setCreationDate(formatter.format(LocalDateTime.parse(image.getCreationDate(), ISO_DATE_TIME)));

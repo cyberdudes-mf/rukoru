@@ -15,6 +15,7 @@ import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
+import hoshisugi.rukoru.app.view.popup.CreateImageController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.controls.ButtonTableCell;
 import hoshisugi.rukoru.flamework.controls.GraphicTableCell;
@@ -22,6 +23,7 @@ import hoshisugi.rukoru.flamework.controls.StateTableCell;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
 import hoshisugi.rukoru.flamework.util.DialogUtil;
+import hoshisugi.rukoru.flamework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;
@@ -41,7 +43,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 
-public class EC2InstanceTabController extends BaseController {
+public class InstanceTabController extends BaseController {
 
 	@FXML
 	private TableView<EC2Instance> tableView;
@@ -217,7 +219,8 @@ public class EC2InstanceTabController extends BaseController {
 	private void onCreateImageButtonClick(final ActionEvent event) {
 		final Button button = (Button) event.getSource();
 		final EC2Instance instance = (EC2Instance) button.getUserData();
-		System.out.println(instance.getName() + "のイメージを作成します。");
+		final CreateImageController controller = FXUtil.popup(CreateImageController.class, FXUtil.getStage(event));
+		controller.targetProperty().set(instance);
 	}
 
 	private void onAutoStopChanged(final ObservableValue<? extends Boolean> observable, final Boolean oldValue,

@@ -9,12 +9,13 @@ import hoshisugi.rukoru.app.services.ec2.EC2ServiceImpl;
 import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.app.view.MainController;
 import hoshisugi.rukoru.app.view.ToolBarController;
-import hoshisugi.rukoru.app.view.content.AMITabController;
+import hoshisugi.rukoru.app.view.content.ImageTabController;
 import hoshisugi.rukoru.app.view.content.EC2ContentController;
-import hoshisugi.rukoru.app.view.content.EC2InstanceTabController;
+import hoshisugi.rukoru.app.view.content.InstanceTabController;
 import hoshisugi.rukoru.app.view.content.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.content.S3ContentController;
 import hoshisugi.rukoru.app.view.popup.AuthSettingController;
+import hoshisugi.rukoru.app.view.popup.CreateImageController;
 import hoshisugi.rukoru.app.view.popup.CreateInstanceController;
 import hoshisugi.rukoru.flamework.inject.ModuleConfigurator;
 
@@ -33,10 +34,11 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(EC2ContentController.class);
 		provide(RepositoryDBContentController.class);
 		provide(S3ContentController.class);
-		provide(EC2InstanceTabController.class);
-		provide(AMITabController.class);
+		provide(InstanceTabController.class);
+		provide(ImageTabController.class);
 		provide(AuthSettingController.class);
 		provide(CreateInstanceController.class);
+		provide(CreateImageController.class);
 	}
 
 	private void configureServices() {

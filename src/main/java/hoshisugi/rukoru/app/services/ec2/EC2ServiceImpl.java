@@ -12,6 +12,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
+import com.amazonaws.services.ec2.model.CreateImageRequest;
+import com.amazonaws.services.ec2.model.CreateImageResult;
 import com.amazonaws.services.ec2.model.CreateTagsRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
@@ -30,10 +32,11 @@ import com.amazonaws.services.ec2.model.TagSpecification;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 
-import hoshisugi.rukoru.app.models.AMI;
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.CreateInstanceRequest;
+import hoshisugi.rukoru.app.models.CreateMachineImageRequest;
 import hoshisugi.rukoru.app.models.EC2Instance;
+import hoshisugi.rukoru.app.models.MachineImage;
 import hoshisugi.rukoru.flamework.services.BaseService;
 import javafx.application.Platform;
 
@@ -51,12 +54,12 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	@Override
-	public List<AMI> listImages(final AuthSetting authSetting) {
+	public List<MachineImage> listImages(final AuthSetting authSetting) {
 		final AmazonEC2 client = createClient(authSetting);
 		final DescribeImagesRequest request = new DescribeImagesRequest().withFilters(SPIDER_INSTANCE);
 		final DescribeImagesResult result = client.describeImages(request);
-		return result.getImages().stream().map(AMI::new).sorted(Comparator.comparing(AMI::getCreationDate).reversed())
-				.collect(Collectors.toList());
+		return result.getImages().stream().map(MachineImage::new)
+				.sorted(Comparator.comparing(MachineImage::getCreationDate).reversed()).collect(Collectors.toList());
 	}
 
 	@Override
@@ -133,6 +136,24 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 			result.getTerminatingInstances().stream().filter(i -> i.getInstanceId().equals(instance.getInstanceId()))
 					.forEach(i -> instance.setState(i.getCurrentState().getName()));
 		});
+	}
+
+	@Override
+	public void createMachineImage(final AuthSetting authSetting, final CreateMachineImageRequest createImageRequest) {
+		final AmazonEC2 client = createClient(authSetting);
+		final CreateImageRequest request = new CreateImageRequest();
+		request.setInstanceId(createImageRequest.getInstanceId());
+		request.setName(createImageRequest.getName());
+		request.setDescription(createImageRequest.getDescription());
+		request.setNoReboot(createImageRequest.isNoReboot());
+		final CreateImageResult result = client.createImage(request);
+
+		// タグを付ける
+		final CreateTagsRequest tagRequest = new CreateTagsRequest().withResources(result.getImageId());
+		final List<Tag> tags = createImageRequest.getTags().stream().map(t -> new Tag(t.getKey(), t.getValue()))
+				.collect(Collectors.toList());
+		tagRequest.setTags(tags);
+		client.createTags(tagRequest);
 	}
 
 	private AmazonEC2 createClient(final AuthSetting authSetting) {

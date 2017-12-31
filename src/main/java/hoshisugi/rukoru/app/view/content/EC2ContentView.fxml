@@ -10,12 +10,12 @@
         <tabs>
           <Tab fx:id="instanceTab" text="インスタンス">
             <content>
-              <fx:include source="EC2InstanceTabView.fxml" />
+              <fx:include source="InstanceTabView.fxml" />
             </content>
           </Tab>
           <Tab fx:id="amiTab" text="AMI">
             <content>
-              <fx:include source="AMITabView.fxml" />
+              <fx:include source="ImageTabView.fxml" />
             </content>
           </Tab>
         </tabs>

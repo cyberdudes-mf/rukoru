@@ -94,4 +94,5 @@ public class DialogUtil {
 		alert.getDialogPane().setHeaderText(null);
 		return alert.showAndWait();
 	}
+
 }

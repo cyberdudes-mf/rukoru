@@ -9,11 +9,11 @@ import com.google.inject.Inject;
 import hoshisugi.rukoru.app.enums.InstanceType;
 import hoshisugi.rukoru.app.models.CreateInstanceRequest;
 import hoshisugi.rukoru.app.models.EC2Instance;
+import hoshisugi.rukoru.app.models.MachineImage;
 import hoshisugi.rukoru.app.models.Tag;
 import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
-import hoshisugi.rukoru.app.view.content.AMITabController;
-import hoshisugi.rukoru.app.view.content.EC2InstanceTabController;
+import hoshisugi.rukoru.app.view.content.InstanceTabController;
 import hoshisugi.rukoru.flamework.annotations.FXController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.controls.PropertyListCell;
@@ -23,6 +23,8 @@ import hoshisugi.rukoru.flamework.util.DialogUtil;
 import hoshisugi.rukoru.flamework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -62,10 +64,7 @@ public class CreateInstanceController extends BaseController {
 	private Button okButton;
 
 	@Inject
-	private AMITabController amiController;
-
-	@Inject
-	private EC2InstanceTabController instanceController;
+	private InstanceTabController instanceController;
 
 	@Inject
 	private AuthService authService;
@@ -73,9 +72,17 @@ public class CreateInstanceController extends BaseController {
 	@Inject
 	private EC2Service ec2Service;
 
+	private final ObjectProperty<MachineImage> target = new SimpleObjectProperty<>(this, "target");
+
+	public ObjectProperty<MachineImage> targetProperty() {
+		return target;
+	}
+
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		name.setText(amiController.getSelectedEntity().getName());
+		target.addListener((observable, oldValue, newValue) -> {
+			name.setText(newValue.getName());
+		});
 		instanceType.getItems().addAll(InstanceType.values());
 		instanceType.setCellFactory(PropertyListCell.forListView(InstanceType::getDisplayName));
 		instanceType.setButtonCell(instanceType.getCellFactory().call(null));
@@ -111,7 +118,8 @@ public class CreateInstanceController extends BaseController {
 
 		ConcurrentUtil.run(() -> {
 			final CreateInstanceRequest request = new CreateInstanceRequest();
-			request.setImageId(amiController.getSelectedEntity().getImageId());
+			final MachineImage entity = target.get();
+			request.setImageId(entity.getImageId());
 			request.setInstanceType(instanceType.getSelectionModel().getSelectedItem());
 			request.setMinCount(1);
 			request.setMaxCount(1);
@@ -123,8 +131,7 @@ public class CreateInstanceController extends BaseController {
 			instanceController.getItems().addAll(0, instances);
 
 			Platform.runLater(() -> {
-				DialogUtil.showInfoDialog("インスタンス作成",
-						String.format("[%s] のインスタンス作成を受け付けました。", amiController.getSelectedEntity().getName()));
+				DialogUtil.showInfoDialog("インスタンス作成", String.format("[%s] のインスタンス作成を受け付けました。", name.getText()));
 				FXUtil.getStage(event).close();
 			});
 		});
