@@ -68,15 +68,15 @@ public class AuthSettingController extends BaseController {
 		} catch (final UncheckedExecutionException e) {
 			entity = new AuthSetting();
 		}
-		account.textProperty().bind(entity.accountProperty());
-		accessKeyId.textProperty().bind(entity.accessKeyIdProperty());
-		secretAccessKey.textProperty().bind(entity.secretAccessKeyProperty());
+		account.textProperty().bindBidirectional(entity.accountProperty());
+		accessKeyId.textProperty().bindBidirectional(entity.accessKeyIdProperty());
+		secretAccessKey.textProperty().bindBidirectional(entity.secretAccessKeyProperty());
 	}
 
 	private void close(final Stage stage) {
-		account.textProperty().unbind();
-		accessKeyId.textProperty().unbind();
-		secretAccessKey.textProperty().unbind();
+		account.textProperty().unbindBidirectional(entity.accountProperty());
+		accessKeyId.textProperty().unbindBidirectional(entity.accessKeyIdProperty());
+		secretAccessKey.textProperty().unbindBidirectional(entity.secretAccessKeyProperty());
 		saveButton.disableProperty().unbind();
 		stage.close();
 	}
