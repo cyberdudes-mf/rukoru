@@ -15,6 +15,7 @@ import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.CreateImageRequest;
 import com.amazonaws.services.ec2.model.CreateImageResult;
 import com.amazonaws.services.ec2.model.CreateTagsRequest;
+import com.amazonaws.services.ec2.model.DeregisterImageRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
@@ -154,6 +155,13 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 				.collect(Collectors.toList());
 		tagRequest.setTags(tags);
 		client.createTags(tagRequest);
+	}
+
+	@Override
+	public void deregisterImage(final AuthSetting authSetting, final MachineImage image) {
+		final AmazonEC2 client = createClient(authSetting);
+		final DeregisterImageRequest request = new DeregisterImageRequest(image.getImageId());
+		client.deregisterImage(request);
 	}
 
 	private AmazonEC2 createClient(final AuthSetting authSetting) {

@@ -26,4 +26,6 @@ public interface EC2Service {
 	void terminateInstance(AuthSetting authSetting, EC2Instance instance);
 
 	void createMachineImage(AuthSetting authSetting, CreateMachineImageRequest request);
+
+	void deregisterImage(AuthSetting authSetting, MachineImage image);
 }

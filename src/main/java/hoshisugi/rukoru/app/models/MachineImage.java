@@ -17,6 +17,7 @@ public class MachineImage implements Serializable {
 
 	private final StringProperty imageId = new SimpleStringProperty(this, "imageId");
 	private final StringProperty name = new SimpleStringProperty(this, "name");
+	private final StringProperty state = new SimpleStringProperty(this, "state");
 	private final StringProperty creationDate = new SimpleStringProperty(this, "creationDate");
 
 	public MachineImage() {
@@ -25,6 +26,7 @@ public class MachineImage implements Serializable {
 	public MachineImage(final Image image) {
 		setImageId(image.getImageId());
 		setName(image.getName());
+		setState(image.getState());
 		setCreationDate(formatter.format(LocalDateTime.parse(image.getCreationDate(), ISO_DATE_TIME)));
 	}
 
@@ -42,6 +44,14 @@ public class MachineImage implements Serializable {
 
 	public void setName(final String name) {
 		this.name.set(name);
+	}
+
+	public String getState() {
+		return state.get();
+	}
+
+	public void setState(final String state) {
+		this.state.set(state);
 	}
 
 	public String getCreationDate() {

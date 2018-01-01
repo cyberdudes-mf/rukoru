@@ -7,8 +7,8 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.MachineImage;
 import hoshisugi.rukoru.app.models.AuthSetting;
+import hoshisugi.rukoru.app.models.MachineImage;
 import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.view.popup.CreateInstanceController;
@@ -16,12 +16,14 @@ import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.controls.GraphicTableCell;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
+import hoshisugi.rukoru.flamework.util.DialogUtil;
 import hoshisugi.rukoru.flamework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
@@ -35,10 +37,16 @@ public class ImageTabController extends BaseController {
 	private TableColumn<MachineImage, String> nameColumn;
 
 	@FXML
+	private TableColumn<MachineImage, String> stateColumn;
+
+	@FXML
 	private TableColumn<MachineImage, String> creationDateColumn;
 
 	@FXML
-	private TableColumn<MachineImage, MachineImage> operationColumn;
+	private TableColumn<MachineImage, MachineImage> createColumn;
+
+	@FXML
+	private TableColumn<MachineImage, MachineImage> deregisterColumn;
 
 	@FXML
 	private Button refreshButton;
@@ -51,9 +59,11 @@ public class ImageTabController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		operationColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
-		operationColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createOperationButton));
 		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("refresh_24x24.png")));
+		createColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
+		createColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createCreateButton));
+		deregisterColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
+		deregisterColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createDeregisterButton));
 		ConcurrentUtil.run(this::loadImages);
 	}
 
@@ -77,10 +87,18 @@ public class ImageTabController extends BaseController {
 		}
 	}
 
-	private Button createOperationButton(final MachineImage entity) {
+	private Button createCreateButton(final MachineImage entity) {
 		final Button button = new Button("作成");
 		button.setGraphic(new ImageView(AssetUtil.getImage("add_16x16.png")));
 		button.setOnAction(this::onCreateButtonClick);
+		button.setUserData(entity);
+		return button;
+	}
+
+	private Button createDeregisterButton(final MachineImage entity) {
+		final Button button = new Button("登録解除");
+		button.setGraphic(new ImageView(AssetUtil.getImage("delete_16x16.png")));
+		button.setOnAction(this::onDeregisterButtonClick);
 		button.setUserData(entity);
 		return button;
 	}
@@ -93,4 +111,20 @@ public class ImageTabController extends BaseController {
 		controller.targetProperty().set(entity);
 	}
 
+	private void onDeregisterButtonClick(final ActionEvent event) {
+		final Button button = (Button) event.getSource();
+		final MachineImage image = (MachineImage) button.getUserData();
+		final Optional<ButtonType> response = DialogUtil.showConfirmDialog("登録解除",
+				String.format("[%s] の登録を解除します。よろしいですか？", image.getName()));
+		if (!response.map(type -> type == ButtonType.OK).orElse(false)) {
+			return;
+		}
+
+		ConcurrentUtil.run(() -> {
+			final Optional<AuthSetting> optional = authService.load();
+			if (optional.isPresent()) {
+				ec2Service.deregisterImage(optional.get(), image);
+			}
+		});
+	}
 }

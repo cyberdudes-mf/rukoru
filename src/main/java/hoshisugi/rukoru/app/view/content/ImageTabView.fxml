@@ -24,12 +24,18 @@
       						<PropertyValueFactory property="name" />
       					</cellValueFactory>
       				</TableColumn>
+                  <TableColumn fx:id="stateColumn" minWidth="100.0" prefWidth="100.0" text="状態">
+      					<cellValueFactory>
+      						<PropertyValueFactory property="state" />
+      					</cellValueFactory>
+      				</TableColumn>
+                  <TableColumn fx:id="createColumn" minWidth="80.0" text="作成" />
                 <TableColumn fx:id="creationDateColumn" minWidth="130.0" prefWidth="130.0" text="作成日">
       					<cellValueFactory>
       						<PropertyValueFactory property="creationDate" />
       					</cellValueFactory>
       				</TableColumn>
-                  <TableColumn fx:id="operationColumn" minWidth="80.0" text="操作" />
+                  <TableColumn fx:id="deregisterColumn" minWidth="100.0" prefWidth="100.0" text="登録解除" />
               </columns>
             </TableView>
          </children>
