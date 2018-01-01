@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.services.ec2;
 
+import static com.amazonaws.regions.Regions.AP_NORTHEAST_1;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -7,9 +9,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.CreateImageRequest;
@@ -46,8 +49,8 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	private static final Filter SPIDER_INSTANCE = new Filter("tag-key", Arrays.asList("SpiderInstance"));
 
 	@Override
-	public List<EC2Instance> listInstances(final AuthSetting authSetting) {
-		final AmazonEC2 client = createClient(authSetting);
+	public List<EC2Instance> listInstances() {
+		final AmazonEC2 client = createClient();
 		final DescribeInstancesRequest request = new DescribeInstancesRequest().withFilters(SPIDER_INSTANCE);
 		final DescribeInstancesResult result = client.describeInstances(request);
 		return result.getReservations().stream().flatMap(r -> r.getInstances().stream()).map(EC2Instance::new)
@@ -55,8 +58,8 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	@Override
-	public List<MachineImage> listImages(final AuthSetting authSetting) {
-		final AmazonEC2 client = createClient(authSetting);
+	public List<MachineImage> listImages() {
+		final AmazonEC2 client = createClient();
 		final DescribeImagesRequest request = new DescribeImagesRequest().withFilters(SPIDER_INSTANCE);
 		final DescribeImagesResult result = client.describeImages(request);
 		return result.getImages().stream().map(MachineImage::new)
@@ -64,8 +67,8 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	@Override
-	public void updateTags(final AuthSetting authSetting, final EC2Instance instance, final Map<String, String> tags) {
-		final AmazonEC2 client = createClient(authSetting);
+	public void updateTags(final EC2Instance instance, final Map<String, String> tags) {
+		final AmazonEC2 client = createClient();
 		final List<Tag> newTags = tags.entrySet().stream().map(e -> new Tag(e.getKey(), e.getValue()))
 				.collect(Collectors.toList());
 		final CreateTagsRequest request = new CreateTagsRequest(Arrays.asList(instance.getInstanceId()), newTags);
@@ -73,8 +76,8 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	@Override
-	public void startInstance(final AuthSetting authSetting, final EC2Instance instance) {
-		final AmazonEC2 client = createClient(authSetting);
+	public void startInstance(final EC2Instance instance) {
+		final AmazonEC2 client = createClient();
 		final StartInstancesRequest request = new StartInstancesRequest().withInstanceIds(instance.getInstanceId());
 		final StartInstancesResult result = client.startInstances(request);
 		Platform.runLater(() -> {
@@ -96,8 +99,8 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	@Override
-	public void stopInstance(final AuthSetting authSetting, final EC2Instance instance) {
-		final AmazonEC2 client = createClient(authSetting);
+	public void stopInstance(final EC2Instance instance) {
+		final AmazonEC2 client = createClient();
 		final StopInstancesRequest request = new StopInstancesRequest().withInstanceIds(instance.getInstanceId());
 		final StopInstancesResult result = client.stopInstances(request);
 		Platform.runLater(() -> {
@@ -119,17 +122,16 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	@Override
-	public List<EC2Instance> createInstance(final AuthSetting authSetting,
-			final CreateInstanceRequest createInstanceRequest) {
-		final AmazonEC2 client = createClient(authSetting);
+	public List<EC2Instance> createInstance(final CreateInstanceRequest createInstanceRequest) {
+		final AmazonEC2 client = createClient();
 		final RunInstancesRequest request = createRunInstanceRequest(createInstanceRequest);
 		final RunInstancesResult result = client.runInstances(request);
 		return result.getReservation().getInstances().stream().map(EC2Instance::new).collect(Collectors.toList());
 	}
 
 	@Override
-	public void terminateInstance(final AuthSetting authSetting, final EC2Instance instance) {
-		final AmazonEC2 client = createClient(authSetting);
+	public void terminateInstance(final EC2Instance instance) {
+		final AmazonEC2 client = createClient();
 		final TerminateInstancesRequest request = new TerminateInstancesRequest()
 				.withInstanceIds(instance.getInstanceId());
 		final TerminateInstancesResult result = client.terminateInstances(request);
@@ -140,8 +142,8 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	@Override
-	public void createMachineImage(final AuthSetting authSetting, final CreateMachineImageRequest createImageRequest) {
-		final AmazonEC2 client = createClient(authSetting);
+	public void createMachineImage(final CreateMachineImageRequest createImageRequest) {
+		final AmazonEC2 client = createClient();
 		final CreateImageRequest request = new CreateImageRequest();
 		request.setInstanceId(createImageRequest.getInstanceId());
 		request.setName(createImageRequest.getName());
@@ -158,17 +160,18 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	@Override
-	public void deregisterImage(final AuthSetting authSetting, final MachineImage image) {
-		final AmazonEC2 client = createClient(authSetting);
+	public void deregisterImage(final MachineImage image) {
+		final AmazonEC2 client = createClient();
 		final DeregisterImageRequest request = new DeregisterImageRequest(image.getImageId());
 		client.deregisterImage(request);
 	}
 
-	private AmazonEC2 createClient(final AuthSetting authSetting) {
-		return AmazonEC2ClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(
-						new BasicAWSCredentials(authSetting.getAccessKeyId(), authSetting.getSecretAccessKey())))
-				.withRegion(Regions.AP_NORTHEAST_1).build();
+	private AmazonEC2 createClient() {
+		final AuthSetting authSetting = AuthSetting.get();
+		final AWSCredentials credential = new BasicAWSCredentials(authSetting.getAccessKeyId(),
+				authSetting.getSecretAccessKey());
+		final AWSCredentialsProvider provider = new AWSStaticCredentialsProvider(credential);
+		return AmazonEC2ClientBuilder.standard().withCredentials(provider).withRegion(AP_NORTHEAST_1).build();
 	}
 
 	private DescribeInstancesRequest createDescribeRequestById(final EC2Instance instance) {

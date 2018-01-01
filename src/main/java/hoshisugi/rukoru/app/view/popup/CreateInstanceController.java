@@ -7,11 +7,11 @@ import java.util.ResourceBundle;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.InstanceType;
+import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.CreateInstanceRequest;
 import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.app.models.MachineImage;
 import hoshisugi.rukoru.app.models.Tag;
-import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.view.content.InstanceTabController;
 import hoshisugi.rukoru.flamework.annotations.FXController;
@@ -35,6 +35,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 
 @FXController(title = "インスタンス設定")
 public class CreateInstanceController extends BaseController {
@@ -65,9 +66,6 @@ public class CreateInstanceController extends BaseController {
 
 	@Inject
 	private InstanceTabController instanceController;
-
-	@Inject
-	private AuthService authService;
 
 	@Inject
 	private EC2Service ec2Service;
@@ -127,19 +125,24 @@ public class CreateInstanceController extends BaseController {
 			request.setSecurityGroup("spider-instance");
 			request.getTags().addAll(tags);
 
-			final List<EC2Instance> instances = ec2Service.createInstance(authService.load().get(), request);
+			if (!AuthSetting.hasSetting()) {
+				DialogUtil.showWarningDialog("警告", "認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+				return;
+			}
+
+			final List<EC2Instance> instances = ec2Service.createInstance(request);
 			instanceController.getItems().addAll(0, instances);
 
 			Platform.runLater(() -> {
 				DialogUtil.showInfoDialog("インスタンス作成", String.format("[%s] のインスタンス作成を受け付けました。", name.getText()));
-				FXUtil.getStage(event).close();
+				close(FXUtil.getStage(event));
 			});
 		});
 	}
 
 	@FXML
 	private void onCancelButtonClick(final ActionEvent event) {
-		FXUtil.getStage(event).close();
+		close(FXUtil.getStage(event));
 	}
 
 	@FXML
@@ -155,4 +158,9 @@ public class CreateInstanceController extends BaseController {
 		tagTable.getItems().removeAll(tag);
 	}
 
+	private void close(final Stage stage) {
+		removeButton.disableProperty().unbind();
+		okButton.disableProperty().unbind();
+		stage.close();
+	}
 }

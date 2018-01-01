@@ -13,7 +13,6 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.EC2Instance;
-import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.view.popup.CreateImageController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
@@ -79,9 +78,6 @@ public class InstanceTabController extends BaseController {
 	private Button refreshButton;
 
 	@Inject
-	private AuthService authService;
-
-	@Inject
 	private EC2Service ec2Service;
 
 	private final ObservableList<EC2Instance> items = FXCollections.observableArrayList();
@@ -116,10 +112,8 @@ public class InstanceTabController extends BaseController {
 			Platform.runLater(() -> refreshButton.setDisable(true));
 			items.stream().forEach(i -> i.autoStopProperty().removeListener(this::onAutoStopChanged));
 			items.clear();
-			final Optional<AuthSetting> optional = authService.load();
-			if (optional.isPresent()) {
-				final AuthSetting authSetting = optional.get();
-				final List<EC2Instance> instances = ec2Service.listInstances(authSetting);
+			if (AuthSetting.hasSetting()) {
+				final List<EC2Instance> instances = ec2Service.listInstances();
 				instances.stream().forEach(i -> i.autoStopProperty().addListener(this::onAutoStopChanged));
 				items.addAll(instances);
 			}
@@ -186,13 +180,11 @@ public class InstanceTabController extends BaseController {
 			final Button button = (Button) event.getSource();
 			final EC2Instance instance = (EC2Instance) button.getUserData();
 			final boolean start = instance.getState().equals("stopped");
-			final Optional<AuthSetting> optional = authService.load();
-			if (optional.isPresent()) {
-				final AuthSetting authSetting = optional.get();
+			if (AuthSetting.hasSetting()) {
 				if (start) {
-					ec2Service.startInstance(authSetting, instance);
+					ec2Service.startInstance(instance);
 				} else {
-					ec2Service.stopInstance(authSetting, instance);
+					ec2Service.stopInstance(instance);
 				}
 			}
 		});
@@ -209,9 +201,8 @@ public class InstanceTabController extends BaseController {
 		}
 
 		ConcurrentUtil.run(() -> {
-			final Optional<AuthSetting> optional = authService.load();
-			if (optional.isPresent()) {
-				ec2Service.terminateInstance(optional.get(), instance);
+			if (AuthSetting.hasSetting()) {
+				ec2Service.terminateInstance(instance);
 			}
 		});
 	}
@@ -226,13 +217,11 @@ public class InstanceTabController extends BaseController {
 	private void onAutoStopChanged(final ObservableValue<? extends Boolean> observable, final Boolean oldValue,
 			final Boolean newValue) {
 		ConcurrentUtil.run(() -> {
-			final Optional<AuthSetting> optional = authService.load();
-			if (optional.isPresent()) {
+			if (AuthSetting.hasSetting()) {
 				final BooleanProperty property = (BooleanProperty) observable;
-				final AuthSetting authSetting = optional.get();
 				final EC2Instance instance = (EC2Instance) property.getBean();
 				final Map<String, String> tags = Map.of("AutoStop", Boolean.toString(property.get()).toUpperCase());
-				ec2Service.updateTags(authSetting, instance, tags);
+				ec2Service.updateTags(instance, tags);
 			}
 		});
 	}

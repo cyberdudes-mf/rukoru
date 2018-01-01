@@ -9,7 +9,6 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.MachineImage;
-import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.view.popup.CreateInstanceController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
@@ -52,9 +51,6 @@ public class ImageTabController extends BaseController {
 	private Button refreshButton;
 
 	@Inject
-	private AuthService authService;
-
-	@Inject
 	private EC2Service ec2Service;
 
 	@Override
@@ -76,10 +72,8 @@ public class ImageTabController extends BaseController {
 		try {
 			Platform.runLater(() -> refreshButton.setDisable(true));
 			tableView.getItems().clear();
-			final Optional<AuthSetting> optional = authService.load();
-			if (optional.isPresent()) {
-				final AuthSetting authSetting = optional.get();
-				final List<MachineImage> images = ec2Service.listImages(authSetting);
+			if (AuthSetting.hasSetting()) {
+				final List<MachineImage> images = ec2Service.listImages();
 				Platform.runLater(() -> tableView.getItems().addAll(FXCollections.observableArrayList(images)));
 			}
 		} finally {
@@ -121,9 +115,8 @@ public class ImageTabController extends BaseController {
 		}
 
 		ConcurrentUtil.run(() -> {
-			final Optional<AuthSetting> optional = authService.load();
-			if (optional.isPresent()) {
-				ec2Service.deregisterImage(optional.get(), image);
+			if (AuthSetting.hasSetting()) {
+				ec2Service.deregisterImage(image);
 			}
 		});
 	}

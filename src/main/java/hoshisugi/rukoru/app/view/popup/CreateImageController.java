@@ -5,10 +5,10 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
+import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.CreateMachineImageRequest;
 import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.app.models.Tag;
-import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.flamework.annotations.FXController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
@@ -34,9 +34,6 @@ public class CreateImageController extends BaseController {
 
 	@FXML
 	private CheckBox noReboot;
-
-	@Inject
-	private AuthService authService;
 
 	@Inject
 	private EC2Service ec2Service;
@@ -65,7 +62,11 @@ public class CreateImageController extends BaseController {
 			request.setNoReboot(noReboot.isSelected());
 			request.getTags().add(new Tag("SpiderInstance", ""));
 
-			ec2Service.createMachineImage(authService.load().get(), request);
+			if (!AuthSetting.hasSetting()) {
+				DialogUtil.showWarningDialog("警告", "認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+				return;
+			}
+			ec2Service.createMachineImage(request);
 
 			Platform.runLater(() -> {
 				DialogUtil.showInfoDialog("インスタンス作成", String.format("[%s] のイメージ作成を受け付けました。", request.getName()));

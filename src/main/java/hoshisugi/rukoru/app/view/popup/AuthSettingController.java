@@ -18,6 +18,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 @FXController(title = "認証設定")
 public class AuthSettingController extends BaseController {
@@ -53,12 +54,12 @@ public class AuthSettingController extends BaseController {
 		} catch (final SQLException e) {
 			DialogUtil.showErrorDialog(e);
 		}
-		FXUtil.getStage(event).close();
+		close(FXUtil.getStage(event));
 	}
 
 	@FXML
 	private void onCancelButtonClick(final ActionEvent event) {
-		FXUtil.getStage(event).close();
+		close(FXUtil.getStage(event));
 	}
 
 	private void loadSetting() {
@@ -67,9 +68,16 @@ public class AuthSettingController extends BaseController {
 		} catch (final UncheckedExecutionException e) {
 			entity = new AuthSetting();
 		}
-		account.textProperty().bindBidirectional(entity.accountProperty());
-		accessKeyId.textProperty().bindBidirectional(entity.accessKeyIdProperty());
-		secretAccessKey.textProperty().bindBidirectional(entity.secretAccessKeyProperty());
+		account.textProperty().bind(entity.accountProperty());
+		accessKeyId.textProperty().bind(entity.accessKeyIdProperty());
+		secretAccessKey.textProperty().bind(entity.secretAccessKeyProperty());
 	}
 
+	private void close(final Stage stage) {
+		account.textProperty().unbind();
+		accessKeyId.textProperty().unbind();
+		secretAccessKey.textProperty().unbind();
+		saveButton.disableProperty().unbind();
+		stage.close();
+	}
 }

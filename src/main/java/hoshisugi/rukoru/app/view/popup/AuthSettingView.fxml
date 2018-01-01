@@ -25,7 +25,7 @@
          </columnConstraints>
          <children>
             <Label text="アカウント" />
-            <TextField fx:id="account" maxWidth="1.7976931348623157E308" text="047833113238" GridPane.columnIndex="1" />
+            <TextField fx:id="account" maxWidth="1.7976931348623157E308" promptText="047833113238" GridPane.columnIndex="1" />
             <Label text="アクセスキーID" GridPane.rowIndex="1" />
             <TextField fx:id="accessKeyId" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label text="シークレットアクセスキー" GridPane.rowIndex="2" />

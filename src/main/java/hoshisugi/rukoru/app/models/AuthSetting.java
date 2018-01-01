@@ -4,9 +4,12 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Optional;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
+import hoshisugi.rukoru.app.services.auth.AuthService;
+import hoshisugi.rukoru.flamework.inject.Injector;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -25,6 +28,24 @@ public class AuthSetting implements Serializable {
 	private final ObjectProperty<Timestamp> createdAt = new SimpleObjectProperty<>(this, "createdAt");
 
 	private final ObjectProperty<Timestamp> updatedAt = new SimpleObjectProperty<>(this, "updatedAt");
+
+	private static Optional<AuthSetting> setting = Optional.empty();
+
+	public static AuthSetting get() {
+		return setting.get();
+	}
+
+	public static boolean hasSetting() {
+		if (!setting.isPresent()) {
+			reload();
+		}
+		return setting.isPresent();
+	}
+
+	public static void reload() {
+		final AuthService service = Injector.getInstance(AuthService.class);
+		setting = service.load();
+	}
 
 	public AuthSetting() {
 	}
