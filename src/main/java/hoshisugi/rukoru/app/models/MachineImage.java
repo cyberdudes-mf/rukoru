@@ -24,6 +24,10 @@ public class MachineImage implements Serializable {
 	}
 
 	public MachineImage(final Image image) {
+		update(image);
+	}
+
+	public void update(final Image image) {
 		setImageId(image.getImageId());
 		setName(image.getName());
 		setState(image.getState());
@@ -68,6 +72,10 @@ public class MachineImage implements Serializable {
 
 	public StringProperty nameProperty() {
 		return name;
+	}
+
+	public StringProperty stateProperty() {
+		return state;
 	}
 
 	public StringProperty creationDateProperty() {

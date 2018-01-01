@@ -1,8 +1,15 @@
 package hoshisugi.rukoru.app.services.ec2;
 
+import static hoshisugi.rukoru.app.enums.EC2InstanceState.Running;
+import static hoshisugi.rukoru.app.enums.EC2InstanceState.Stopped;
+import static hoshisugi.rukoru.app.enums.EC2InstanceState.Terminated;
+
 import java.util.List;
 import java.util.Map;
 
+import com.amazonaws.services.ec2.model.ImageState;
+
+import hoshisugi.rukoru.app.enums.EC2InstanceState;
 import hoshisugi.rukoru.app.models.CreateInstanceRequest;
 import hoshisugi.rukoru.app.models.CreateMachineImageRequest;
 import hoshisugi.rukoru.app.models.EC2Instance;
@@ -24,7 +31,28 @@ public interface EC2Service {
 
 	void terminateInstance(EC2Instance instance);
 
-	void createMachineImage(CreateMachineImageRequest request);
+	List<MachineImage> createMachineImage(CreateMachineImageRequest request);
 
-	void deregisterImage(MachineImage image);
+	void deregisterMachineImage(MachineImage image);
+
+	void monitorInstances(List<EC2Instance> instances);
+
+	void monitorImages(List<MachineImage> images);
+
+	static boolean needMonitoring(final EC2Instance instance) {
+		final EC2InstanceState state = EC2InstanceState.of(instance.getState());
+		return state != Running && state != Stopped && state != Terminated;
+	}
+
+	static boolean needMonitoring(final MachineImage image) {
+		return !ImageState.Available.toString().equals(image.getState());
+	}
+
+	static boolean noNeedMonitoring(final EC2Instance instance) {
+		return !needMonitoring(instance);
+	}
+
+	static boolean noNeedMonitoring(final MachineImage image) {
+		return !needMonitoring(image);
+	}
 }

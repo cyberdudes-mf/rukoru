@@ -115,21 +115,13 @@ public class CreateInstanceController extends BaseController {
 		}
 
 		ConcurrentUtil.run(() -> {
-			final CreateInstanceRequest request = new CreateInstanceRequest();
-			final MachineImage entity = target.get();
-			request.setImageId(entity.getImageId());
-			request.setInstanceType(instanceType.getSelectionModel().getSelectedItem());
-			request.setMinCount(1);
-			request.setMaxCount(1);
-			request.setKeyName("keypair_common");
-			request.setSecurityGroup("spider-instance");
-			request.getTags().addAll(tags);
 
 			if (!AuthSetting.hasSetting()) {
 				DialogUtil.showWarningDialog("警告", "認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
 				return;
 			}
 
+			final CreateInstanceRequest request = createRequest(tags);
 			final List<EC2Instance> instances = ec2Service.createInstance(request);
 			instanceController.getItems().addAll(0, instances);
 
@@ -138,6 +130,19 @@ public class CreateInstanceController extends BaseController {
 				close(FXUtil.getStage(event));
 			});
 		});
+	}
+
+	private CreateInstanceRequest createRequest(final ObservableList<Tag> tags) {
+		final CreateInstanceRequest request = new CreateInstanceRequest();
+		final MachineImage entity = target.get();
+		request.setImageId(entity.getImageId());
+		request.setInstanceType(instanceType.getSelectionModel().getSelectedItem());
+		request.setMinCount(1);
+		request.setMaxCount(1);
+		request.setKeyName("keypair_common");
+		request.setSecurityGroup("spider-instance");
+		request.getTags().addAll(tags);
+		return request;
 	}
 
 	@FXML

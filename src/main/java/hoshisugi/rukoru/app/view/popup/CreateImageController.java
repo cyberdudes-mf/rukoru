@@ -1,6 +1,7 @@
 package hoshisugi.rukoru.app.view.popup;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
@@ -8,8 +9,10 @@ import com.google.inject.Inject;
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.CreateMachineImageRequest;
 import hoshisugi.rukoru.app.models.EC2Instance;
+import hoshisugi.rukoru.app.models.MachineImage;
 import hoshisugi.rukoru.app.models.Tag;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
+import hoshisugi.rukoru.app.view.content.ImageTabController;
 import hoshisugi.rukoru.flamework.annotations.FXController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
@@ -36,6 +39,9 @@ public class CreateImageController extends BaseController {
 	private CheckBox noReboot;
 
 	@Inject
+	private ImageTabController imageController;
+
+	@Inject
 	private EC2Service ec2Service;
 
 	private final ObjectProperty<EC2Instance> target = new SimpleObjectProperty<>(this, "target");
@@ -55,24 +61,30 @@ public class CreateImageController extends BaseController {
 	private void onOKButtonClick(final ActionEvent event) {
 
 		ConcurrentUtil.run(() -> {
-			final CreateMachineImageRequest request = new CreateMachineImageRequest();
-			request.setInstanceId(target.get().getInstanceId());
-			request.setName(name.getText());
-			request.setDescription(name.getText());
-			request.setNoReboot(noReboot.isSelected());
-			request.getTags().add(new Tag("SpiderInstance", ""));
-
 			if (!AuthSetting.hasSetting()) {
 				DialogUtil.showWarningDialog("警告", "認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
 				return;
 			}
-			ec2Service.createMachineImage(request);
+
+			final CreateMachineImageRequest request = createRequest();
+			final List<MachineImage> images = ec2Service.createMachineImage(request);
+			imageController.getItems().addAll(0, images);
 
 			Platform.runLater(() -> {
 				DialogUtil.showInfoDialog("インスタンス作成", String.format("[%s] のイメージ作成を受け付けました。", request.getName()));
 				FXUtil.getStage(event).close();
 			});
 		});
+	}
+
+	private CreateMachineImageRequest createRequest() {
+		final CreateMachineImageRequest request = new CreateMachineImageRequest();
+		request.setInstanceId(target.get().getInstanceId());
+		request.setName(name.getText());
+		request.setDescription(name.getText());
+		request.setNoReboot(noReboot.isSelected());
+		request.getTags().add(new Tag("SpiderInstance", ""));
+		return request;
 	}
 
 	@FXML

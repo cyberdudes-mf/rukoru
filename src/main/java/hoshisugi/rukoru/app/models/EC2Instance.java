@@ -32,6 +32,10 @@ public class EC2Instance implements Serializable {
 	}
 
 	public EC2Instance(final Instance instance) {
+		update(instance);
+	}
+
+	public void update(final Instance instance) {
 		final Map<String, String> tags = createTagMap(instance);
 		setInstanceId(instance.getInstanceId());
 		setName(tags.get("Name"));

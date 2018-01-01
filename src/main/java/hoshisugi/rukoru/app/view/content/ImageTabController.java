@@ -4,21 +4,26 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 
+import hoshisugi.rukoru.app.enums.MachineImageState;
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.MachineImage;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.view.popup.CreateInstanceController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.controls.GraphicTableCell;
+import hoshisugi.rukoru.flamework.controls.TextFillTableCell;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
 import hoshisugi.rukoru.flamework.util.DialogUtil;
 import hoshisugi.rukoru.flamework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener.Change;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -26,6 +31,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 
 public class ImageTabController extends BaseController {
 
@@ -53,13 +59,22 @@ public class ImageTabController extends BaseController {
 	@Inject
 	private EC2Service ec2Service;
 
+	private final ObservableList<MachineImage> items = FXCollections.observableArrayList();
+
+	public ObservableList<MachineImage> getItems() {
+		return items;
+	}
+
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
 		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("refresh_24x24.png")));
+		stateColumn.setCellFactory(TextFillTableCell.forTableCellFactory(this::provideColor));
 		createColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		createColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createCreateButton));
 		deregisterColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		deregisterColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createDeregisterButton));
+		tableView.setItems(items);
+		items.addListener(this::onItemsChanged);
 		ConcurrentUtil.run(this::loadImages);
 	}
 
@@ -71,10 +86,10 @@ public class ImageTabController extends BaseController {
 	private void loadImages() {
 		try {
 			Platform.runLater(() -> refreshButton.setDisable(true));
-			tableView.getItems().clear();
+			items.clear();
 			if (AuthSetting.hasSetting()) {
 				final List<MachineImage> images = ec2Service.listImages();
-				Platform.runLater(() -> tableView.getItems().addAll(FXCollections.observableArrayList(images)));
+				items.addAll(images);
 			}
 		} finally {
 			Platform.runLater(() -> refreshButton.setDisable(false));
@@ -116,8 +131,38 @@ public class ImageTabController extends BaseController {
 
 		ConcurrentUtil.run(() -> {
 			if (AuthSetting.hasSetting()) {
-				ec2Service.deregisterImage(image);
+				ec2Service.deregisterMachineImage(image);
+				items.remove(image);
 			}
 		});
+	}
+
+	private void onItemsChanged(final Change<? extends MachineImage> change) {
+		if (items.stream().noneMatch(EC2Service::needMonitoring)) {
+			return;
+		}
+		ConcurrentUtil.run(() -> {
+			if (AuthSetting.hasSetting()) {
+				final List<MachineImage> instances = items.stream().filter(EC2Service::needMonitoring)
+						.collect(Collectors.toList());
+				ec2Service.monitorImages(instances);
+			}
+		});
+	}
+
+	private Color provideColor(final String state) {
+		final MachineImageState s = MachineImageState.of(state);
+		final Color color;
+		switch (s) {
+		case Available:
+			color = Color.GREEN;
+			break;
+		case Pending:
+			color = Color.GOLDENROD;
+			break;
+		default:
+			color = null;
+		}
+		return color;
 	}
 }

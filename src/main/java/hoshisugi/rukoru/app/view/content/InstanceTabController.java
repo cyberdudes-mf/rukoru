@@ -4,13 +4,16 @@ import static hoshisugi.rukoru.flamework.util.AssetUtil.getImage;
 import static javafx.beans.binding.Bindings.when;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 
+import hoshisugi.rukoru.app.enums.EC2InstanceState;
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
@@ -18,7 +21,7 @@ import hoshisugi.rukoru.app.view.popup.CreateImageController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.controls.ButtonTableCell;
 import hoshisugi.rukoru.flamework.controls.GraphicTableCell;
-import hoshisugi.rukoru.flamework.controls.StateTableCell;
+import hoshisugi.rukoru.flamework.controls.TextFillTableCell;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
 import hoshisugi.rukoru.flamework.util.DialogUtil;
@@ -30,6 +33,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,6 +45,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.paint.Color;
 
 public class InstanceTabController extends BaseController {
 
@@ -88,7 +93,7 @@ public class InstanceTabController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		stateColumn.setCellFactory(StateTableCell.forTableCellFactory());
+		stateColumn.setCellFactory(TextFillTableCell.forTableCellFactory(this::provideColor));
 		publicIpAddressColumn.setCellFactory(ButtonTableCell.forTableCellFactory(this::onCopyButtonClick));
 		autoStopColumn.setCellFactory(CheckBoxTableCell.forTableColumn(autoStopColumn));
 		runAndStopColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
@@ -99,6 +104,7 @@ public class InstanceTabController extends BaseController {
 		imageColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createImageButton));
 		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("refresh_24x24.png")));
 		tableView.setItems(items);
+		items.addListener(this::onItemsChanged);
 		ConcurrentUtil.run(this::loadInstances);
 	}
 
@@ -186,6 +192,7 @@ public class InstanceTabController extends BaseController {
 				} else {
 					ec2Service.stopInstance(instance);
 				}
+				ec2Service.monitorInstances(Arrays.asList(instance));
 			}
 		});
 	}
@@ -203,6 +210,7 @@ public class InstanceTabController extends BaseController {
 		ConcurrentUtil.run(() -> {
 			if (AuthSetting.hasSetting()) {
 				ec2Service.terminateInstance(instance);
+				ec2Service.monitorInstances(Arrays.asList(instance));
 			}
 		});
 	}
@@ -224,5 +232,42 @@ public class InstanceTabController extends BaseController {
 				ec2Service.updateTags(instance, tags);
 			}
 		});
+	}
+
+	private void onItemsChanged(final Change<? extends EC2Instance> change) {
+		if (items.stream().noneMatch(EC2Service::needMonitoring)) {
+			return;
+		}
+		ConcurrentUtil.run(() -> {
+			if (AuthSetting.hasSetting()) {
+				final List<EC2Instance> instances = items.stream().filter(EC2Service::needMonitoring)
+						.collect(Collectors.toList());
+				ec2Service.monitorInstances(instances);
+			}
+		});
+	}
+
+	private Color provideColor(final String state) {
+		final EC2InstanceState s = EC2InstanceState.of(state);
+		final Color color;
+		switch (s) {
+		case Running:
+			color = Color.GREEN;
+			break;
+		case Stopped:
+			color = Color.RED;
+			break;
+		case Pending:
+		case Stopping:
+		case ShuttingDown:
+			color = Color.GOLDENROD;
+			break;
+		case Terminated:
+			color = Color.PURPLE;
+			break;
+		default:
+			color = null;
+		}
+		return color;
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -84,18 +85,6 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 			result.getStartingInstances().stream().filter(s -> s.getInstanceId().equals(instance.getInstanceId()))
 					.findFirst().ifPresent(s -> instance.setState(s.getCurrentState().getName()));
 		});
-		final DescribeInstancesRequest describeRequest = createDescribeRequestById(instance);
-		while (!instance.getState().equals("running")) {
-			final DescribeInstancesResult describeResult = client.describeInstances(describeRequest);
-			Platform.runLater(() -> {
-				describeResult.getReservations().stream().flatMap(r -> r.getInstances().stream())
-						.filter(i -> i.getInstanceId().equals(instance.getInstanceId())).findFirst().ifPresent(i -> {
-							instance.setState(i.getState().getName());
-							instance.setPublicIpAddress(i.getPublicIpAddress());
-						});
-			});
-			sleep(3000);
-		}
 	}
 
 	@Override
@@ -107,18 +96,6 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 			result.getStoppingInstances().stream().filter(s -> s.getInstanceId().equals(instance.getInstanceId()))
 					.findFirst().ifPresent(s -> instance.setState(s.getCurrentState().getName()));
 		});
-		final DescribeInstancesRequest describeRequest = createDescribeRequestById(instance);
-		while (!instance.getState().equals("stopped")) {
-			final DescribeInstancesResult describeResult = client.describeInstances(describeRequest);
-			Platform.runLater(() -> {
-				describeResult.getReservations().stream().flatMap(r -> r.getInstances().stream())
-						.filter(i -> i.getInstanceId().equals(instance.getInstanceId())).findFirst().ifPresent(i -> {
-							instance.setState(i.getState().getName());
-							instance.setPublicIpAddress(i.getPublicIpAddress());
-						});
-			});
-			sleep(3000);
-		}
 	}
 
 	@Override
@@ -142,7 +119,7 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	@Override
-	public void createMachineImage(final CreateMachineImageRequest createImageRequest) {
+	public List<MachineImage> createMachineImage(final CreateMachineImageRequest createImageRequest) {
 		final AmazonEC2 client = createClient();
 		final CreateImageRequest request = new CreateImageRequest();
 		request.setInstanceId(createImageRequest.getInstanceId());
@@ -151,19 +128,62 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 		request.setNoReboot(createImageRequest.isNoReboot());
 		final CreateImageResult result = client.createImage(request);
 
-		// タグを付ける
 		final CreateTagsRequest tagRequest = new CreateTagsRequest().withResources(result.getImageId());
 		final List<Tag> tags = createImageRequest.getTags().stream().map(t -> new Tag(t.getKey(), t.getValue()))
 				.collect(Collectors.toList());
 		tagRequest.setTags(tags);
 		client.createTags(tagRequest);
+
+		final DescribeImagesRequest describeRequest = new DescribeImagesRequest().withImageIds(result.getImageId());
+		final DescribeImagesResult describeResult = client.describeImages(describeRequest);
+		return describeResult.getImages().stream().map(MachineImage::new)
+				.sorted(Comparator.comparing(MachineImage::getCreationDate).reversed()).collect(Collectors.toList());
 	}
 
 	@Override
-	public void deregisterImage(final MachineImage image) {
+	public void deregisterMachineImage(final MachineImage image) {
 		final AmazonEC2 client = createClient();
 		final DeregisterImageRequest request = new DeregisterImageRequest(image.getImageId());
 		client.deregisterImage(request);
+	}
+
+	@Override
+	public void monitorInstances(final List<EC2Instance> instances) {
+		final Map<String, EC2Instance> instanceIdMap = instances.stream()
+				.collect(Collectors.toMap(EC2Instance::getInstanceId, Function.identity()));
+		final AmazonEC2 client = createClient();
+		while (instanceIdMap.values().stream().anyMatch(EC2Service::needMonitoring)) {
+			final DescribeInstancesRequest request = new DescribeInstancesRequest()
+					.withInstanceIds(instanceIdMap.keySet());
+			final DescribeInstancesResult result = client.describeInstances(request);
+			Platform.runLater(() -> {
+				result.getReservations().stream().flatMap(r -> r.getInstances().stream()).map(i -> {
+					final EC2Instance target = instanceIdMap.get(i.getInstanceId());
+					target.update(i);
+					return target;
+				}).filter(EC2Service::noNeedMonitoring).forEach(done -> instanceIdMap.remove(done.getInstanceId()));
+			});
+			sleep(5000);
+		}
+	}
+
+	@Override
+	public void monitorImages(final List<MachineImage> images) {
+		final Map<String, MachineImage> imageIdMap = images.stream()
+				.collect(Collectors.toMap(MachineImage::getImageId, Function.identity()));
+		final AmazonEC2 client = createClient();
+		while (imageIdMap.values().stream().anyMatch(EC2Service::needMonitoring)) {
+			final DescribeImagesRequest request = new DescribeImagesRequest().withImageIds(imageIdMap.keySet());
+			final DescribeImagesResult result = client.describeImages(request);
+			Platform.runLater(() -> {
+				result.getImages().stream().map(i -> {
+					final MachineImage target = imageIdMap.get(i.getImageId());
+					target.update(i);
+					return target;
+				}).filter(EC2Service::noNeedMonitoring).forEach(done -> imageIdMap.remove(done.getImageId()));
+			});
+			sleep(5000);
+		}
 	}
 
 	private AmazonEC2 createClient() {
@@ -172,10 +192,6 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 				authSetting.getSecretAccessKey());
 		final AWSCredentialsProvider provider = new AWSStaticCredentialsProvider(credential);
 		return AmazonEC2ClientBuilder.standard().withCredentials(provider).withRegion(AP_NORTHEAST_1).build();
-	}
-
-	private DescribeInstancesRequest createDescribeRequestById(final EC2Instance instance) {
-		return new DescribeInstancesRequest().withInstanceIds(instance.getInstanceId());
 	}
 
 	private void sleep(final int millis) {
