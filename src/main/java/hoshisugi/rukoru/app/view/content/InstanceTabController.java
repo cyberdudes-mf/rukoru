@@ -1,6 +1,7 @@
 package hoshisugi.rukoru.app.view.content;
 
 import static hoshisugi.rukoru.flamework.util.AssetUtil.getImage;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static javafx.beans.binding.Bindings.when;
 
 import java.net.URL;
@@ -9,8 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.EC2InstanceState;
@@ -19,7 +23,6 @@ import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.view.popup.CreateImageController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
-import hoshisugi.rukoru.flamework.controls.ButtonTableCell;
 import hoshisugi.rukoru.flamework.controls.GraphicTableCell;
 import hoshisugi.rukoru.flamework.controls.TextFillTableCell;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
@@ -41,6 +44,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -62,7 +66,7 @@ public class InstanceTabController extends BaseController {
 	private TableColumn<EC2Instance, String> stateColumn;
 
 	@FXML
-	private TableColumn<EC2Instance, String> publicIpAddressColumn;
+	private TableColumn<EC2Instance, EC2Instance> publicIpAddressColumn;
 
 	@FXML
 	private TableColumn<EC2Instance, EC2Instance> runAndStopColumn;
@@ -94,7 +98,8 @@ public class InstanceTabController extends BaseController {
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
 		stateColumn.setCellFactory(TextFillTableCell.forTableCellFactory(this::provideColor));
-		publicIpAddressColumn.setCellFactory(ButtonTableCell.forTableCellFactory(this::onCopyButtonClick));
+		publicIpAddressColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
+		publicIpAddressColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createPublicIpAddressButton));
 		autoStopColumn.setCellFactory(CheckBoxTableCell.forTableColumn(autoStopColumn));
 		runAndStopColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		runAndStopColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createRunAndStopButton));
@@ -133,6 +138,14 @@ public class InstanceTabController extends BaseController {
 		final ClipboardContent content = new ClipboardContent();
 		content.putString(button.getText());
 		Clipboard.getSystemClipboard().setContent(content);
+		final Tooltip tooltip = new Tooltip("クリップボードにコピーしました。");
+		tooltip.setAutoHide(true);
+		tooltip.show(FXUtil.getStage(event));
+		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.schedule(() -> {
+			Platform.runLater(() -> tooltip.hide());
+			scheduler.shutdown();
+		}, 1000, MILLISECONDS);
 	}
 
 	private Button createImageButton(final EC2Instance entity) {
@@ -162,6 +175,17 @@ public class InstanceTabController extends BaseController {
 		button.disableProperty().bind(createRunAndStopButtonDisable(state));
 		button.setGraphic(createRunAndStopButtonImage(state));
 		button.setOnAction(this::onRunAndStopButtonClick);
+		button.setUserData(entity);
+		return button;
+	}
+
+	private Button createPublicIpAddressButton(final EC2Instance entity) {
+		if (Strings.isNullOrEmpty(entity.getPublicIpAddress())) {
+			return null;
+		}
+		final Button button = new Button();
+		button.setText(entity.getPublicIpAddress());
+		button.setOnAction(this::onCopyButtonClick);
 		button.setUserData(entity);
 		return button;
 	}
