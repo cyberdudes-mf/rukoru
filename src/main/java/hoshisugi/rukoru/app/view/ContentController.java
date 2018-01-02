@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 
 import hoshisugi.rukoru.app.view.content.EC2ContentController;
 import hoshisugi.rukoru.app.view.content.RepositoryDBContentController;
-import hoshisugi.rukoru.app.view.content.S3ContentController;
+import hoshisugi.rukoru.app.view.content.S3ExplorerController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
 import hoshisugi.rukoru.flamework.util.FXUtil;
@@ -41,7 +41,7 @@ public class ContentController extends BaseController {
 		ConcurrentUtil.run(() -> {
 			loadContent(EC2ContentController.class);
 			loadContent(RepositoryDBContentController.class);
-			loadContent(S3ContentController.class);
+			loadContent(S3ExplorerController.class);
 		});
 	}
 

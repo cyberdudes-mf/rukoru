@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+
+<HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.content.S3ExplorerMenuController">
+   <padding>
+      <Insets bottom="5.0" />
+   </padding>
+   <children>
+      <Button fx:id="backButton" mnemonicParsing="false" />
+      <Button fx:id="nextButton" mnemonicParsing="false" />
+      <Button fx:id="refreshButton" mnemonicParsing="false" />
+      <Button fx:id="homeButton" mnemonicParsing="false" />
+      <TextField fx:id="pathField" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+   </children>
+</HBox>

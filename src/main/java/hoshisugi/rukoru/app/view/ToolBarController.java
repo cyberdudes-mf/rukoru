@@ -10,7 +10,7 @@ import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.view.content.EC2ContentController;
 import hoshisugi.rukoru.app.view.content.RepositoryDBContentController;
-import hoshisugi.rukoru.app.view.content.S3ContentController;
+import hoshisugi.rukoru.app.view.content.S3ExplorerController;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import hoshisugi.rukoru.flamework.util.BrowserUtil;
@@ -83,7 +83,7 @@ public class ToolBarController extends BaseController {
 
 	@FXML
 	private void onS3ButtonCLick(final ActionEvent event) {
-		contentController.showContent(S3ContentController.class);
+		contentController.showContent(S3ExplorerController.class);
 	}
 
 	@FXML

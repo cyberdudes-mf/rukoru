@@ -5,10 +5,10 @@ import java.util.ResourceBundle;
 
 import hoshisugi.rukoru.flamework.controls.BaseController;
 
-public class S3ContentController extends BaseController {
+public class S3ExplorerContentController extends BaseController {
 
 	@Override
-	public void initialize(URL arg0, ResourceBundle arg1) {
+	public void initialize(final URL url, final ResourceBundle resource) {
 		// TODO Auto-generated method stub
 
 	}
