@@ -138,6 +138,7 @@ public class ImageTabController extends BaseController {
 	}
 
 	private void onItemsChanged(final Change<? extends MachineImage> change) {
+		// TODO change を回さないとダメ
 		if (items.stream().noneMatch(EC2Service::needMonitoring)) {
 			return;
 		}

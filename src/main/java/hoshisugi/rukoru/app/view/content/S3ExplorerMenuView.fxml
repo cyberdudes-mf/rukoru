@@ -10,10 +10,11 @@
       <Insets bottom="5.0" />
    </padding>
    <children>
-      <Button fx:id="backButton" mnemonicParsing="false" />
-      <Button fx:id="nextButton" mnemonicParsing="false" />
-      <Button fx:id="refreshButton" mnemonicParsing="false" />
-      <Button fx:id="homeButton" mnemonicParsing="false" />
+      <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackButtonClick" />
+      <Button fx:id="nextButton" mnemonicParsing="false" onAction="#onNextButtonClick" />
+      <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#onRefreshButtonClick" />
+      <Button fx:id="homeButton" mnemonicParsing="false" onAction="#onHomeButtonClick" />
+      <Button fx:id="upButton" mnemonicParsing="false" onAction="#onUpButtonClick" />
       <TextField fx:id="pathField" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
    </children>
 </HBox>

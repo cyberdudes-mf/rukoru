@@ -192,8 +192,8 @@ public class InstanceTabController extends BaseController {
 
 	private ImageView createRunAndStopButtonImage(final StringProperty state) {
 		final ImageView imageView = new ImageView();
-		imageView.imageProperty().bind(when(state.isEqualTo("stopped")).then(getImage("16x16/run.png"))
-				.otherwise(getImage("stop.png")));
+		imageView.imageProperty().bind(
+				when(state.isEqualTo("stopped")).then(getImage("16x16/run.png")).otherwise(getImage("16x16/stop.png")));
 		return imageView;
 	}
 
@@ -259,6 +259,7 @@ public class InstanceTabController extends BaseController {
 	}
 
 	private void onItemsChanged(final Change<? extends EC2Instance> change) {
+		// TODO change を回さないとダメ
 		if (items.stream().noneMatch(EC2Service::needMonitoring)) {
 			return;
 		}

@@ -24,8 +24,13 @@ public class S3Object extends S3Item {
 	}
 
 	@Override
-	public TreeItem<S3Item> toTreeItem() {
+	public TreeItem<S3Item> createTreeItem() {
 		return null;
+	}
+
+	@Override
+	public boolean isContainer() {
+		return false;
 	}
 
 }

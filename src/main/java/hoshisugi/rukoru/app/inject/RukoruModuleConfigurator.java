@@ -15,7 +15,7 @@ import hoshisugi.rukoru.app.view.content.EC2ContentController;
 import hoshisugi.rukoru.app.view.content.ImageTabController;
 import hoshisugi.rukoru.app.view.content.InstanceTabController;
 import hoshisugi.rukoru.app.view.content.RepositoryDBContentController;
-import hoshisugi.rukoru.app.view.content.S3ExplorerContentController;
+import hoshisugi.rukoru.app.view.content.S3ExplorerTableController;
 import hoshisugi.rukoru.app.view.content.S3ExplorerController;
 import hoshisugi.rukoru.app.view.content.S3ExplorerMenuController;
 import hoshisugi.rukoru.app.view.content.S3ExplorerTreeController;
@@ -40,7 +40,7 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(ImageTabController.class);
 		provide(S3ExplorerMenuController.class);
 		provide(S3ExplorerTreeController.class);
-		provide(S3ExplorerContentController.class);
+		provide(S3ExplorerTableController.class);
 
 	}
 

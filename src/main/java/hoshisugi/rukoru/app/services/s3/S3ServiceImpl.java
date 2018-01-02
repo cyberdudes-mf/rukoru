@@ -15,6 +15,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.common.base.Strings;
 
 import hoshisugi.rukoru.app.models.AuthSetting;
@@ -63,7 +64,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		do {
 			result = client.listObjects(request);
 			result.getCommonPrefixes().stream().map(s -> new S3Folder(bucketName, s)).forEach(folders::add);
-			result.getObjectSummaries().stream().map(S3Object::new).forEach(files::add);
+			result.getObjectSummaries().stream().filter(this::isObject).map(S3Object::new).forEach(files::add);
 			request.setMarker(result.getNextMarker());
 		} while (result.isTruncated());
 
@@ -72,4 +73,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		items.addAll(files);
 	}
 
+	private boolean isObject(final S3ObjectSummary summary) {
+		return !summary.getKey().endsWith("/");
+	}
 }

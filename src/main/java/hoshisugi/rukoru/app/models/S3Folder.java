@@ -12,16 +12,6 @@ public class S3Folder extends S3Item {
 	}
 
 	@Override
-	public void setName(final String name) {
-		if (name.contains("/")) {
-			final String[] split = name.split("/");
-			super.setName(split[split.length - 1]);
-		} else {
-			super.setName(name);
-		}
-	}
-
-	@Override
 	public Image getIcon() {
 		return AssetUtil.getImage("16x16/folder.png");
 	}

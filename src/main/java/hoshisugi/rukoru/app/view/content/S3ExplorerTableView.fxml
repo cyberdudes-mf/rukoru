@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.content.S3ExplorerTableController">
+   <children>
+      <TableView fx:id="tableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <columns>
+          <TableColumn fx:id="iconColumn" minWidth="30.0" prefWidth="30.0" sortable="false" />
+          <TableColumn fx:id="nameColumn" minWidth="300.0" prefWidth="300.0" text="名前">
+      	    <cellValueFactory>
+      	      <PropertyValueFactory property="name" />
+      	    </cellValueFactory>
+      	  </TableColumn>
+          <TableColumn fx:id="lastModifiedColumn" minWidth="150.0" prefWidth="150.0" text="最終更新日時">
+      	    <cellValueFactory>
+      	      <PropertyValueFactory property="lastModified" />
+      	    </cellValueFactory>
+      	  </TableColumn>
+          <TableColumn fx:id="sizeColumn" minWidth="100.0" prefWidth="100.0" text="サイズ">
+      	    <cellValueFactory>
+      	      <PropertyValueFactory property="size" />
+      	    </cellValueFactory>
+      	  </TableColumn>
+          <TableColumn fx:id="storageClassColumn" minWidth="150.0" prefWidth="150.0" text="ストレージクラス">
+      	    <cellValueFactory>
+      	      <PropertyValueFactory property="storageClass" />
+      	    </cellValueFactory>
+      	  </TableColumn>
+        </columns>
+      </TableView>
+   </children>
+</AnchorPane>

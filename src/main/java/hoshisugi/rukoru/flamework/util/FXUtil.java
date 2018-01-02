@@ -16,6 +16,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -103,4 +105,7 @@ public class FXUtil {
 		return baseName + ".fxml";
 	}
 
+	public static boolean isDoubleClicked(final MouseEvent event) {
+		return event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2;
+	}
 }
