@@ -107,7 +107,7 @@ public class InstanceTabController extends BaseController {
 		deleteColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createDeleteButton));
 		imageColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		imageColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createImageButton));
-		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("refresh_24x24.png")));
+		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/refresh.png")));
 		tableView.setItems(items);
 		items.addListener(this::onItemsChanged);
 		ConcurrentUtil.run(this::loadInstances);
@@ -152,7 +152,7 @@ public class InstanceTabController extends BaseController {
 		final Button button = new Button("イメージ");
 		final StringProperty state = entity.stateProperty();
 		button.disableProperty().bind(state.isEqualTo("terminated"));
-		button.setGraphic(new ImageView(AssetUtil.getImage("image_16x16.png")));
+		button.setGraphic(new ImageView(AssetUtil.getImage("16x16/image.png")));
 		button.setOnAction(this::onCreateImageButtonClick);
 		button.setUserData(entity);
 		return button;
@@ -162,7 +162,7 @@ public class InstanceTabController extends BaseController {
 		final Button button = new Button("削除");
 		final StringProperty state = entity.stateProperty();
 		button.disableProperty().bind(state.isEqualTo("terminated"));
-		button.setGraphic(new ImageView(AssetUtil.getImage("delete_16x16.png")));
+		button.setGraphic(new ImageView(AssetUtil.getImage("16x16/delete.png")));
 		button.setOnAction(this::onDeleteButtonClick);
 		button.setUserData(entity);
 		return button;
@@ -192,8 +192,8 @@ public class InstanceTabController extends BaseController {
 
 	private ImageView createRunAndStopButtonImage(final StringProperty state) {
 		final ImageView imageView = new ImageView();
-		imageView.imageProperty().bind(
-				when(state.isEqualTo("stopped")).then(getImage("run_16x16.png")).otherwise(getImage("stop_16x16.png")));
+		imageView.imageProperty().bind(when(state.isEqualTo("stopped")).then(getImage("16x16/run.png"))
+				.otherwise(getImage("stop.png")));
 		return imageView;
 	}
 

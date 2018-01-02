@@ -87,8 +87,8 @@ public class CreateInstanceController extends BaseController {
 		instanceType.getSelectionModel().select(InstanceType.T2Micro);
 		keyColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-		addButton.setGraphic(new ImageView(AssetUtil.getImage("navigate_plus_16x16.png")));
-		removeButton.setGraphic(new ImageView(AssetUtil.getImage("navigate_minus_16x16.png")));
+		addButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/navigate_plus.png")));
+		removeButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/navigate_minus.png")));
 		removeButton.disableProperty().bind(tagTable.getSelectionModel().selectedItemProperty().isNull());
 		okButton.disableProperty().bind(Bindings.isEmpty(name.textProperty()));
 		initTagTable();

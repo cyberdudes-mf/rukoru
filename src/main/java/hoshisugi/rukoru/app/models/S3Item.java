@@ -1,6 +1,8 @@
 package hoshisugi.rukoru.app.models;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import javafx.beans.property.ObjectProperty;
@@ -11,10 +13,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 public class S3Item {
 
+	private final StringProperty bucketName = new SimpleStringProperty(this, "bucketName");
+	private final StringProperty key = new SimpleStringProperty(this, "key");
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 	private final ObjectProperty<Date> lastModified = new SimpleObjectProperty<>(this, "lastModified");
 	private final ObjectProperty<Long> size = new SimpleObjectProperty<>(this, "size");
@@ -28,6 +31,22 @@ public class S3Item {
 
 	public S3Item(final String name) {
 		setName(name);
+	}
+
+	public String getBucketName() {
+		return bucketName.get();
+	}
+
+	public void setBucketName(final String bucketName) {
+		this.bucketName.set(bucketName);
+	}
+
+	public String getKey() {
+		return key.get();
+	}
+
+	public void setKey(final String key) {
+		this.key.set(key);
 	}
 
 	public String getName() {
@@ -78,6 +97,14 @@ public class S3Item {
 		this.parent.set(parent);
 	}
 
+	public StringProperty backetNameProperty() {
+		return bucketName;
+	}
+
+	public StringProperty keyProperty() {
+		return key;
+	}
+
 	public StringProperty nameProperty() {
 		return name;
 	}
@@ -112,11 +139,17 @@ public class S3Item {
 	}
 
 	public Image getIcon() {
-		return AssetUtil.getImage("s3_16x16.png");
+		return AssetUtil.getImage("16x16/amazon_s3.png");
 	}
 
 	public TreeItem<S3Item> toTreeItem() {
-		return new TreeItem<>(this, new ImageView(getIcon()));
+		final TreeItem<S3Item> item = new S3TreeItem(this);
+		// final TreeItem<S3Item> item = new S3TreeItem(this);
+		final List<TreeItem<S3Item>> children = items.stream().map(S3Item::toTreeItem).collect(Collectors.toList());
+		if (!children.isEmpty()) {
+			item.getChildren().addAll(children);
+		}
+		return item;
 	}
 
 }

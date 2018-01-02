@@ -67,7 +67,7 @@ public class ImageTabController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("refresh_24x24.png")));
+		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/refresh.png")));
 		stateColumn.setCellFactory(TextFillTableCell.forTableCellFactory(this::provideColor));
 		createColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		createColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createCreateButton));
@@ -98,7 +98,7 @@ public class ImageTabController extends BaseController {
 
 	private Button createCreateButton(final MachineImage entity) {
 		final Button button = new Button("作成");
-		button.setGraphic(new ImageView(AssetUtil.getImage("add_16x16.png")));
+		button.setGraphic(new ImageView(AssetUtil.getImage("16x16/add.png")));
 		button.setOnAction(this::onCreateButtonClick);
 		button.setUserData(entity);
 		return button;
@@ -106,7 +106,7 @@ public class ImageTabController extends BaseController {
 
 	private Button createDeregisterButton(final MachineImage entity) {
 		final Button button = new Button("登録解除");
-		button.setGraphic(new ImageView(AssetUtil.getImage("delete_16x16.png")));
+		button.setGraphic(new ImageView(AssetUtil.getImage("16x16/delete.png")));
 		button.setOnAction(this::onDeregisterButtonClick);
 		button.setUserData(entity);
 		return button;

@@ -29,10 +29,10 @@ public class S3ExplorerMenuController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		backButton.setGraphic(new ImageView(AssetUtil.getImage("back_16x16.png")));
-		nextButton.setGraphic(new ImageView(AssetUtil.getImage("next_16x16.png")));
-		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("refresh_16x16.png")));
-		homeButton.setGraphic(new ImageView(AssetUtil.getImage("home_16x16.png")));
+		backButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/back.png")));
+		nextButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/next.png")));
+		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/refresh.png")));
+		homeButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/home.png")));
 	}
 
 }

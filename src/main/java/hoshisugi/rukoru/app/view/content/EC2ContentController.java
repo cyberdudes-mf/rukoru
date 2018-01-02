@@ -23,8 +23,8 @@ public class EC2ContentController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		instanceTab.setGraphic(new ImageView(AssetUtil.getImage("EC2_Instance_16x16.png")));
-		amiTab.setGraphic(new ImageView(AssetUtil.getImage("EC2_AMI_16x16.png")));
+		instanceTab.setGraphic(new ImageView(AssetUtil.getImage("16x16/EC2_Instance.png")));
+		amiTab.setGraphic(new ImageView(AssetUtil.getImage("16x16/EC2_AMI.png")));
 	}
 
 }

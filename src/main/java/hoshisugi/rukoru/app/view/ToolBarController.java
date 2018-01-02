@@ -52,11 +52,11 @@ public class ToolBarController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		mcButton.setGraphic(new ImageView(AssetUtil.getImage("AWS_32x32.png")));
-		testPortalButton.setGraphic(new ImageView(AssetUtil.getImage("DS_32x32.png")));
-		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("EC2_32x32.png")));
-		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("DB_32x32.png")));
-		s3Button.setGraphic(new ImageView(AssetUtil.getImage("S3_32x32.png")));
+		mcButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/AWS.png")));
+		testPortalButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DS.png")));
+		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/EC2.png")));
+		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DB.png")));
+		s3Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/S3.png")));
 		toolBar.selectedToggleProperty().addListener(this::toolBarSelectionChanged);
 	}
 
