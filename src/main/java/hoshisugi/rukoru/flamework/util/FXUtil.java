@@ -43,7 +43,7 @@ public class FXUtil {
 			return getStage((Node) source);
 		} else if (source instanceof MenuItem) {
 			final MenuItem item = (MenuItem) source;
-			return getStage(item.getStyleableNode());
+			return (Stage) item.getParentPopup().getOwnerWindow();
 		}
 		return null;
 	}

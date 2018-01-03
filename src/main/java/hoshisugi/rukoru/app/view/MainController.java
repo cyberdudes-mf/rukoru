@@ -35,6 +35,6 @@ public class MainController extends BaseController {
 
 	@FXML
 	private void onAuthSetting(final ActionEvent event) throws Exception {
-		FXUtil.popup(AuthSettingController.class, FXUtil.getStage());
+		FXUtil.popup(AuthSettingController.class, FXUtil.getStage(event));
 	}
 }
