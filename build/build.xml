@@ -201,16 +201,6 @@
 				<include name="src\main\resources/**" />
 			</fileset>
 		</copy>
-		<copy todir="project">
-			<fileset dir="E:\workspace\rukoru\rukoru">
-				<include name="src\test\resources/**" />
-			</fileset>
-		</copy>
-		<copy todir="project">
-			<fileset dir="E:\workspace\rukoru\rukoru">
-				<include name="src\test\java/**" />
-			</fileset>
-		</copy>
 	
 		<mkdir dir="projectRefs" />
 	</target>
