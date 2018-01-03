@@ -40,6 +40,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 				throw new IllegalStateException("Record has been updated from other thread.");
 			}
 		}
+		AuthSetting.reload();
 	}
 
 	@Override
