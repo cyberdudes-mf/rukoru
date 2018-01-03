@@ -3,6 +3,7 @@ package hoshisugi.rukoru.flamework.database;
 import static hoshisugi.rukoru.flamework.util.AssetUtil.loadSQL;
 
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -58,13 +59,20 @@ public class DatabaseImpl implements Database {
 	}
 
 	private String getJdbcUrl() {
-		try {
-			final Path binPath = Paths.get(getClass().getClassLoader().getResource(".").toURI());
-			final Path databasePath = binPath.resolve("database");
-			return String.format("jdbc:h2:%s", databasePath);
-		} catch (final URISyntaxException e) {
-			throw new UncheckedExecutionException(e);
+		final URL resource = getClass().getClassLoader().getResource(".");
+		// REVISIT デバッグ実行と jar でやり方を同じにする
+		Path binPath = null;
+		if (resource != null) {
+			try {
+				binPath = Paths.get(resource.toURI());
+			} catch (final URISyntaxException e) {
+				throw new UncheckedExecutionException(e);
+			}
+		} else {
+			binPath = Paths.get(".");
 		}
+		final Path databasePath = binPath.resolve("database");
+		return String.format("jdbc:h2:%s", databasePath);
 	}
 
 	@Override

@@ -19,6 +19,7 @@ public class Main extends Application {
 	@Override
 	public void start(final Stage primaryStage) {
 		try {
+			FXUtil.setPrimaryStage(primaryStage);
 			Injector.init(new RukoruModuleConfigurator());
 			final Class<? extends BaseController> controllerClass = MainController.class;
 			final Parent root = (BorderPane) FXMLLoader.load(FXUtil.getURL(controllerClass));

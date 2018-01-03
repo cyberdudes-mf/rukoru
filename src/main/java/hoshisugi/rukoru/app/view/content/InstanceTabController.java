@@ -6,6 +6,7 @@ import static javafx.beans.binding.Bindings.when;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -252,7 +253,8 @@ public class InstanceTabController extends BaseController {
 			if (AuthSetting.hasSetting()) {
 				final BooleanProperty property = (BooleanProperty) observable;
 				final EC2Instance instance = (EC2Instance) property.getBean();
-				final Map<String, String> tags = Map.of("AutoStop", Boolean.toString(property.get()).toUpperCase());
+				final Map<String, String> tags = new HashMap<>();
+				tags.put("AutoStop", Boolean.toString(property.get()));
 				ec2Service.updateTags(instance, tags);
 			}
 		});

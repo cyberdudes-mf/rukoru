@@ -25,6 +25,8 @@ import javafx.stage.Window;
 
 public class FXUtil {
 
+	private static Stage primaryStage;
+
 	public static URL getURL(final Class<? extends BaseController> controller) throws FileNotFoundException {
 		String viewName = getViewName(controller);
 		if (viewName == null) {
@@ -57,10 +59,6 @@ public class FXUtil {
 			return null;
 		}
 		return (Stage) scene.getWindow();
-	}
-
-	public static Stage getStage() {
-		return Window.getWindows().stream().filter(Stage.class::isInstance).map(Stage.class::cast).findFirst().get();
 	}
 
 	public static <C extends BaseController> C popup(final Class<C> controller, final Window owner) {
@@ -107,5 +105,13 @@ public class FXUtil {
 
 	public static boolean isDoubleClicked(final MouseEvent event) {
 		return event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2;
+	}
+
+	public static void setPrimaryStage(final Stage stage) {
+		primaryStage = stage;
+	}
+
+	public static Stage getPrimaryStage() {
+		return primaryStage;
 	}
 }

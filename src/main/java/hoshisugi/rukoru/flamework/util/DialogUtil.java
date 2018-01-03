@@ -23,7 +23,7 @@ public class DialogUtil {
 	}
 
 	public static Optional<ButtonType> showConfirmDialog(final String title, final String message) {
-		return showConfirmDialog(FXUtil.getStage(), title, message);
+		return showConfirmDialog(FXUtil.getPrimaryStage(), title, message);
 	}
 
 	public static Optional<ButtonType> showConfirmDialog(final Window window, final String title,
@@ -32,7 +32,7 @@ public class DialogUtil {
 	}
 
 	public static Optional<ButtonType> showInfoDialog(final String title, final String message) {
-		return showInfoDialog(FXUtil.getStage(), title, message);
+		return showInfoDialog(FXUtil.getPrimaryStage(), title, message);
 	}
 
 	public static Optional<ButtonType> showInfoDialog(final Window window, final String title, final String message) {
@@ -40,7 +40,7 @@ public class DialogUtil {
 	}
 
 	public static Optional<ButtonType> showWarningDialog(final String title, final String message) {
-		return showWarningDialog(FXUtil.getStage(), title, message);
+		return showWarningDialog(FXUtil.getPrimaryStage(), title, message);
 	}
 
 	public static Optional<ButtonType> showWarningDialog(final Window window, final String title,
