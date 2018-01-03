@@ -27,8 +27,11 @@ public class S3ExplorerController extends BaseController {
 	private final ObjectProperty<S3Item> selectedItem = new SimpleObjectProperty<>(this, "selectedItem",
 			new S3Item("Amazon S3"));
 
+	private S3Item rootItem;
+
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
+		rootItem = getSelectedItem();
 		selectedItem.addListener(this::selectedItemChanged);
 	}
 
@@ -38,6 +41,10 @@ public class S3ExplorerController extends BaseController {
 
 	public void setSelectedItem(final S3Item item) {
 		selectedItem.set(item);
+	}
+
+	public S3Item getRootItem() {
+		return rootItem;
 	}
 
 	public ObjectProperty<S3Item> selectedItemProperty() {

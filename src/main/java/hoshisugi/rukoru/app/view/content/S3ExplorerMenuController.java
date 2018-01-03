@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import hoshisugi.rukoru.app.models.S3Item;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.util.AssetUtil;
+import hoshisugi.rukoru.flamework.util.DialogUtil;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -59,22 +60,24 @@ public class S3ExplorerMenuController extends BaseController {
 
 	@FXML
 	private void onBackButtonClick(final ActionEvent event) {
-
+		DialogUtil.showWarningDialog("警告", "Not yet implemented.");
 	}
 
 	@FXML
 	private void onNextButtonClick(final ActionEvent event) {
-
+		DialogUtil.showWarningDialog("警告", "Not yet implemented.");
 	}
 
 	@FXML
 	private void onRefreshButtonClick(final ActionEvent event) {
-
+		final S3Item selectedItem = explorer.getSelectedItem();
+		explorer.setSelectedItem(null);
+		explorer.setSelectedItem(selectedItem);
 	}
 
 	@FXML
 	private void onHomeButtonClick(final ActionEvent event) {
-
+		explorer.setSelectedItem(explorer.getRootItem());
 	}
 
 	@FXML
