@@ -8,7 +8,8 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,21 +46,31 @@ public class AssetUtil {
 	}
 
 	public static String loadSQL(final String fileName) {
-		final URI uri = AssetUtil.getURI("sql", fileName);
 		try {
-			return new String(Files.readAllBytes(toPath(uri)), UTF_8.toString());
+			return new String(Files.readAllBytes(getPath("sql", fileName)), UTF_8.toString());
 		} catch (final IOException e) {
 			throw new UncheckedIOException(e);
 		}
 	}
 
-	private static Path toPath(final URI uri) throws IOException {
-		// REVISIT デバッグ実行と jar でやり方を同じにする
-		try {
+	private static Path getPath(final String directory, final String resourceName) throws IOException {
+		final URI uri = AssetUtil.getURI(directory, resourceName);
+		if (uri.toString().contains("!")) {
+			return getPathFromFileSystem(uri);
+		} else {
 			return Paths.get(uri);
-		} catch (final FileSystemNotFoundException e) {
-			final String[] array = uri.toString().split("!");
-			return FileSystems.newFileSystem(URI.create(array[0]), Collections.emptyMap()).getPath(array[1]);
 		}
+	}
+
+	private static Path getPathFromFileSystem(final URI uri) throws IOException {
+		final String[] array = uri.toString().split("!");
+		final URI fsuri = URI.create(array[0]);
+		FileSystem fs = null;
+		try {
+			fs = FileSystems.newFileSystem(fsuri, Collections.emptyMap());
+		} catch (final FileSystemAlreadyExistsException e2) {
+			fs = FileSystems.getFileSystem(fsuri);
+		}
+		return fs.getPath(array[1]);
 	}
 }
