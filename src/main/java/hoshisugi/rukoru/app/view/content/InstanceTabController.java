@@ -1,6 +1,6 @@
 package hoshisugi.rukoru.app.view.content;
 
-import static hoshisugi.rukoru.flamework.util.AssetUtil.getImage;
+import static hoshisugi.rukoru.framework.util.AssetUtil.getImage;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static javafx.beans.binding.Bindings.when;
 
@@ -23,13 +23,13 @@ import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.view.popup.CreateImageController;
-import hoshisugi.rukoru.flamework.controls.BaseController;
-import hoshisugi.rukoru.flamework.controls.GraphicTableCell;
-import hoshisugi.rukoru.flamework.controls.TextFillTableCell;
-import hoshisugi.rukoru.flamework.util.AssetUtil;
-import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
-import hoshisugi.rukoru.flamework.util.DialogUtil;
-import hoshisugi.rukoru.flamework.util.FXUtil;
+import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.controls.GraphicTableCell;
+import hoshisugi.rukoru.framework.controls.TextFillTableCell;
+import hoshisugi.rukoru.framework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.ConcurrentUtil;
+import hoshisugi.rukoru.framework.util.DialogUtil;
+import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;

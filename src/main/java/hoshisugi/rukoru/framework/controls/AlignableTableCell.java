@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.flamework.controls;
+package hoshisugi.rukoru.framework.controls;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;

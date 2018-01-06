@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.flamework.util;
+package hoshisugi.rukoru.framework.util;
 
 import java.awt.Desktop;
 import java.net.URI;

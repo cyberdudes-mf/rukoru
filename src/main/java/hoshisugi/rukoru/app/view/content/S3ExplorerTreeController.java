@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.S3Item;
-import hoshisugi.rukoru.flamework.controls.BaseController;
+import hoshisugi.rukoru.framework.controls.BaseController;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;

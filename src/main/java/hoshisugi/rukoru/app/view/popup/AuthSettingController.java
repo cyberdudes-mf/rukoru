@@ -9,11 +9,11 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.services.auth.AuthService;
-import hoshisugi.rukoru.flamework.annotations.FXController;
-import hoshisugi.rukoru.flamework.controls.BaseController;
-import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
-import hoshisugi.rukoru.flamework.util.DialogUtil;
-import hoshisugi.rukoru.flamework.util.FXUtil;
+import hoshisugi.rukoru.framework.annotations.FXController;
+import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.util.ConcurrentUtil;
+import hoshisugi.rukoru.framework.util.DialogUtil;
+import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

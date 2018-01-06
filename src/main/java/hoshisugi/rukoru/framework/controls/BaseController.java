@@ -1,7 +1,7 @@
-package hoshisugi.rukoru.flamework.controls;
+package hoshisugi.rukoru.framework.controls;
 
-import hoshisugi.rukoru.flamework.inject.Injectable;
-import hoshisugi.rukoru.flamework.inject.Injector;
+import hoshisugi.rukoru.framework.inject.Injectable;
+import hoshisugi.rukoru.framework.inject.Injector;
 import javafx.fxml.Initializable;
 
 public abstract class BaseController implements Initializable, Injectable {

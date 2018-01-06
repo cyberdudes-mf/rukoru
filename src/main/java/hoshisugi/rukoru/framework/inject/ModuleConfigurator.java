@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.flamework.inject;
+package hoshisugi.rukoru.framework.inject;
 
 import java.util.HashMap;
 import java.util.Map;

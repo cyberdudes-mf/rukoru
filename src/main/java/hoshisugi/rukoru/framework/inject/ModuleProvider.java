@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.flamework.inject;
+package hoshisugi.rukoru.framework.inject;
 
 import com.google.inject.Provider;
 

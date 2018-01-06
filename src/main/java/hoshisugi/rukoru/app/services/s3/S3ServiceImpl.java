@@ -27,8 +27,8 @@ import hoshisugi.rukoru.app.models.S3Folder;
 import hoshisugi.rukoru.app.models.S3Item;
 import hoshisugi.rukoru.app.models.S3Object;
 import hoshisugi.rukoru.app.models.S3Root;
-import hoshisugi.rukoru.flamework.services.BaseService;
-import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
+import hoshisugi.rukoru.framework.services.BaseService;
+import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 
 public class S3ServiceImpl extends BaseService implements S3Service {
 

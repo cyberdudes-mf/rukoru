@@ -42,7 +42,7 @@ import hoshisugi.rukoru.app.models.CreateInstanceRequest;
 import hoshisugi.rukoru.app.models.CreateMachineImageRequest;
 import hoshisugi.rukoru.app.models.EC2Instance;
 import hoshisugi.rukoru.app.models.MachineImage;
-import hoshisugi.rukoru.flamework.services.BaseService;
+import hoshisugi.rukoru.framework.services.BaseService;
 import javafx.application.Platform;
 
 public class EC2ServiceImpl extends BaseService implements EC2Service {

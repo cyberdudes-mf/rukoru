@@ -6,9 +6,9 @@ import java.util.ResourceBundle;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.S3Item;
-import hoshisugi.rukoru.flamework.controls.BaseController;
-import hoshisugi.rukoru.flamework.controls.GraphicTableCell;
-import hoshisugi.rukoru.flamework.util.FXUtil;
+import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.controls.GraphicTableCell;
+import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;

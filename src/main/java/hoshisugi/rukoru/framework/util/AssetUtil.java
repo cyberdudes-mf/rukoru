@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.flamework.util;
+package hoshisugi.rukoru.framework.util;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

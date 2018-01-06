@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.flamework.util;
+package hoshisugi.rukoru.framework.util;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -8,8 +8,8 @@ import java.util.function.Function;
 
 import com.google.common.base.Strings;
 
-import hoshisugi.rukoru.flamework.annotations.FXController;
-import hoshisugi.rukoru.flamework.controls.BaseController;
+import hoshisugi.rukoru.framework.annotations.FXController;
+import hoshisugi.rukoru.framework.controls.BaseController;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

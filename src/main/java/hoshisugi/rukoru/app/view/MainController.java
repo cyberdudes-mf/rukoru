@@ -4,10 +4,10 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import hoshisugi.rukoru.app.view.popup.AuthSettingController;
-import hoshisugi.rukoru.flamework.annotations.FXController;
-import hoshisugi.rukoru.flamework.controls.BaseController;
-import hoshisugi.rukoru.flamework.util.BrowserUtil;
-import hoshisugi.rukoru.flamework.util.FXUtil;
+import hoshisugi.rukoru.framework.annotations.FXController;
+import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.util.BrowserUtil;
+import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

@@ -1,6 +1,6 @@
-package hoshisugi.rukoru.flamework.database;
+package hoshisugi.rukoru.framework.database;
 
-import static hoshisugi.rukoru.flamework.util.AssetUtil.loadSQL;
+import static hoshisugi.rukoru.framework.util.AssetUtil.loadSQL;
 
 import java.net.URISyntaxException;
 import java.net.URL;

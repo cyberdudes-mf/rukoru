@@ -3,7 +3,7 @@ package hoshisugi.rukoru.app.view.content;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import hoshisugi.rukoru.flamework.controls.BaseController;
+import hoshisugi.rukoru.framework.controls.BaseController;
 
 public class RepositoryDBContentController extends BaseController {
 

@@ -19,7 +19,7 @@ import hoshisugi.rukoru.app.view.content.S3ExplorerTableController;
 import hoshisugi.rukoru.app.view.content.S3ExplorerController;
 import hoshisugi.rukoru.app.view.content.S3ExplorerMenuController;
 import hoshisugi.rukoru.app.view.content.S3ExplorerTreeController;
-import hoshisugi.rukoru.flamework.inject.ModuleConfigurator;
+import hoshisugi.rukoru.framework.inject.ModuleConfigurator;
 
 public class RukoruModuleConfigurator extends ModuleConfigurator {
 

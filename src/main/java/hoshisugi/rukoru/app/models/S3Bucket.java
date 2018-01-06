@@ -4,7 +4,7 @@ import static hoshisugi.rukoru.app.models.S3Item.Type.Bucket;
 
 import com.amazonaws.services.s3.model.Bucket;
 
-import hoshisugi.rukoru.flamework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.AssetUtil;
 import javafx.scene.image.Image;
 
 public class S3Bucket extends S3Item {

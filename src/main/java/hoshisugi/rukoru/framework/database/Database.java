@@ -1,11 +1,11 @@
-package hoshisugi.rukoru.flamework.database;
+package hoshisugi.rukoru.framework.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
 
-import hoshisugi.rukoru.flamework.inject.Injectable;
+import hoshisugi.rukoru.framework.inject.Injectable;
 
 public interface Database extends Injectable {
 

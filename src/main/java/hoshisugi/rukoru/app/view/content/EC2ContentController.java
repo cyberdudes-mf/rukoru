@@ -3,8 +3,8 @@ package hoshisugi.rukoru.app.view.content;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import hoshisugi.rukoru.flamework.controls.BaseController;
-import hoshisugi.rukoru.flamework.util.AssetUtil;
+import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.util.AssetUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;

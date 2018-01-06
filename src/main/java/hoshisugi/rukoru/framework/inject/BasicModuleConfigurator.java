@@ -1,7 +1,7 @@
-package hoshisugi.rukoru.flamework.inject;
+package hoshisugi.rukoru.framework.inject;
 
-import hoshisugi.rukoru.flamework.database.Database;
-import hoshisugi.rukoru.flamework.database.DatabaseImpl;
+import hoshisugi.rukoru.framework.database.Database;
+import hoshisugi.rukoru.framework.database.DatabaseImpl;
 
 public class BasicModuleConfigurator extends ModuleConfigurator {
 

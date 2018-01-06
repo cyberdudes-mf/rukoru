@@ -5,7 +5,7 @@ import java.util.Date;
 
 import com.google.common.base.Strings;
 
-import hoshisugi.rukoru.flamework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.AssetUtil;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;

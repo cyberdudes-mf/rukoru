@@ -9,7 +9,7 @@ import java.util.Optional;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import hoshisugi.rukoru.app.services.auth.AuthService;
-import hoshisugi.rukoru.flamework.inject.Injector;
+import hoshisugi.rukoru.framework.inject.Injector;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;

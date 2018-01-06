@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.flamework.util;
+package hoshisugi.rukoru.framework.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

@@ -2,11 +2,11 @@ package hoshisugi.rukoru;
 
 import hoshisugi.rukoru.app.inject.RukoruModuleConfigurator;
 import hoshisugi.rukoru.app.view.MainController;
-import hoshisugi.rukoru.flamework.controls.BaseController;
-import hoshisugi.rukoru.flamework.inject.Injector;
-import hoshisugi.rukoru.flamework.util.AssetUtil;
-import hoshisugi.rukoru.flamework.util.Assets;
-import hoshisugi.rukoru.flamework.util.FXUtil;
+import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.inject.Injector;
+import hoshisugi.rukoru.framework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.Assets;
+import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

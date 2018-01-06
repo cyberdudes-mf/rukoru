@@ -6,9 +6,9 @@ import java.util.ResourceBundle;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.S3Item;
-import hoshisugi.rukoru.flamework.controls.BaseController;
-import hoshisugi.rukoru.flamework.util.AssetUtil;
-import hoshisugi.rukoru.flamework.util.DialogUtil;
+import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.DialogUtil;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

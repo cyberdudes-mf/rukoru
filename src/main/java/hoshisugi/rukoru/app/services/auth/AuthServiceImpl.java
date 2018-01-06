@@ -1,6 +1,6 @@
 package hoshisugi.rukoru.app.services.auth;
 
-import static hoshisugi.rukoru.flamework.util.AssetUtil.loadSQL;
+import static hoshisugi.rukoru.framework.util.AssetUtil.loadSQL;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -10,8 +10,8 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.AuthSetting;
-import hoshisugi.rukoru.flamework.database.Database;
-import hoshisugi.rukoru.flamework.services.BaseService;
+import hoshisugi.rukoru.framework.database.Database;
+import hoshisugi.rukoru.framework.services.BaseService;
 
 public class AuthServiceImpl extends BaseService implements AuthService {
 
