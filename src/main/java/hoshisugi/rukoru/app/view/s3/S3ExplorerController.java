@@ -30,8 +30,8 @@ public class S3ExplorerController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		updateItem(rootItem);
 		setSelectedItem(rootItem);
+		reload(rootItem);
 	}
 
 	public S3Item getSelectedItem() {
@@ -50,7 +50,7 @@ public class S3ExplorerController extends BaseController {
 		return selectedItem;
 	}
 
-	private void updateItem(final S3Item item) {
+	public void reload(final S3Item item) {
 		ConcurrentUtil.run(() -> {
 			if (AuthSetting.hasSetting()) {
 				s3Service.updateItems(item);

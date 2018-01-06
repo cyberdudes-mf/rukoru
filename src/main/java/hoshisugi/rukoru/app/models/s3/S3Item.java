@@ -52,7 +52,7 @@ public abstract class S3Item {
 	}
 
 	public String getKey() {
-		return key.get();
+		return Strings.nullToEmpty(key.get());
 	}
 
 	public void setKey(final String key) {

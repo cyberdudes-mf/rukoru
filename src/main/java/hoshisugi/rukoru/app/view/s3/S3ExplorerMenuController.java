@@ -70,9 +70,7 @@ public class S3ExplorerMenuController extends BaseController {
 
 	@FXML
 	private void onRefreshButtonClick(final ActionEvent event) {
-		final S3Item selectedItem = explorer.getSelectedItem();
-		explorer.setSelectedItem(null);
-		explorer.setSelectedItem(selectedItem);
+		explorer.reload(explorer.getSelectedItem());
 	}
 
 	@FXML

@@ -87,7 +87,8 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 
 	private void toTreeStructure(final S3Item rootItem, final List<S3Item> objects) {
 		final Map<String, S3Item> structured = new HashMap<>();
-		structured.put("", rootItem);
+		structured.put(rootItem.getKey(), rootItem);
+		rootItem.getItems().clear();
 		objects.forEach(i -> storeInParent(structured, i));
 	}
 
