@@ -37,12 +37,12 @@ import com.amazonaws.services.ec2.model.TagSpecification;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 
-import hoshisugi.rukoru.app.models.AuthSetting;
-import hoshisugi.rukoru.app.models.CreateInstanceRequest;
-import hoshisugi.rukoru.app.models.CreateMachineImageRequest;
-import hoshisugi.rukoru.app.models.EC2Instance;
-import hoshisugi.rukoru.app.models.MachineImage;
-import hoshisugi.rukoru.framework.services.BaseService;
+import hoshisugi.rukoru.app.models.auth.AuthSetting;
+import hoshisugi.rukoru.app.models.ec2.CreateInstanceRequest;
+import hoshisugi.rukoru.app.models.ec2.CreateMachineImageRequest;
+import hoshisugi.rukoru.app.models.ec2.EC2Instance;
+import hoshisugi.rukoru.app.models.ec2.MachineImage;
+import hoshisugi.rukoru.framework.base.BaseService;
 import javafx.application.Platform;
 
 public class EC2ServiceImpl extends BaseService implements EC2Service {

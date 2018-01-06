@@ -11,14 +11,14 @@ import hoshisugi.rukoru.app.services.s3.S3ServiceImpl;
 import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.app.view.MainController;
 import hoshisugi.rukoru.app.view.ToolBarController;
-import hoshisugi.rukoru.app.view.content.EC2ContentController;
-import hoshisugi.rukoru.app.view.content.ImageTabController;
-import hoshisugi.rukoru.app.view.content.InstanceTabController;
-import hoshisugi.rukoru.app.view.content.RepositoryDBContentController;
-import hoshisugi.rukoru.app.view.content.S3ExplorerTableController;
-import hoshisugi.rukoru.app.view.content.S3ExplorerController;
-import hoshisugi.rukoru.app.view.content.S3ExplorerMenuController;
-import hoshisugi.rukoru.app.view.content.S3ExplorerTreeController;
+import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
+import hoshisugi.rukoru.app.view.ec2.ImageTabController;
+import hoshisugi.rukoru.app.view.ec2.InstanceTabController;
+import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
+import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
+import hoshisugi.rukoru.app.view.s3.S3ExplorerMenuController;
+import hoshisugi.rukoru.app.view.s3.S3ExplorerTableController;
+import hoshisugi.rukoru.app.view.s3.S3ExplorerTreeController;
 import hoshisugi.rukoru.framework.inject.ModuleConfigurator;
 
 public class RukoruModuleConfigurator extends ModuleConfigurator {

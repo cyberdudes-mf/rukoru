@@ -6,12 +6,12 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.AuthSetting;
+import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.services.auth.AuthService;
-import hoshisugi.rukoru.app.view.content.EC2ContentController;
-import hoshisugi.rukoru.app.view.content.RepositoryDBContentController;
-import hoshisugi.rukoru.app.view.content.S3ExplorerController;
-import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
+import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
+import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
+import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.BrowserUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;

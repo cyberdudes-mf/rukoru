@@ -3,7 +3,7 @@ package hoshisugi.rukoru.app.services.auth;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import hoshisugi.rukoru.app.models.AuthSetting;
+import hoshisugi.rukoru.app.models.auth.AuthSetting;
 
 public interface AuthService {
 

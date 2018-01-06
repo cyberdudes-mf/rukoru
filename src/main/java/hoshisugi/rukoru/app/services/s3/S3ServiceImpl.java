@@ -1,7 +1,7 @@
 package hoshisugi.rukoru.app.services.s3;
 
 import static com.amazonaws.regions.Regions.AP_NORTHEAST_1;
-import static hoshisugi.rukoru.app.models.S3Item.DELIMITER;
+import static hoshisugi.rukoru.app.models.s3.S3Item.DELIMITER;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,13 +21,13 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.common.base.Strings;
 
-import hoshisugi.rukoru.app.models.AuthSetting;
-import hoshisugi.rukoru.app.models.S3Bucket;
-import hoshisugi.rukoru.app.models.S3Folder;
-import hoshisugi.rukoru.app.models.S3Item;
-import hoshisugi.rukoru.app.models.S3Object;
-import hoshisugi.rukoru.app.models.S3Root;
-import hoshisugi.rukoru.framework.services.BaseService;
+import hoshisugi.rukoru.app.models.auth.AuthSetting;
+import hoshisugi.rukoru.app.models.s3.S3Bucket;
+import hoshisugi.rukoru.app.models.s3.S3Folder;
+import hoshisugi.rukoru.app.models.s3.S3Item;
+import hoshisugi.rukoru.app.models.s3.S3Object;
+import hoshisugi.rukoru.app.models.s3.S3Root;
+import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 
 public class S3ServiceImpl extends BaseService implements S3Service {

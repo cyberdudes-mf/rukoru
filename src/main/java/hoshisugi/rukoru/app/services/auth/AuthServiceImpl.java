@@ -9,9 +9,9 @@ import java.util.Optional;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.AuthSetting;
+import hoshisugi.rukoru.app.models.auth.AuthSetting;
+import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.database.Database;
-import hoshisugi.rukoru.framework.services.BaseService;
 
 public class AuthServiceImpl extends BaseService implements AuthService {
 

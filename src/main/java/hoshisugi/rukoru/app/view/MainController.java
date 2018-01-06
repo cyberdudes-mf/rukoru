@@ -3,9 +3,9 @@ package hoshisugi.rukoru.app.view;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import hoshisugi.rukoru.app.view.popup.AuthSettingController;
+import hoshisugi.rukoru.app.view.auth.AuthSettingController;
 import hoshisugi.rukoru.framework.annotations.FXController;
-import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.BrowserUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;

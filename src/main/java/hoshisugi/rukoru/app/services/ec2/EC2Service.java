@@ -10,10 +10,10 @@ import java.util.Map;
 import com.amazonaws.services.ec2.model.ImageState;
 
 import hoshisugi.rukoru.app.enums.EC2InstanceState;
-import hoshisugi.rukoru.app.models.CreateInstanceRequest;
-import hoshisugi.rukoru.app.models.CreateMachineImageRequest;
-import hoshisugi.rukoru.app.models.EC2Instance;
-import hoshisugi.rukoru.app.models.MachineImage;
+import hoshisugi.rukoru.app.models.ec2.CreateInstanceRequest;
+import hoshisugi.rukoru.app.models.ec2.CreateMachineImageRequest;
+import hoshisugi.rukoru.app.models.ec2.EC2Instance;
+import hoshisugi.rukoru.app.models.ec2.MachineImage;
 
 public interface EC2Service {
 

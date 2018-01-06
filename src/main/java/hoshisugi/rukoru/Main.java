@@ -2,7 +2,7 @@ package hoshisugi.rukoru;
 
 import hoshisugi.rukoru.app.inject.RukoruModuleConfigurator;
 import hoshisugi.rukoru.app.view.MainController;
-import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.inject.Injector;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.Assets;

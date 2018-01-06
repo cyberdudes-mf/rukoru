@@ -9,7 +9,7 @@ import java.util.function.Function;
 import com.google.common.base.Strings;
 
 import hoshisugi.rukoru.framework.annotations.FXController;
-import hoshisugi.rukoru.framework.controls.BaseController;
+import hoshisugi.rukoru.framework.base.BaseController;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
