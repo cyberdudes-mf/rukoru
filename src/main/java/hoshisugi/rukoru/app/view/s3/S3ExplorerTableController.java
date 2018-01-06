@@ -43,7 +43,7 @@ public class S3ExplorerTableController extends BaseController {
 	public void initialize(final URL url, final ResourceBundle resource) {
 		iconColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		iconColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createIcon));
-		explorer.selectedItemProperty().addListener(this::selectedItemChanged);
+		explorer.getSelection().selectedItemProperty().addListener(this::selectedItemChanged);
 		tableView.setOnMouseClicked(this::onTableViewClicked);
 	}
 
@@ -51,7 +51,7 @@ public class S3ExplorerTableController extends BaseController {
 		if (FXUtil.isDoubleClicked(event)) {
 			final S3Item item = tableView.getSelectionModel().getSelectedItem();
 			if (item != null && item.isContainer()) {
-				explorer.setSelectedItem(item);
+				explorer.getSelection().select(item);
 			}
 		}
 	}

@@ -10,7 +10,7 @@
       <Insets bottom="5.0" />
    </padding>
    <children>
-      <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackButtonClick" />
+      <Button fx:id="prevButton" mnemonicParsing="false" onAction="#onPrevButtonClick" />
       <Button fx:id="nextButton" mnemonicParsing="false" onAction="#onNextButtonClick" />
       <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#onRefreshButtonClick" />
       <Button fx:id="homeButton" mnemonicParsing="false" onAction="#onHomeButtonClick" />

@@ -5,10 +5,11 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
+import hoshisugi.rukoru.app.models.s3.ExplorerSelection;
 import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
-import hoshisugi.rukoru.framework.util.DialogUtil;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,7 +20,7 @@ import javafx.scene.image.ImageView;;
 public class S3ExplorerMenuController extends BaseController {
 
 	@FXML
-	private Button backButton;
+	private Button prevButton;
 
 	@FXML
 	private Button nextButton;
@@ -41,12 +42,14 @@ public class S3ExplorerMenuController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		backButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/back.png")));
+		prevButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/back.png")));
+		prevButton.disableProperty().bind(Bindings.not(explorer.getSelection().hasPrevious()));
 		nextButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/next.png")));
+		nextButton.disableProperty().bind(Bindings.not(explorer.getSelection().hasNextProperty()));
 		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/refresh.png")));
 		homeButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/home.png")));
 		upButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/up.png")));
-		explorer.selectedItemProperty().addListener(this::selectedItemChanged);
+		explorer.getSelection().selectedItemProperty().addListener(this::selectedItemChanged);
 	}
 
 	private void selectedItemChanged(final ObservableValue<? extends S3Item> observable, final S3Item oldValue,
@@ -59,31 +62,32 @@ public class S3ExplorerMenuController extends BaseController {
 	}
 
 	@FXML
-	private void onBackButtonClick(final ActionEvent event) {
-		DialogUtil.showWarningDialog("警告", "Not yet implemented.");
+	private void onPrevButtonClick(final ActionEvent event) {
+		explorer.getSelection().goPrevious();
 	}
 
 	@FXML
 	private void onNextButtonClick(final ActionEvent event) {
-		DialogUtil.showWarningDialog("警告", "Not yet implemented.");
+		explorer.getSelection().goNext();
 	}
 
 	@FXML
 	private void onRefreshButtonClick(final ActionEvent event) {
-		explorer.reload(explorer.getSelectedItem());
+		explorer.reload(explorer.getSelection().getSelectedItem());
 	}
 
 	@FXML
 	private void onHomeButtonClick(final ActionEvent event) {
-		explorer.setSelectedItem(explorer.getRootItem());
+		explorer.getSelection().select(explorer.getRootItem());
 	}
 
 	@FXML
 	private void onUpButtonClick(final ActionEvent event) {
-		final S3Item selectedItem = explorer.getSelectedItem();
+		final ExplorerSelection selection = explorer.getSelection();
+		final S3Item selectedItem = selection.getSelectedItem();
 		final S3Item parent = selectedItem.getParent();
 		if (parent != null) {
-			explorer.setSelectedItem(parent);
+			selection.select(parent);
 		}
 	}
 

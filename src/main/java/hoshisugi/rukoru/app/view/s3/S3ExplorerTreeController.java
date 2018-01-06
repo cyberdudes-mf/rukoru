@@ -24,7 +24,7 @@ public class S3ExplorerTreeController extends BaseController {
 	public void initialize(final URL url, final ResourceBundle resource) {
 		treeView.setRoot(explorer.getRootItem().getTreeItem());
 		treeView.getSelectionModel().selectedItemProperty().addListener(this::onTreeItemSelected);
-		explorer.selectedItemProperty().addListener(this::selectedItemChanged);
+		explorer.getSelection().selectedItemProperty().addListener(this::selectedItemChanged);
 	}
 
 	private void selectedItemChanged(final ObservableValue<? extends S3Item> observable, final S3Item oldValue,
@@ -39,7 +39,7 @@ public class S3ExplorerTreeController extends BaseController {
 	private void onTreeItemSelected(final ObservableValue<? extends TreeItem<S3Item>> observable,
 			final TreeItem<S3Item> oldValue, final TreeItem<S3Item> newValue) {
 		if (newValue != null) {
-			explorer.setSelectedItem(newValue.getValue());
+			explorer.getSelection().select(newValue.getValue());
 		}
 	}
 
