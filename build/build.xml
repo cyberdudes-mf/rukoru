@@ -254,16 +254,6 @@
 	
 		<!-- Copy project sources itself -->
 		<copy todir="build/src">
-			<fileset dir="project/src/test/java">
-				<include name="**/*"/>
-			</fileset>
-		</copy>
-		<copy todir="build/src">
-			<fileset dir="project/src/test/resources">
-				<include name="**/*"/>
-			</fileset>
-		</copy>
-		<copy todir="build/src">
 			<fileset dir="project/src/main/resources">
 				<include name="**/*"/>
 			</fileset>
@@ -284,12 +274,6 @@
 	
 		<!-- Copy over none Java-Files -->
 		<copy todir="build/classes">
-		<fileset dir="project/src/test/java">
-			<exclude name="**/*.java"/>
-		</fileset>
-		<fileset dir="project/src/test/resources">
-			<exclude name="**/*.java"/>
-		</fileset>
 		<fileset dir="project/src/main/resources">
 			<exclude name="**/*.java"/>
 		</fileset>

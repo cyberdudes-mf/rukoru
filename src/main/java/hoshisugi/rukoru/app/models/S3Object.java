@@ -1,9 +1,10 @@
 package hoshisugi.rukoru.app.models;
 
+import static hoshisugi.rukoru.app.models.S3Item.Type.Object;
+
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import hoshisugi.rukoru.flamework.util.AssetUtil;
-import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 
 public class S3Object extends S3Item {
@@ -19,13 +20,13 @@ public class S3Object extends S3Item {
 	}
 
 	@Override
-	public Image getIcon() {
-		return AssetUtil.getImage("16x16/document.png");
+	public Type getType() {
+		return Object;
 	}
 
 	@Override
-	public TreeItem<S3Item> createTreeItem() {
-		return null;
+	public Image getIcon() {
+		return AssetUtil.getImage("16x16/document.png");
 	}
 
 	@Override

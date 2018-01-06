@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.models;
 
+import static hoshisugi.rukoru.app.models.S3Item.Type.Bucket;
+
 import com.amazonaws.services.s3.model.Bucket;
 
 import hoshisugi.rukoru.flamework.util.AssetUtil;
@@ -12,6 +14,11 @@ public class S3Bucket extends S3Item {
 		setName(bucket.getName());
 		setLastModified(bucket.getCreationDate());
 		setOwner(bucket.getOwner().getDisplayName());
+	}
+
+	@Override
+	public S3Item.Type getType() {
+		return Bucket;
 	}
 
 	@Override

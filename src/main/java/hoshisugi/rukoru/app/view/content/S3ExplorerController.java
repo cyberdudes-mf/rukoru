@@ -7,12 +7,12 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.AuthSetting;
 import hoshisugi.rukoru.app.models.S3Item;
+import hoshisugi.rukoru.app.models.S3Root;
 import hoshisugi.rukoru.app.services.s3.S3Service;
 import hoshisugi.rukoru.flamework.controls.BaseController;
 import hoshisugi.rukoru.flamework.util.ConcurrentUtil;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
 
@@ -24,15 +24,14 @@ public class S3ExplorerController extends BaseController {
 	@Inject
 	private S3Service s3Service;
 
-	private final ObjectProperty<S3Item> selectedItem = new SimpleObjectProperty<>(this, "selectedItem",
-			new S3Item("Amazon S3"));
+	private final ObjectProperty<S3Item> selectedItem = new SimpleObjectProperty<>(this, "selectedItem");
 
-	private S3Item rootItem;
+	private final S3Item rootItem = new S3Root();
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		rootItem = getSelectedItem();
-		selectedItem.addListener(this::selectedItemChanged);
+		updateItem(rootItem);
+		setSelectedItem(rootItem);
 	}
 
 	public S3Item getSelectedItem() {
@@ -51,16 +50,11 @@ public class S3ExplorerController extends BaseController {
 		return selectedItem;
 	}
 
-	private void selectedItemChanged(final ObservableValue<? extends S3Item> observable, final S3Item oldValue,
-			final S3Item newValue) {
-		if (newValue == null) {
-			return;
-		}
+	private void updateItem(final S3Item item) {
 		ConcurrentUtil.run(() -> {
 			if (AuthSetting.hasSetting()) {
-				s3Service.updateItems(newValue);
+				s3Service.updateItems(item);
 			}
 		});
 	}
-
 }

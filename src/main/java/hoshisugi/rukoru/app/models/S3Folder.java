@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.models;
 
+import static hoshisugi.rukoru.app.models.S3Item.Type.Folder;
+
 import hoshisugi.rukoru.flamework.util.AssetUtil;
 import javafx.scene.image.Image;
 
@@ -9,6 +11,11 @@ public class S3Folder extends S3Item {
 		setBucketName(bucketName);
 		setKey(name);
 		setName(name);
+	}
+
+	@Override
+	public Type getType() {
+		return Folder;
 	}
 
 	@Override

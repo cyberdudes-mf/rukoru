@@ -1,8 +1,7 @@
 package hoshisugi.rukoru.app.models;
 
+import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 
@@ -16,8 +15,11 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
-public class S3Item {
+public abstract class S3Item {
+
+	public static final String DELIMITER = "/";
 
 	private final StringProperty bucketName = new SimpleStringProperty(this, "bucketName");
 	private final StringProperty key = new SimpleStringProperty(this, "key");
@@ -31,14 +33,15 @@ public class S3Item {
 
 	private TreeItem<S3Item> treeItem;
 
+	public enum Type {
+		Root, Bucket, Folder, Object;
+	}
+
 	public S3Item() {
 		items.addListener(this::onItemChanged);
 	}
 
-	public S3Item(final String name) {
-		this();
-		setName(name);
-	}
+	public abstract Type getType();
 
 	public String getBucketName() {
 		return bucketName.get();
@@ -61,8 +64,8 @@ public class S3Item {
 	}
 
 	public void setName(final String name) {
-		if (name.contains("/")) {
-			final String[] split = name.split("/");
+		if (name.contains(DELIMITER)) {
+			final String[] split = name.split(DELIMITER);
 			this.name.set(split[split.length - 1]);
 		} else {
 			this.name.set(name);
@@ -167,31 +170,41 @@ public class S3Item {
 		return String.format("%s/%s", bucketName, key);
 	}
 
+	public void sort(final Comparator<S3Item> comparator) {
+		items.sort(comparator);
+		items.stream().forEach(i -> i.sort(comparator));
+		if (isContainer()) {
+			getTreeItem().getChildren().sort((o1, o2) -> comparator.compare(o1.getValue(), o2.getValue()));
+		}
+	}
+
 	public boolean isContainer() {
 		return true;
 	}
 
 	public TreeItem<S3Item> getTreeItem() {
+		if (!isContainer()) {
+			return null;
+		}
 		if (treeItem == null) {
-			createTreeItem();
+			treeItem = new TreeItem<>(this, new ImageView(getIcon()));
 		}
-		return treeItem;
-	}
-
-	public TreeItem<S3Item> createTreeItem() {
-		final TreeItem<S3Item> treeItem = new S3TreeItem(this);
-		final List<TreeItem<S3Item>> children = items.stream().map(S3Item::createTreeItem).collect(Collectors.toList());
-		if (!children.isEmpty()) {
-			treeItem.getChildren().addAll(children);
-		}
-		this.treeItem = treeItem;
 		return treeItem;
 	}
 
 	private void onItemChanged(final Change<? extends S3Item> change) {
 		while (change.next()) {
-			for (final S3Item item : change.getAddedSubList()) {
-				item.setParent(this);
+			for (final S3Item removed : change.getRemoved()) {
+				removed.setParent(null);
+				if (removed.isContainer()) {
+					getTreeItem().getChildren().remove(removed.getTreeItem());
+				}
+			}
+			for (final S3Item added : change.getAddedSubList()) {
+				added.setParent(this);
+				if (added.isContainer()) {
+					getTreeItem().getChildren().add(added.getTreeItem());
+				}
 			}
 		}
 	}
