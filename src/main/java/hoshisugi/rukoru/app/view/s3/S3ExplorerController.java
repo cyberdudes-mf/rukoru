@@ -13,12 +13,17 @@ import hoshisugi.rukoru.app.services.s3.S3Service;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.VBox;
 
 public class S3ExplorerController extends BaseController {
 
 	@FXML
 	private SplitPane splitPane;
+
+	@FXML
+	private VBox bottom;
 
 	@Inject
 	private S3Service s3Service;
@@ -47,5 +52,13 @@ public class S3ExplorerController extends BaseController {
 				s3Service.updateItems(item);
 			}
 		});
+	}
+
+	public void addBottom(final Node node) {
+		bottom.getChildren().add(node);
+	}
+
+	public void removeBottom(final Node node) {
+		bottom.getChildren().remove(node);
 	}
 }

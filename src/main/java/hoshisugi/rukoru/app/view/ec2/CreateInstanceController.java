@@ -116,7 +116,7 @@ public class CreateInstanceController extends BaseController {
 		ConcurrentUtil.run(() -> {
 
 			if (!AuthSetting.hasSetting()) {
-				DialogUtil.showWarningDialog("警告", "認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+				DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
 				return;
 			}
 

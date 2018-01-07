@@ -13,7 +13,9 @@ public class S3Bucket extends S3Item {
 		setBucketName(bucket.getName());
 		setName(bucket.getName());
 		setLastModified(bucket.getCreationDate());
-		setOwner(bucket.getOwner().getDisplayName());
+		if (bucket.getOwner() != null) {
+			setOwner(bucket.getOwner().getDisplayName());
+		}
 	}
 
 	@Override

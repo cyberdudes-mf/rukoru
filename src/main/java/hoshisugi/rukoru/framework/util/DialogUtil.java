@@ -11,12 +11,17 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
 public class DialogUtil {
+
+	public static Optional<String> showTextInputDialog(final String title, final String label) {
+		return createTextInputDialog(title, label);
+	}
 
 	public static Optional<ButtonType> showErrorDialog(final Throwable t) {
 		return createExceptionDialog(t);
@@ -37,6 +42,10 @@ public class DialogUtil {
 
 	public static Optional<ButtonType> showInfoDialog(final Window window, final String title, final String message) {
 		return showAlert(window, AlertType.INFORMATION, title, message);
+	}
+
+	public static Optional<ButtonType> showWarningDialog(final String message) {
+		return showWarningDialog(FXUtil.getPrimaryStage(), "警告", message);
 	}
 
 	public static Optional<ButtonType> showWarningDialog(final String title, final String message) {
@@ -82,6 +91,17 @@ public class DialogUtil {
 		root.add(textArea, 0, 1);
 		dialogPane.setExpandableContent(root);
 		return dialog.showAndWait();
+	}
+
+	public static Optional<String> createTextInputDialog(final String title, final String label) {
+		final TextInputDialog textInput = new TextInputDialog();
+		textInput.initOwner(FXUtil.getPrimaryStage());
+		textInput.setTitle(title);
+		textInput.setHeaderText(null);
+		textInput.setGraphic(null);
+		textInput.getDialogPane().setPrefWidth(300);
+		textInput.getDialogPane().setContentText(label);
+		return textInput.showAndWait();
 	}
 
 	private static Optional<ButtonType> showAlert(final Window owner, final AlertType type, final String title,

@@ -9,6 +9,9 @@ import javafx.scene.image.Image;
 
 public class S3Object extends S3Item {
 
+	public S3Object() {
+	}
+
 	public S3Object(final S3ObjectSummary object) {
 		setBucketName(object.getBucketName());
 		setKey(object.getKey());
