@@ -55,7 +55,7 @@ public class S3ContextMenu extends ContextMenu {
 		delete.setDisable(item == null);
 		cut.setDisable(item == null || isRoot);
 		copy.setDisable(item == null || isRoot);
-		paste.setDisable(item != null);
+		paste.setDisable(/* TODO */false);
 		publish.setDisable(item == null);
 	}
 
