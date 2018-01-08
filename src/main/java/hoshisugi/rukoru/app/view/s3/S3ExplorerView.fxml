@@ -21,6 +21,6 @@
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
    </padding>
    <bottom>
-      <VBox fx:id="bottom" maxHeight="1.7976931348623157E308" BorderPane.alignment="CENTER" />
+      <VBox fx:id="bottom" BorderPane.alignment="CENTER" />
    </bottom>
 </BorderPane>

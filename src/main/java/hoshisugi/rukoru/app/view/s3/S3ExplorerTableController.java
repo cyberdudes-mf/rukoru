@@ -1,11 +1,14 @@
 package hoshisugi.rukoru.app.view.s3;
 
-import static hoshisugi.rukoru.app.models.s3.DownloadObjectResult.Status.Done;
+import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Done;
 import static hoshisugi.rukoru.app.models.s3.S3Item.DELIMITER;
+import static hoshisugi.rukoru.app.models.s3.S3Item.Type.Root;
 import static java.lang.Double.MAX_VALUE;
+import static javafx.scene.input.TransferMode.COPY;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -15,12 +18,12 @@ import com.google.inject.Inject;
 import com.sun.javafx.scene.control.skin.TableColumnHeader;
 
 import hoshisugi.rukoru.app.models.auth.AuthSetting;
-import hoshisugi.rukoru.app.models.s3.DownloadObjectResult;
+import hoshisugi.rukoru.app.models.s3.AsyncResult;
 import hoshisugi.rukoru.app.models.s3.S3Bucket;
 import hoshisugi.rukoru.app.models.s3.S3Folder;
 import hoshisugi.rukoru.app.models.s3.S3Item;
-import hoshisugi.rukoru.app.models.s3.S3Object;
 import hoshisugi.rukoru.app.models.s3.S3Root;
+import hoshisugi.rukoru.app.models.s3.UploadObjectResult;
 import hoshisugi.rukoru.app.services.s3.S3Service;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.GraphicTableCell;
@@ -40,6 +43,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -76,7 +81,6 @@ public class S3ExplorerTableController extends BaseController {
 		iconColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		iconColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createIcon));
 		explorer.getSelection().selectedItemProperty().addListener(this::selectedItemChanged);
-		tableView.setOnMouseClicked(this::onTableViewClicked);
 		tableView.setRowFactory(this::createTableRow);
 		final S3ContextMenu contextMenu = createContextMenu();
 		tableView.setContextMenu(contextMenu);
@@ -89,6 +93,7 @@ public class S3ExplorerTableController extends BaseController {
 		});
 	}
 
+	@FXML
 	private void onTableViewClicked(final MouseEvent event) {
 		if (FXUtil.isDoubleClicked(event)) {
 			final S3Item item = tableView.getSelectionModel().getSelectedItem();
@@ -96,6 +101,31 @@ public class S3ExplorerTableController extends BaseController {
 				explorer.getSelection().select(item);
 			}
 		}
+	}
+
+	@FXML
+	private void onDragOver(final DragEvent event) {
+		final Dragboard dragboard = event.getDragboard();
+		final S3Item selectedItem = explorer.getSelection().getSelectedItem();
+		if (dragboard.hasFiles() && dragboard.getFiles().stream().allMatch(File::isFile)
+				&& selectedItem.getType() != Root) {
+			event.acceptTransferModes(COPY);
+		}
+		event.consume();
+	}
+
+	@FXML
+	private void onDragDropped(final DragEvent event) {
+		final Dragboard dragboard = event.getDragboard();
+		boolean success = false;
+		if (dragboard.hasFiles()) {
+			final List<File> files = dragboard.getFiles();
+			final S3Item parent = explorer.getSelection().getSelectedItem();
+			files.forEach(f -> uploadFile(parent, f));
+			success = true;
+		}
+		event.setDropCompleted(success);
+		event.consume();
 	}
 
 	private void selectedItemChanged(final ObservableValue<? extends S3Item> observable, final S3Item oldValue,
@@ -155,13 +185,28 @@ public class S3ExplorerTableController extends BaseController {
 		fileChooser.setTitle("ダウンロード");
 		final File selectedFile = fileChooser.showOpenDialog(FXUtil.getStage(event));
 		if (selectedFile != null) {
-			try {
-				final String key = parent.getKey() + selectedFile.getName();
-				final S3Object item = s3Service.uploadObject(parent.getBucketName(), key, selectedFile.toPath());
-				parent.getItems().add(item);
-			} catch (final Exception e) {
-				DialogUtil.showErrorDialog(e);
-			}
+			uploadFile(parent, selectedFile);
+		}
+	}
+
+	private void uploadFile(final S3Item parent, final File selectedFile) {
+		try {
+			final String key = parent.getKey() + selectedFile.getName();
+			final UploadObjectResult result = s3Service.uploadObject(parent.getBucketName(), key,
+					selectedFile.toPath());
+			final ProgressBar progressBar = createProgressBar(result);
+			explorer.addBottom(progressBar);
+			ConcurrentUtil.run(() -> {
+				waitForDone(result);
+				Platform.runLater(() -> {
+					explorer.removeBottom(progressBar);
+					if (result.checkResult()) {
+						parent.getItems().add(result.getItem());
+					}
+				});
+			});
+		} catch (final Exception e) {
+			DialogUtil.showErrorDialog(e);
 		}
 	}
 
@@ -176,14 +221,15 @@ public class S3ExplorerTableController extends BaseController {
 		final File selectedFile = fileChooser.showSaveDialog(FXUtil.getStage(event));
 		if (selectedFile != null) {
 			try {
-				final DownloadObjectResult result = s3Service.downloadObject(item, selectedFile.toPath());
+				final AsyncResult result = s3Service.downloadObject(item, selectedFile.toPath());
 				final ProgressBar progressBar = createProgressBar(result);
 				explorer.addBottom(progressBar);
 				ConcurrentUtil.run(() -> {
-					while (result.getStatus() != Done) {
-						Thread.sleep(1000);
-					}
-					Platform.runLater(() -> explorer.removeBottom(progressBar));
+					waitForDone(result);
+					Platform.runLater(() -> {
+						explorer.removeBottom(progressBar);
+						result.checkResult();
+					});
 				});
 			} catch (final Exception e) {
 				DialogUtil.showErrorDialog(e);
@@ -191,7 +237,13 @@ public class S3ExplorerTableController extends BaseController {
 		}
 	}
 
-	private ProgressBar createProgressBar(final DownloadObjectResult result) {
+	private void waitForDone(final AsyncResult result) throws InterruptedException {
+		while (result.getStatus() != Done) {
+			Thread.sleep(1000);
+		}
+	}
+
+	private ProgressBar createProgressBar(final AsyncResult result) {
 		final ProgressBar progressBar = new ProgressBar();
 		progressBar.progressProperty().bind(result.progressProperty());
 		progressBar.setPrefHeight(25);
@@ -305,4 +357,5 @@ public class S3ExplorerTableController extends BaseController {
 		}
 		return false;
 	}
+
 }

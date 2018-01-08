@@ -1,11 +1,18 @@
 package hoshisugi.rukoru.app.services.s3;
 
 import static com.amazonaws.regions.Regions.AP_NORTHEAST_1;
+import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Doing;
+import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Done;
 import static hoshisugi.rukoru.app.models.s3.S3Item.DELIMITER;
 import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.READ;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -33,12 +41,13 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.common.base.Strings;
 
 import hoshisugi.rukoru.app.models.auth.AuthSetting;
-import hoshisugi.rukoru.app.models.s3.DownloadObjectResult;
+import hoshisugi.rukoru.app.models.s3.AsyncResult;
 import hoshisugi.rukoru.app.models.s3.S3Bucket;
 import hoshisugi.rukoru.app.models.s3.S3Folder;
 import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.app.models.s3.S3Object;
 import hoshisugi.rukoru.app.models.s3.S3Root;
+import hoshisugi.rukoru.app.models.s3.UploadObjectResult;
 import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 
@@ -129,33 +138,6 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 	}
 
 	@Override
-	public DownloadObjectResult downloadObject(final S3Item item, final Path destination) throws IOException {
-		final AmazonS3 client = createClient();
-		final GetObjectRequest request = new GetObjectRequest(item.getBucketName(), item.getKey());
-		final com.amazonaws.services.s3.model.S3Object object = client.getObject(request);
-
-		final DownloadObjectResult result = new DownloadObjectResult();
-		result.setContentLength(object.getObjectMetadata().getContentLength());
-		ConcurrentUtil.run(() -> {
-			final byte[] buff = new byte[8192];
-			try (S3ObjectInputStream input = object.getObjectContent();
-					OutputStream output = Files.newOutputStream(destination, CREATE)) {
-				result.setStatus(DownloadObjectResult.Status.Downloading);
-				int read;
-				while ((read = input.read(buff)) >= 0) {
-					output.write(buff, 0, read);
-					result.addWrote(read);
-				}
-			} catch (final Exception e) {
-				result.setThrown(e);
-			} finally {
-				result.setStatus(DownloadObjectResult.Status.Done);
-			}
-		});
-		return result;
-	}
-
-	@Override
 	public S3Bucket createBucket(final String bucketName) {
 		final AmazonS3 client = createClient();
 		final Bucket bucket = client.createBucket(bucketName);
@@ -212,13 +194,81 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 	}
 
 	@Override
-	public S3Object uploadObject(final String bucketName, final String key, final Path path) {
+	public AsyncResult downloadObject(final S3Item item, final Path destination) throws IOException {
+		final AmazonS3 client = createClient();
+		final GetObjectRequest request = new GetObjectRequest(item.getBucketName(), item.getKey());
+		final com.amazonaws.services.s3.model.S3Object object = client.getObject(request);
+
+		final AsyncResult result = new AsyncResult();
+		result.setName(destination.getFileName().toString());
+		result.setSize(object.getObjectMetadata().getContentLength());
+
+		ConcurrentUtil.run(() -> {
+			final byte[] buff = new byte[1048576];
+			try (S3ObjectInputStream input = object.getObjectContent();
+					OutputStream output = new BufferedOutputStream(Files.newOutputStream(destination, CREATE))) {
+				result.setStatus(Doing);
+				int read;
+				while ((read = input.read(buff)) >= 0) {
+					output.write(buff, 0, read);
+					result.addBytes(read);
+				}
+			} catch (final Throwable e) {
+				result.setThrown(e);
+			} finally {
+				result.setStatus(Done);
+			}
+		});
+		return result;
+	}
+
+	@Override
+	public UploadObjectResult uploadObject(final String bucketName, final String key, final Path path)
+			throws IOException {
 		if (!Files.exists(path)) {
 			throw new IllegalArgumentException("File does not exist.");
 		}
 		final AmazonS3 client = createClient();
-		client.putObject(bucketName, key, path.toFile());
-		final ObjectListing listObjects = client.listObjects(bucketName, key);
-		return listObjects.getObjectSummaries().stream().filter(this::isObject).map(S3Object::new).findFirst().get();
+		final ObjectMetadata metadata = new ObjectMetadata();
+		metadata.setContentLength(Files.size(path));
+
+		final UploadObjectResult result = new UploadObjectResult();
+		result.setName(path.getFileName().toString());
+		result.setSize(metadata.getContentLength());
+
+		ConcurrentUtil.run(() -> {
+			try (InputStream input = new BufferedInputStream(
+					new MonitorInputStream(Files.newInputStream(path, READ), result::addBytes))) {
+				result.setStatus(Doing);
+				client.putObject(bucketName, key, input, metadata);
+				final ObjectListing listObjects = client.listObjects(bucketName, key);
+				final S3Object object = listObjects.getObjectSummaries().stream().filter(this::isObject)
+						.map(S3Object::new).findFirst().get();
+				result.setItem(object);
+			} catch (final Throwable e) {
+				result.setThrown(e);
+			} finally {
+				result.setStatus(Done);
+			}
+		});
+		return result;
+	}
+
+	class MonitorInputStream extends FilterInputStream {
+
+		private final IntConsumer consumer;
+
+		protected MonitorInputStream(final InputStream in, final IntConsumer consumer) {
+			super(in);
+			this.consumer = consumer;
+		}
+
+		@Override
+		public int read(final byte[] b, final int off, final int len) throws IOException {
+			final int read = super.read(b, off, len);
+			consumer.accept(read);
+			return read;
+		}
+
 	}
 }
