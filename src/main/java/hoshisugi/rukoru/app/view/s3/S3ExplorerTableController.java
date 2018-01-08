@@ -39,10 +39,12 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
@@ -82,15 +84,9 @@ public class S3ExplorerTableController extends BaseController {
 		iconColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createIcon));
 		explorer.getSelection().selectedItemProperty().addListener(this::selectedItemChanged);
 		tableView.setRowFactory(this::createTableRow);
-		final S3ContextMenu contextMenu = createContextMenu();
-		tableView.setContextMenu(contextMenu);
-		tableView.setOnContextMenuRequested(e -> {
-			if (isTableHeaderChild((Node) e.getTarget())) {
-				contextMenu.setVisible(false);
-			} else {
-				contextMenu.disableItems(null);
-			}
-		});
+		tableView.setContextMenu(createContextMenu());
+		tableView.setOnContextMenuRequested(this::onContextMenuRequested);
+		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 	}
 
 	@FXML
@@ -164,6 +160,15 @@ public class S3ExplorerTableController extends BaseController {
 		contextMenu.setOnPasteMenuAction(this::onPasteMenuAction);
 		contextMenu.setOnPublishMenuAction(this::onPublishMenuAction);
 		return contextMenu;
+	}
+
+	private void onContextMenuRequested(final ContextMenuEvent event) {
+		final S3ContextMenu contextMenu = (S3ContextMenu) tableView.getContextMenu();
+		if (isTableHeaderChild((Node) event.getTarget())) {
+			contextMenu.setVisible(false);
+		} else {
+			contextMenu.disableItems(null);
+		}
 	}
 
 	private void onOpenMenuAction(final ActionEvent event) {
@@ -303,19 +308,30 @@ public class S3ExplorerTableController extends BaseController {
 			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
 			return;
 		}
-		final S3Item item = getS3Item((MenuItem) event.getTarget());
-		final Optional<ButtonType> buttonType = DialogUtil.showConfirmDialog("確認",
-				String.format("[%s] を削除しますか？", item.getName()));
+		final List<S3Item> items = tableView.getSelectionModel().getSelectedItems();
+		final Optional<ButtonType> buttonType;
+		if (items.size() == 1) {
+			buttonType = DialogUtil.showConfirmDialog("確認", String.format("[%s] を削除しますか？", items.get(0).getName()));
+		} else {
+			buttonType = DialogUtil.showConfirmDialog("確認", String.format("%s 個のファイルを削除しますか？", items.size()));
+		}
+
 		if (!buttonType.map(t -> t == ButtonType.OK).orElse(false)) {
 			return;
 		}
 		ConcurrentUtil.run(() -> {
-			if (item instanceof S3Bucket) {
-				s3Service.deleteBucket((S3Bucket) item);
-			} else {
-				s3Service.deleteObject(item);
+			for (final S3Item item : items) {
+				if (item instanceof S3Bucket) {
+					s3Service.deleteBucket((S3Bucket) item);
+				} else {
+					s3Service.deleteObject(item);
+				}
 			}
-			Platform.runLater(() -> item.getParent().getItems().remove(item));
+			final S3Item parent = explorer.getSelection().getSelectedItem();
+			Platform.runLater(() -> {
+				parent.getItems().removeAll(items);
+				tableView.getSelectionModel().clearSelection();
+			});
 		});
 	}
 

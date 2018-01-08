@@ -63,80 +63,6 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		item.sort(Comparator.comparing(S3Item::getType).thenComparing(S3Item::getName));
 	}
 
-	private AmazonS3 createClient() {
-		final AuthSetting authSetting = AuthSetting.get();
-		final AWSCredentials credential = new BasicAWSCredentials(authSetting.getAccessKeyId(),
-				authSetting.getSecretAccessKey());
-		final AWSCredentialsProvider provider = new AWSStaticCredentialsProvider(credential);
-		return AmazonS3ClientBuilder.standard().withCredentials(provider).withRegion(AP_NORTHEAST_1).build();
-	}
-
-	private void updateBuckets(final S3Root item) {
-		final AmazonS3 client = createClient();
-		final List<S3Bucket> buckets = client.listBuckets().stream().map(S3Bucket::new).collect(Collectors.toList());
-		item.getItems().setAll(buckets);
-		buckets.stream().forEach(i -> ConcurrentUtil.run(() -> updateItems(i)));
-	}
-
-	private void updateObjects(final S3Item item) {
-		final List<S3Item> objects = new ArrayList<>();
-		final List<String> folders = new ArrayList<>();
-		listObject(item, result -> {
-			result.getObjectSummaries().stream().peek(s -> {
-				if (!isObject(s)) {
-					folders.add(s.getKey());
-				}
-			}).filter(this::isObject).map(S3Object::new).forEach(objects::add);
-		});
-		toTreeStructure(item, objects, folders);
-	}
-
-	private ListObjectsRequest createListObjectsRequest(final S3Item item) {
-		final ListObjectsRequest request = new ListObjectsRequest();
-		request.setBucketName(item.getBucketName());
-		final String key = item.getKey();
-		if (!Strings.isNullOrEmpty(key)) {
-			request.setPrefix(item.getKey());
-		}
-		return request;
-	}
-
-	private boolean isObject(final S3ObjectSummary object) {
-		return !object.getKey().endsWith(DELIMITER);
-	}
-
-	private void toTreeStructure(final S3Item rootItem, final List<S3Item> objects, final List<String> folders) {
-		final Map<String, S3Item> structured = new HashMap<>();
-		structured.put(rootItem.getKey(), rootItem);
-		rootItem.getItems().clear();
-		objects.forEach(i -> storeInParent(structured, i));
-		folders.stream().filter(f -> !structured.containsKey(f)).map(f -> new S3Folder(rootItem.getBucketName(), f))
-				.peek(f -> structured.put(f.getKey(), f)).forEach(f -> storeInParent(structured, f));
-	}
-
-	private String getParentKey(final S3Item item) {
-		final String key = item.getKey();
-		if (!key.contains(DELIMITER)) {
-			return "";
-		} else if (key.endsWith(DELIMITER)) {
-			return key.substring(0, key.lastIndexOf(DELIMITER, key.length() - 2) + 1);
-		} else {
-			return key.substring(0, key.lastIndexOf(DELIMITER) + 1);
-		}
-	}
-
-	private void storeInParent(final Map<String, S3Item> structured, final S3Item item) {
-		final String parentKey = getParentKey(item);
-		if (structured.containsKey(parentKey)) {
-			structured.get(parentKey).getItems().add(item);
-		} else {
-			final S3Folder parent = new S3Folder(item.getBucketName(), parentKey);
-			parent.getItems().add(item);
-			storeInParent(structured, parent);
-			structured.put(parentKey, parent);
-		}
-	}
-
 	@Override
 	public S3Bucket createBucket(final String bucketName) {
 		final AmazonS3 client = createClient();
@@ -162,20 +88,6 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 						.forEach(s -> client.deleteObject(item.getBucketName(), s.getKey()));
 			});
 		}
-	}
-
-	private void listObject(final S3Item item, final Consumer<ObjectListing> consumer) {
-		listObject(createClient(), item, consumer);
-	}
-
-	private void listObject(final AmazonS3 client, final S3Item item, final Consumer<ObjectListing> consumer) {
-		final ListObjectsRequest request = createListObjectsRequest(item);
-		ObjectListing result = null;
-		do {
-			result = client.listObjects(request);
-			consumer.accept(result);
-			request.setMarker(result.getNextMarker());
-		} while (result.isTruncated());
 	}
 
 	@Override
@@ -252,6 +164,94 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 			}
 		});
 		return result;
+	}
+
+	private AmazonS3 createClient() {
+		final AuthSetting authSetting = AuthSetting.get();
+		final AWSCredentials credential = new BasicAWSCredentials(authSetting.getAccessKeyId(),
+				authSetting.getSecretAccessKey());
+		final AWSCredentialsProvider provider = new AWSStaticCredentialsProvider(credential);
+		return AmazonS3ClientBuilder.standard().withCredentials(provider).withRegion(AP_NORTHEAST_1).build();
+	}
+
+	private void updateBuckets(final S3Root item) {
+		final AmazonS3 client = createClient();
+		final List<S3Bucket> buckets = client.listBuckets().stream().map(S3Bucket::new).collect(Collectors.toList());
+		item.getItems().setAll(buckets);
+		buckets.stream().forEach(i -> ConcurrentUtil.run(() -> updateItems(i)));
+	}
+
+	private void updateObjects(final S3Item item) {
+		final List<S3Item> objects = new ArrayList<>();
+		final List<String> folders = new ArrayList<>();
+		listObject(item, result -> {
+			result.getObjectSummaries().stream().peek(s -> {
+				if (!isObject(s)) {
+					folders.add(s.getKey());
+				}
+			}).filter(this::isObject).map(S3Object::new).forEach(objects::add);
+		});
+		toTreeStructure(item, objects, folders);
+	}
+
+	private ListObjectsRequest createListObjectsRequest(final S3Item item) {
+		final ListObjectsRequest request = new ListObjectsRequest();
+		request.setBucketName(item.getBucketName());
+		final String key = item.getKey();
+		if (!Strings.isNullOrEmpty(key)) {
+			request.setPrefix(item.getKey());
+		}
+		return request;
+	}
+
+	private boolean isObject(final S3ObjectSummary object) {
+		return !object.getKey().endsWith(DELIMITER);
+	}
+
+	private void toTreeStructure(final S3Item rootItem, final List<S3Item> objects, final List<String> folders) {
+		final Map<String, S3Item> structured = new HashMap<>();
+		structured.put(rootItem.getKey(), rootItem);
+		rootItem.getItems().clear();
+		objects.forEach(i -> storeInParent(structured, i));
+		folders.stream().filter(f -> !structured.containsKey(f)).map(f -> new S3Folder(rootItem.getBucketName(), f))
+				.peek(f -> structured.put(f.getKey(), f)).forEach(f -> storeInParent(structured, f));
+	}
+
+	private String getParentKey(final S3Item item) {
+		final String key = item.getKey();
+		if (!key.contains(DELIMITER)) {
+			return "";
+		} else if (key.endsWith(DELIMITER)) {
+			return key.substring(0, key.lastIndexOf(DELIMITER, key.length() - 2) + 1);
+		} else {
+			return key.substring(0, key.lastIndexOf(DELIMITER) + 1);
+		}
+	}
+
+	private void storeInParent(final Map<String, S3Item> structured, final S3Item item) {
+		final String parentKey = getParentKey(item);
+		if (structured.containsKey(parentKey)) {
+			structured.get(parentKey).getItems().add(item);
+		} else {
+			final S3Folder parent = new S3Folder(item.getBucketName(), parentKey);
+			parent.getItems().add(item);
+			storeInParent(structured, parent);
+			structured.put(parentKey, parent);
+		}
+	}
+
+	private void listObject(final S3Item item, final Consumer<ObjectListing> consumer) {
+		listObject(createClient(), item, consumer);
+	}
+
+	private void listObject(final AmazonS3 client, final S3Item item, final Consumer<ObjectListing> consumer) {
+		final ListObjectsRequest request = createListObjectsRequest(item);
+		ObjectListing result = null;
+		do {
+			result = client.listObjects(request);
+			consumer.accept(result);
+			request.setMarker(result.getNextMarker());
+		} while (result.isTruncated());
 	}
 
 	class MonitorInputStream extends FilterInputStream {
