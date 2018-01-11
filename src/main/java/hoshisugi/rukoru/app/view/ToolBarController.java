@@ -97,4 +97,8 @@ public class ToolBarController extends BaseController {
 			toolBar.selectToggle(oldValue);
 		}
 	}
+
+	public boolean isSelected() {
+		return toolBar.getSelectedToggle() != null;
+	}
 }

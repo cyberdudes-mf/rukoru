@@ -12,6 +12,7 @@ import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.framework.base.BaseController;
+import hoshisugi.rukoru.framework.inject.Injector;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
@@ -78,7 +79,10 @@ public class ContentController extends BaseController {
 			final DoubleBinding fitWidth = parent.widthProperty().subtract(10d).subtract(left.orElse(defaultValue))
 					.subtract(right.orElse(defaultValue));
 			topImage.fitWidthProperty().bind(fitWidth);
-			Platform.runLater(() -> layoutRoot.getChildren().add(topImage));
+			final ToolBarController toolBar = Injector.getInstance(ToolBarController.class);
+			if (!toolBar.isSelected()) {
+				Platform.runLater(() -> layoutRoot.getChildren().add(topImage));
+			}
 		});
 	}
 
