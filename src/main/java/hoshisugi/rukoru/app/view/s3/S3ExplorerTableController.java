@@ -33,6 +33,7 @@ import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -206,7 +207,13 @@ public class S3ExplorerTableController extends BaseController {
 				Platform.runLater(() -> {
 					explorer.removeBottom(progressBar);
 					if (result.checkResult()) {
-						parent.getItems().add(result.getItem());
+						final S3Item item = result.getItem();
+						final ObservableList<S3Item> items = parent.getItems();
+						if (items.contains(item)) {
+							items.remove(items.indexOf(item));
+						}
+						items.add(item);
+						tableView.refresh();
 					}
 				});
 			});

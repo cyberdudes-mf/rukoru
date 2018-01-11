@@ -3,6 +3,7 @@ package hoshisugi.rukoru.app.models.s3;
 import java.util.Comparator;
 import java.util.Date;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
 import hoshisugi.rukoru.framework.util.AssetUtil;
@@ -151,6 +152,20 @@ public abstract class S3Item {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getBucketName(), getKey());
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (obj instanceof S3Item) {
+			final S3Item item = (S3Item) obj;
+			return Objects.equal(getBucketName(), item.getBucketName()) && Objects.equal(getKey(), item.getKey());
+		}
+		return false;
 	}
 
 	public Image getIcon() {
