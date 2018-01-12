@@ -34,11 +34,6 @@ public class Main extends Application {
 		}
 	}
 
-	@Override
-	public void init() {
-
-	}
-
 	public static void main(final String[] args) {
 		launch(args);
 	}
