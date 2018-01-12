@@ -91,16 +91,6 @@ public class S3ExplorerTableController extends BaseController {
 	}
 
 	@FXML
-	private void onTableViewClicked(final MouseEvent event) {
-		if (FXUtil.isDoubleClicked(event)) {
-			final S3Item item = tableView.getSelectionModel().getSelectedItem();
-			if (item != null && item.isContainer()) {
-				explorer.getSelection().select(item);
-			}
-		}
-	}
-
-	@FXML
 	private void onDragOver(final DragEvent event) {
 		final Dragboard dragboard = event.getDragboard();
 		final S3Item selectedItem = explorer.getSelection().getSelectedItem();
@@ -144,7 +134,19 @@ public class S3ExplorerTableController extends BaseController {
 		contextMenu.userDataProperty().bind(row.itemProperty());
 		row.setContextMenu(contextMenu);
 		row.setOnContextMenuRequested(e -> contextMenu.disableItems(row.getItem()));
+		row.setOnMouseClicked(this::onTableViewClicked);
 		return row;
+	}
+
+	private void onTableViewClicked(final MouseEvent event) {
+		if (FXUtil.isDoubleClicked(event)) {
+			@SuppressWarnings("unchecked")
+			final TableRow<S3Item> row = (TableRow<S3Item>) event.getSource();
+			final S3Item item = row.getItem();
+			if (item != null && item.isContainer()) {
+				explorer.getSelection().select(item);
+			}
+		}
 	}
 
 	private S3ContextMenu createContextMenu() {
