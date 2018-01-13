@@ -45,6 +45,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
@@ -284,7 +285,10 @@ public class S3ExplorerTableController extends BaseController {
 			ConcurrentUtil.run(() -> {
 				final S3Bucket bucket = s3Service.createBucket(bucketNameOptional.get());
 				final S3Root rootItem = explorer.getRootItem();
-				Platform.runLater(() -> rootItem.getItems().add(bucket));
+				Platform.runLater(() -> {
+					rootItem.getItems().add(bucket);
+					clearAndSelect(bucket);
+				});
 			});
 		}
 	}
@@ -300,13 +304,37 @@ public class S3ExplorerTableController extends BaseController {
 			ConcurrentUtil.run(() -> {
 				final String key = item.getKey() + folderNameOptional.get() + DELIMITER;
 				final S3Folder folder = s3Service.createFolder(item.getBucketName(), key);
-				Platform.runLater(() -> item.getItems().add(folder));
+				Platform.runLater(() -> {
+					item.getItems().add(folder);
+					clearAndSelect(folder);
+				});
 			});
 		}
 	}
 
 	private void onRenameMenuAction(final ActionEvent event) {
-		System.out.println("onRenameMenuAction");
+		if (!checkAuth()) {
+			return;
+		}
+		final MenuItem menuItem = (MenuItem) event.getTarget();
+		final S3Item item = getS3Item(menuItem);
+		final Optional<String> nameOptional = DialogUtil.showTextInputDialog(menuItem.getText(), "名前", item.getName());
+		if (nameOptional.isPresent()) {
+			final String bucketName = item.getBucketName();
+			final String sourceKey = item.getKey();
+			final String destinationKey = item.getParentKey() + nameOptional.get();
+			if (!destinationKey.equals(sourceKey)) {
+				ConcurrentUtil.run(() -> {
+					final ObservableList<S3Item> parentItems = item.getParent().getItems();
+					final S3Item newItem = s3Service.moveObject(bucketName, sourceKey, bucketName, destinationKey);
+					parentItems.remove(item);
+					parentItems.add(newItem);
+					Platform.runLater(() -> {
+						clearAndSelect(newItem);
+					});
+				});
+			}
+		}
 	}
 
 	private void onDeleteMenuAction(final ActionEvent event) {
@@ -362,7 +390,10 @@ public class S3ExplorerTableController extends BaseController {
 				if (content.isCopied()) {
 					final S3Item item = s3Service.copyObject(content.getBucketName(), content.getKey(),
 							parent.getBucketName(), destinationKey);
-					parent.getItems().add(item);
+					Platform.runLater(() -> {
+						parent.getItems().add(item);
+						clearAndSelect(item);
+					});
 				} else if (content.isCut()) {
 					final S3Item item = s3Service.moveObject(content.getBucketName(), content.getKey(),
 							parent.getBucketName(), destinationKey);
@@ -370,7 +401,8 @@ public class S3ExplorerTableController extends BaseController {
 					Platform.runLater(() -> {
 						parent.getItems().add(item);
 						source.getParent().getItems().remove(source);
-						Platform.runLater(() -> S3Clipboard.clear());
+						S3Clipboard.clear();
+						clearAndSelect(item);
 					});
 				}
 			});
@@ -415,4 +447,11 @@ public class S3ExplorerTableController extends BaseController {
 		}
 		return hasSetting;
 	}
+
+	private void clearAndSelect(final S3Item newItem) {
+		final TableViewSelectionModel<S3Item> selectionModel = tableView.getSelectionModel();
+		selectionModel.clearSelection();
+		selectionModel.select(newItem);
+	}
+
 }

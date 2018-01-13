@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
 
+import com.google.common.base.Strings;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -18,6 +20,11 @@ import javafx.stage.Modality;
 import javafx.stage.Window;
 
 public class DialogUtil {
+
+	public static Optional<String> showTextInputDialog(final String title, final String label,
+			final String defaultText) {
+		return createTextInputDialog(title, label, defaultText);
+	}
 
 	public static Optional<String> showTextInputDialog(final String title, final String label) {
 		return createTextInputDialog(title, label);
@@ -94,6 +101,11 @@ public class DialogUtil {
 	}
 
 	public static Optional<String> createTextInputDialog(final String title, final String label) {
+		return createTextInputDialog(title, label, null);
+	}
+
+	public static Optional<String> createTextInputDialog(final String title, final String label,
+			final String defaultText) {
 		final TextInputDialog textInput = new TextInputDialog();
 		textInput.initOwner(FXUtil.getPrimaryStage());
 		textInput.setTitle(title);
@@ -101,6 +113,9 @@ public class DialogUtil {
 		textInput.setGraphic(null);
 		textInput.getDialogPane().setPrefWidth(300);
 		textInput.getDialogPane().setContentText(label);
+		if (!Strings.isNullOrEmpty(defaultText)) {
+			textInput.getEditor().setText(defaultText);
+		}
 		return textInput.showAndWait();
 	}
 
