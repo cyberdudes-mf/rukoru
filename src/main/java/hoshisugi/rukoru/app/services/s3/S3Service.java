@@ -28,4 +28,6 @@ public interface S3Service {
 	S3Item copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey);
 
 	S3Item moveObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey);
+
+	void publishObject(S3Item item);
 }

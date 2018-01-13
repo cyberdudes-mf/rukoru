@@ -185,8 +185,7 @@ public class S3ExplorerTableController extends BaseController {
 	}
 
 	public void onUploadMenuAction(final ActionEvent event) {
-		if (!AuthSetting.hasSetting()) {
-			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+		if (!checkAuth()) {
 			return;
 		}
 		final S3Item parent = explorer.getSelection().getSelectedItem();
@@ -226,8 +225,7 @@ public class S3ExplorerTableController extends BaseController {
 	}
 
 	private void onDownloadMenuAction(final ActionEvent event) {
-		if (!AuthSetting.hasSetting()) {
-			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+		if (!checkAuth()) {
 			return;
 		}
 		final S3Item item = getS3Item((MenuItem) event.getTarget());
@@ -277,8 +275,7 @@ public class S3ExplorerTableController extends BaseController {
 	}
 
 	private void onCreateBucketMenuAction(final ActionEvent event) {
-		if (!AuthSetting.hasSetting()) {
-			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+		if (!checkAuth()) {
 			return;
 		}
 		final MenuItem menuItem = (MenuItem) event.getTarget();
@@ -293,8 +290,7 @@ public class S3ExplorerTableController extends BaseController {
 	}
 
 	private void onCreateFolderMenuAction(final ActionEvent event) {
-		if (!AuthSetting.hasSetting()) {
-			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+		if (!checkAuth()) {
 			return;
 		}
 		final MenuItem menuItem = (MenuItem) event.getTarget();
@@ -314,8 +310,7 @@ public class S3ExplorerTableController extends BaseController {
 	}
 
 	private void onDeleteMenuAction(final ActionEvent event) {
-		if (!AuthSetting.hasSetting()) {
-			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+		if (!checkAuth()) {
 			return;
 		}
 		final List<S3Item> items = tableView.getSelectionModel().getSelectedItems();
@@ -357,8 +352,7 @@ public class S3ExplorerTableController extends BaseController {
 	}
 
 	private void onPasteMenuAction(final ActionEvent event) {
-		if (!AuthSetting.hasSetting()) {
-			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+		if (!checkAuth()) {
 			return;
 		}
 		S3Clipboard.getContent().ifPresent(content -> {
@@ -384,7 +378,11 @@ public class S3ExplorerTableController extends BaseController {
 	}
 
 	private void onPublishMenuAction(final ActionEvent event) {
-		System.out.println("onPublishMenuAction");
+		if (!checkAuth()) {
+			return;
+		}
+		final S3Item item = getS3Item((MenuItem) event.getTarget());
+		ConcurrentUtil.run(() -> s3Service.publishObject(item));
 	}
 
 	private String toURL(final S3Item item) {
@@ -410,4 +408,11 @@ public class S3ExplorerTableController extends BaseController {
 		return false;
 	}
 
+	private boolean checkAuth() {
+		final boolean hasSetting = AuthSetting.hasSetting();
+		if (!hasSetting) {
+			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+		}
+		return hasSetting;
+	}
 }

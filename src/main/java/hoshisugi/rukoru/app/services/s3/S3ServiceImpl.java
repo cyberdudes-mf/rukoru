@@ -1,6 +1,7 @@
 package hoshisugi.rukoru.app.services.s3;
 
 import static com.amazonaws.regions.Regions.AP_NORTHEAST_1;
+import static com.amazonaws.services.s3.model.CannedAccessControlList.PublicRead;
 import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Doing;
 import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Done;
 import static hoshisugi.rukoru.app.models.s3.S3Item.DELIMITER;
@@ -203,6 +204,20 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 			result.getObjectSummaries().stream().forEach(s -> client.deleteObject(s.getBucketName(), s.getKey()));
 		});
 		return item;
+	}
+
+	@Override
+	public void publishObject(final S3Item item) {
+		final AmazonS3 client = createClient();
+		if (item.getType() == S3Item.Type.Bucket) {
+			client.setBucketAcl(item.getBucketName(), PublicRead);
+		} else if (item.isContainer()) {
+			listObjects(client, item, l -> {
+				l.getObjectSummaries().forEach(s -> client.setObjectAcl(s.getBucketName(), s.getKey(), PublicRead));
+			});
+		} else {
+			client.setObjectAcl(item.getBucketName(), item.getKey(), PublicRead);
+		}
 	}
 
 	private AmazonS3 createClient() {
