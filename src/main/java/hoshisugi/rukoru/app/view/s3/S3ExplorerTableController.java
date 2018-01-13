@@ -20,6 +20,7 @@ import com.sun.javafx.scene.control.skin.TableColumnHeader;
 import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.s3.AsyncResult;
 import hoshisugi.rukoru.app.models.s3.S3Bucket;
+import hoshisugi.rukoru.app.models.s3.S3Clipboard;
 import hoshisugi.rukoru.app.models.s3.S3Folder;
 import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.app.models.s3.S3Root;
@@ -318,14 +319,7 @@ public class S3ExplorerTableController extends BaseController {
 			return;
 		}
 		final List<S3Item> items = tableView.getSelectionModel().getSelectedItems();
-		final Optional<ButtonType> buttonType;
-		if (items.size() == 1) {
-			buttonType = DialogUtil.showConfirmDialog("確認", String.format("[%s] を削除しますか？", items.get(0).getName()));
-		} else {
-			buttonType = DialogUtil.showConfirmDialog("確認", String.format("%s 個のファイルを削除しますか？", items.size()));
-		}
-
-		if (!buttonType.map(t -> t == ButtonType.OK).orElse(false)) {
+		if (!confirmDeleteObjects(items)) {
 			return;
 		}
 		ConcurrentUtil.run(() -> {
@@ -344,16 +338,49 @@ public class S3ExplorerTableController extends BaseController {
 		});
 	}
 
+	private boolean confirmDeleteObjects(final List<S3Item> items) {
+		final Optional<ButtonType> buttonType;
+		if (items.size() == 1) {
+			buttonType = DialogUtil.showConfirmDialog("確認", String.format("[%s] を削除しますか？", items.get(0).getName()));
+		} else {
+			buttonType = DialogUtil.showConfirmDialog("確認", String.format("%s 個のファイルを削除しますか？", items.size()));
+		}
+		return buttonType.map(t -> t == ButtonType.OK).orElse(false);
+	}
+
 	private void onCutMenuAction(final ActionEvent event) {
-		System.out.println("onCutMenuAction");
+		S3Clipboard.cut(getS3Item((MenuItem) event.getTarget()));
 	}
 
 	private void onCopyMenuAction(final ActionEvent event) {
-		System.out.println("onCopyMenuAction");
+		S3Clipboard.copy(getS3Item((MenuItem) event.getTarget()));
 	}
 
 	private void onPasteMenuAction(final ActionEvent event) {
-		System.out.println("onPasteMenuAction");
+		if (!AuthSetting.hasSetting()) {
+			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+			return;
+		}
+		S3Clipboard.getContent().ifPresent(content -> {
+			final S3Item parent = explorer.getSelection().getSelectedItem();
+			final String destinationKey = parent.getKey() + content.getName();
+			ConcurrentUtil.run(() -> {
+				if (content.isCopied()) {
+					final S3Item item = s3Service.copyObject(content.getBucketName(), content.getKey(),
+							parent.getBucketName(), destinationKey);
+					parent.getItems().add(item);
+				} else if (content.isCut()) {
+					final S3Item item = s3Service.moveObject(content.getBucketName(), content.getKey(),
+							parent.getBucketName(), destinationKey);
+					final S3Item source = explorer.getRootItem().find(content.getBucketName(), content.getKey());
+					Platform.runLater(() -> {
+						parent.getItems().add(item);
+						source.getParent().getItems().remove(source);
+						Platform.runLater(() -> S3Clipboard.clear());
+					});
+				}
+			});
+		});
 	}
 
 	private void onPublishMenuAction(final ActionEvent event) {

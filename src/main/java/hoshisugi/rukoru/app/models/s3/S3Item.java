@@ -223,4 +223,28 @@ public abstract class S3Item {
 			}
 		}
 	}
+
+	public String getParentKey() {
+		final String key = getKey();
+		if (!key.contains(DELIMITER)) {
+			return "";
+		} else if (key.endsWith(DELIMITER)) {
+			return key.substring(0, key.lastIndexOf(DELIMITER, key.length() - 2) + 1);
+		} else {
+			return key.substring(0, key.lastIndexOf(DELIMITER) + 1);
+		}
+	}
+
+	public S3Item find(final String bucketName, final String key) {
+		if (isMatch(bucketName, key)) {
+			return this;
+		}
+		return items.stream().filter(i -> i.getBucketName().equals(bucketName)).map(i -> i.find(bucketName, key))
+				.filter(java.util.Objects::nonNull).findFirst().orElse(null);
+	}
+
+	private boolean isMatch(final String bucketName, final String key) {
+		return bucketName.equals(getBucketName()) && key.equals(getKey());
+	}
+
 }

@@ -1,5 +1,6 @@
 package hoshisugi.rukoru.app.view.s3;
 
+import hoshisugi.rukoru.app.models.s3.S3Clipboard;
 import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.framework.inject.Injector;
 import javafx.beans.property.ObjectProperty;
@@ -55,7 +56,7 @@ public class S3ContextMenu extends ContextMenu {
 		delete.setDisable(item == null);
 		cut.setDisable(item == null || isRoot);
 		copy.setDisable(item == null || isRoot);
-		paste.setDisable(/* TODO */false);
+		paste.setDisable(isRoot || !S3Clipboard.canPaste());
 		publish.setDisable(item == null);
 	}
 

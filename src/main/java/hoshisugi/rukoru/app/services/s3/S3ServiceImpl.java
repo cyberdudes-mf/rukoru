@@ -32,6 +32,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -83,7 +84,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		if (!item.isContainer()) {
 			client.deleteObject(item.getBucketName(), item.getKey());
 		} else {
-			listObject(client, item, result -> {
+			listObjects(client, item, result -> {
 				result.getObjectSummaries().stream()
 						.forEach(s -> client.deleteObject(item.getBucketName(), s.getKey()));
 			});
@@ -153,10 +154,11 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 					new MonitorInputStream(Files.newInputStream(path, READ), result::addBytes))) {
 				result.setStatus(Doing);
 				client.putObject(bucketName, key, input, metadata);
-				final ObjectListing listObjects = client.listObjects(bucketName, key);
-				final S3Object object = listObjects.getObjectSummaries().stream().filter(this::isObject)
-						.map(S3Object::new).findFirst().get();
-				result.setItem(object);
+				listObjects(client, bucketName, key, l -> {
+					final S3Object object = l.getObjectSummaries().stream().filter(this::isObject).map(S3Object::new)
+							.findFirst().get();
+					result.setItem(object);
+				});
 			} catch (final Throwable e) {
 				result.setThrown(e);
 			} finally {
@@ -164,6 +166,43 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 			}
 		});
 		return result;
+	}
+
+	@Override
+	public S3Item copyObject(final String sourceBucketName, final String sourceKey, final String destinationBucketName,
+			final String destinationKey) {
+		final AmazonS3 client = createClient();
+		listObjects(client, sourceBucketName, sourceKey, result -> {
+			result.getObjectSummaries().stream().forEach(s -> {
+				final String key = s.getKey().replaceAll(sourceKey, destinationKey);
+				final CopyObjectRequest request = new CopyObjectRequest(s.getBucketName(), s.getKey(),
+						destinationBucketName, key);
+				client.copyObject(request);
+			});
+		});
+		final ListObjectsRequest request = new ListObjectsRequest();
+		request.setBucketName(destinationBucketName);
+		request.setPrefix(destinationKey);
+		request.setDelimiter(S3Item.DELIMITER);
+		final ObjectListing listObjects = client.listObjects(request);
+		final S3Item item = listObjects.getObjectSummaries().stream().filter(s -> s.getKey().equals(destinationKey))
+				.map(s -> isObject(s) ? new S3Object(s) : new S3Folder(s.getBucketName(), s.getKey())).findFirst()
+				.get();
+		if (item.isContainer()) {
+			updateItems(item);
+		}
+		return item;
+	}
+
+	@Override
+	public S3Item moveObject(final String sourceBucketName, final String sourceKey, final String destinationBucketName,
+			final String destinationKey) {
+		final S3Item item = copyObject(sourceBucketName, sourceKey, destinationBucketName, destinationKey);
+		final AmazonS3 client = createClient();
+		listObjects(client, sourceBucketName, sourceKey, result -> {
+			result.getObjectSummaries().stream().forEach(s -> client.deleteObject(s.getBucketName(), s.getKey()));
+		});
+		return item;
 	}
 
 	private AmazonS3 createClient() {
@@ -184,7 +223,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 	private void updateObjects(final S3Item item) {
 		final List<S3Item> objects = new ArrayList<>();
 		final List<String> folders = new ArrayList<>();
-		listObject(item, result -> {
+		listObjects(item, result -> {
 			result.getObjectSummaries().stream().peek(s -> {
 				if (!isObject(s)) {
 					folders.add(s.getKey());
@@ -217,19 +256,8 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 				.peek(f -> structured.put(f.getKey(), f)).forEach(f -> storeInParent(structured, f));
 	}
 
-	private String getParentKey(final S3Item item) {
-		final String key = item.getKey();
-		if (!key.contains(DELIMITER)) {
-			return "";
-		} else if (key.endsWith(DELIMITER)) {
-			return key.substring(0, key.lastIndexOf(DELIMITER, key.length() - 2) + 1);
-		} else {
-			return key.substring(0, key.lastIndexOf(DELIMITER) + 1);
-		}
-	}
-
 	private void storeInParent(final Map<String, S3Item> structured, final S3Item item) {
-		final String parentKey = getParentKey(item);
+		final String parentKey = item.getParentKey();
 		if (structured.containsKey(parentKey)) {
 			structured.get(parentKey).getItems().add(item);
 		} else {
@@ -240,12 +268,22 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		}
 	}
 
-	private void listObject(final S3Item item, final Consumer<ObjectListing> consumer) {
-		listObject(createClient(), item, consumer);
+	private void listObjects(final S3Item item, final Consumer<ObjectListing> consumer) {
+		listObjects(createClient(), item, consumer);
 	}
 
-	private void listObject(final AmazonS3 client, final S3Item item, final Consumer<ObjectListing> consumer) {
-		final ListObjectsRequest request = createListObjectsRequest(item);
+	private void listObjects(final AmazonS3 client, final S3Item item, final Consumer<ObjectListing> consumer) {
+		listObjects(client, createListObjectsRequest(item), consumer);
+	}
+
+	private void listObjects(final AmazonS3 client, final String bucketName, final String key,
+			final Consumer<ObjectListing> consumer) {
+		final ListObjectsRequest request = new ListObjectsRequest().withBucketName(bucketName).withPrefix(key);
+		listObjects(client, request, consumer);
+	}
+
+	private void listObjects(final AmazonS3 client, final ListObjectsRequest request,
+			final Consumer<ObjectListing> consumer) {
 		ObjectListing result = null;
 		do {
 			result = client.listObjects(request);

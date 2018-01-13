@@ -24,4 +24,8 @@ public interface S3Service {
 	S3Folder createFolder(String bucketName, String key);
 
 	UploadObjectResult uploadObject(String bucketName, String key, Path path) throws IOException;
+
+	S3Item copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey);
+
+	S3Item moveObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey);
 }
