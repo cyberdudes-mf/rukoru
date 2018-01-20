@@ -4,7 +4,6 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.auth.AuthSetting;
@@ -65,7 +64,7 @@ public class AuthSettingController extends BaseController {
 	private void loadSetting() {
 		try {
 			entity = authService.load().orElseGet(AuthSetting::new);
-		} catch (final UncheckedExecutionException e) {
+		} catch (final SQLException e) {
 			entity = new AuthSetting();
 		}
 		account.textProperty().bindBidirectional(entity.accountProperty());
