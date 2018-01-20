@@ -37,12 +37,16 @@ public class AuthSetting implements Serializable {
 
 	public static boolean hasSetting() {
 		if (!setting.isPresent()) {
-			reload();
+			try {
+				reload();
+			} catch (final SQLException e) {
+				return false;
+			}
 		}
 		return setting.isPresent();
 	}
 
-	public static void reload() {
+	public static void reload() throws SQLException {
 		final AuthService service = Injector.getInstance(AuthService.class);
 		setting = service.load();
 	}

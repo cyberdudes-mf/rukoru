@@ -9,5 +9,5 @@ public interface AuthService {
 
 	void save(final AuthSetting entity) throws SQLException;
 
-	Optional<AuthSetting> load();
+	Optional<AuthSetting> load() throws SQLException;
 }

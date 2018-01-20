@@ -6,17 +6,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.google.inject.Inject;
-
 import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.framework.base.BaseService;
-import hoshisugi.rukoru.framework.database.Database;
 
 public class AuthServiceImpl extends BaseService implements AuthService {
-
-	@Inject
-	private Database database;
 
 	public AuthServiceImpl() {
 		super();
@@ -24,17 +17,18 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 
 	@Override
 	public void save(final AuthSetting entity) throws SQLException {
-		if (!database.exists("AUTH_SETTINGS")) {
-			database.executeUpdate(loadSQL("create_auth_settings.sql"));
+		final H2Database h2 = new H2Database();
+		if (!h2.exists("AUTH_SETTINGS")) {
+			h2.executeUpdate(loadSQL("create_auth_settings.sql"));
 		}
 		if (entity.getId() == null) {
 			if (load().isPresent()) {
 				throw new IllegalStateException("Record has been updated from other thread.");
 			}
-			database.executeUpdate(loadSQL("insert_auth_settings.sql"), entity.getAccount(), entity.getAccessKeyId(),
+			h2.executeUpdate(loadSQL("insert_auth_settings.sql"), entity.getAccount(), entity.getAccessKeyId(),
 					entity.getSecretAccessKey());
 		} else {
-			final int result = database.executeUpdate(loadSQL("update_auth_settings.sql"), entity.getAccount(),
+			final int result = h2.executeUpdate(loadSQL("update_auth_settings.sql"), entity.getAccount(),
 					entity.getAccessKeyId(), entity.getSecretAccessKey(), entity.getId(), entity.getUpdatedAt());
 			if (result == 0) {
 				throw new IllegalStateException("Record has been updated from other thread.");
@@ -43,21 +37,20 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 		AuthSetting.reload();
 	}
 
-	@Override
-	public Optional<AuthSetting> load() {
-		try {
-			if (!database.exists("AUTH_SETTINGS")) {
-				return Optional.empty();
-			}
-			final List<AuthSetting> results = database.executeQuery(AuthSetting::new,
-					loadSQL("select_auth_settings.sql"));
-			if (results.isEmpty()) {
-				return Optional.empty();
-			}
-			return Optional.of(results.get(0));
-		} catch (final SQLException e) {
-			throw new UncheckedExecutionException(e);
+	public Optional<AuthSetting> load(final H2Database h2) throws SQLException {
+		if (!h2.exists("AUTH_SETTINGS")) {
+			return Optional.empty();
 		}
+		final List<AuthSetting> results = h2.executeQuery(loadSQL("select_auth_settings.sql"), AuthSetting::new);
+		if (results.isEmpty()) {
+			return Optional.empty();
+		}
+		return Optional.of(results.get(0));
+	}
+
+	@Override
+	public Optional<AuthSetting> load() throws SQLException {
+		return load(new H2Database());
 	}
 
 }
