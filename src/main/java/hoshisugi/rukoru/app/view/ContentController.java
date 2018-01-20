@@ -68,7 +68,7 @@ public class ContentController extends BaseController {
 	private void showTopImage() {
 		ConcurrentUtil.run(() -> {
 			final ImageView topImage = new ImageView(new Image(
-					"https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.redmine/assets/rukoru/top.jpg"));
+					"https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg"));
 			topImage.setPreserveRatio(true);
 			final BorderPane parent = (BorderPane) layoutRoot.getParent();
 			final Optional<ReadOnlyDoubleProperty> left = Optional.ofNullable(parent.getLeft()).map(Region.class::cast)
