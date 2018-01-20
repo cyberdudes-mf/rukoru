@@ -16,17 +16,17 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import hoshisugi.rukoru.framework.database.Database;
 import hoshisugi.rukoru.framework.inject.Injector;
 
-public class H2Database {
+class H2Database implements AutoCloseable {
 
 	private final Database database;
 	private final Connection conn;
 
 	public H2Database() throws SQLException {
 		database = Injector.getInstance(Database.class);
-		conn = createConnection();
+		conn = DriverManager.getConnection(getJdbcUrl(), "sa", "");
 	}
 
-	public static String getJdbcUrl() {
+	private static String getJdbcUrl() {
 		final URL resource = H2Database.class.getClassLoader().getResource(".");
 		// REVISIT デバッグ実行と jar でやり方を同じにする
 		Path binPath = null;
@@ -44,7 +44,6 @@ public class H2Database {
 	}
 
 	public int executeUpdate(final String sql, final Object... params) throws SQLException {
-
 		return database.executeUpdate(conn, sql, params);
 	}
 
@@ -57,10 +56,7 @@ public class H2Database {
 		return database.exists(conn, tableName);
 	}
 
-	private Connection createConnection() throws SQLException {
-		return DriverManager.getConnection(getJdbcUrl(), "sa", "");
-	}
-
+	@Override
 	public void close() throws SQLException {
 		conn.close();
 	}
