@@ -98,7 +98,7 @@ public class CreateInstanceController extends BaseController {
 		items.add(new Tag("Name", ""));
 		items.add(new Tag("SpiderInstance", ""));
 		items.add(new Tag("Type", "QA"));
-		items.add(new Tag("AutoStop", Boolean.TRUE.toString().toUpperCase()));
+		items.add(new Tag("AutoStop", Boolean.TRUE.toString()));
 		items.stream().filter(t -> t.getKey().equals("Name"))
 				.forEach(t -> t.valueProperty().bindBidirectional(name.textProperty()));
 	}
