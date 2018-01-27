@@ -1,14 +1,21 @@
 package hoshisugi.rukoru.app.services.repositorydb;
 
 import static hoshisugi.rukoru.framework.util.AssetUtil.loadSQL;
+import static java.util.Arrays.asList;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import hoshisugi.rukoru.app.models.repositorydb.RepositoryDB;
 import hoshisugi.rukoru.framework.base.BaseService;
 
 public class RepositoryDBServiceImpl extends BaseService implements RepositoryDBService {
+
+	private static final List<String> EXCLUDED_SCHEMA = asList("information_schema", "innodb", "mysql", "tmp",
+			"performance_schema");
 
 	@Override
 	public void dropRepositoryDB(final String dbName) throws SQLException {
@@ -27,8 +34,15 @@ public class RepositoryDBServiceImpl extends BaseService implements RepositoryDB
 	@Override
 	public List<RepositoryDB> listRepositoryDB() throws SQLException {
 		try (MariaDB db = new MariaDB()) {
-			return db.executeQuery(loadSQL("show_repositorydb_list.sql"), RepositoryDB::new);
+			return db.executeQuery(loadSQL("show_repositorydb_list.sql"), this::createModel);
 		}
 	}
 
+	private RepositoryDB createModel(final ResultSet rs) {
+		try {
+			return EXCLUDED_SCHEMA.contains(rs.getString(1)) ? null : new RepositoryDB(rs);
+		} catch (final SQLException e) {
+			throw new UncheckedExecutionException(e);
+		}
+	}
 }
