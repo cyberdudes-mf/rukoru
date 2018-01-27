@@ -73,8 +73,8 @@ public class RepositoryDBContentController extends BaseController {
 		copyButtonColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		copyButtonColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createCopyButton));
 		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/refresh.png")));
-		createButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/refresh.png")));
-		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/refresh.png")));
+		createButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/add.png")));
+		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		selectedItems = tableView.getSelectionModel().getSelectedItems();
 		selectedItems.addListener(this::onSelectedItemsChanged);
@@ -147,7 +147,7 @@ public class RepositoryDBContentController extends BaseController {
 			return null;
 		}
 		final Button button = new Button();
-		button.setGraphic(new ImageView(AssetUtil.getImage("16x16/refresh.png")));
+		button.setGraphic(new ImageView(AssetUtil.getImage("16x16/clipboard.png")));
 		button.setOnAction(this::onCopyButtonClick);
 		button.setUserData(db);
 		return button;
