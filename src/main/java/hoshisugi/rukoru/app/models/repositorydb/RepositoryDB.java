@@ -11,20 +11,16 @@ import javafx.beans.property.StringProperty;
 public class RepositoryDB {
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 
-	public RepositoryDB() {
-
+	public RepositoryDB(final String name) {
+		this.name.set(name);
 	}
 
 	public RepositoryDB(final ResultSet rs) {
 		try {
-			update(rs.getString(1));
+			name.set(rs.getString(1));
 		} catch (final SQLException e) {
 			throw new UncheckedExecutionException(e);
 		}
-	}
-
-	public void update(final String name) {
-		setName(name);
 	}
 
 	public String getName() {

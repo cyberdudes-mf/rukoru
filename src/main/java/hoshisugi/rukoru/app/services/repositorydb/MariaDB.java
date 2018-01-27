@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.function.Function;
 
@@ -22,9 +21,8 @@ class MariaDB implements AutoCloseable {
 		conn = DriverManager.getConnection(jdbcUrl, "", "");
 	}
 
-	public int executeUpdate(final String sql, final String dbName) throws SQLException {
-		final Statement stmt = conn.createStatement();
-		return stmt.executeUpdate(sql + " " + dbName);
+	public int executeUpdate(final String sql) throws SQLException {
+		return database.executeUpdate(conn, sql);
 	}
 
 	public <T> List<T> executeQuery(final String sql, final Function<ResultSet, T> generator) throws SQLException {

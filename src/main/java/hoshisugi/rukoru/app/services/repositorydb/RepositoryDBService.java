@@ -8,7 +8,7 @@ import hoshisugi.rukoru.app.models.repositorydb.RepositoryDB;
 public interface RepositoryDBService {
 	void dropRepositoryDB(String dbName) throws SQLException;
 
-	void createRepositoryDB(String dbName) throws SQLException;
+	RepositoryDB createRepositoryDB(String dbName) throws SQLException;
 
 	List<RepositoryDB> listRepositoryDB() throws SQLException;
 }

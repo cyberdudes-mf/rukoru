@@ -23,7 +23,6 @@ import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -62,22 +61,15 @@ public class RepositoryDBContentController extends BaseController {
 
 	private final ObservableList<RepositoryDB> items = FXCollections.observableArrayList();
 
-	private ObservableList<RepositoryDB> selectedItems;
-
-	public ObservableList<RepositoryDB> getItems() {
-		return items;
-	}
-
 	@Override
 	public void initialize(final URL arg0, final ResourceBundle arg1) {
 		copyButtonColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
-		copyButtonColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createCopyButton));
+		copyButtonColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createCopyToClipboardButton));
 		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/refresh.png")));
 		createButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/add.png")));
 		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
+		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		selectedItems = tableView.getSelectionModel().getSelectedItems();
-		selectedItems.addListener(this::onSelectedItemsChanged);
 		tableView.setItems(items);
 		ConcurrentUtil.run(this::loadRepositoryDB);
 	}
@@ -94,11 +86,10 @@ public class RepositoryDBContentController extends BaseController {
 			ConcurrentUtil.run(() -> {
 				if (AuthSetting.hasSetting()) {
 					final String dbName = repositorydbNameOptional.get();
-					service.createRepositoryDB(dbName);
-					final RepositoryDB db = new RepositoryDB();
-					db.setName(dbName);
+					final RepositoryDB db = service.createRepositoryDB(dbName);
 					Platform.runLater(() -> {
-						items.add(0, db);
+						items.add(db);
+						tableView.getSelectionModel().select(db);
 					});
 				}
 			});
@@ -107,6 +98,7 @@ public class RepositoryDBContentController extends BaseController {
 
 	@FXML
 	private void onDeleteButtonClick() {
+		final ObservableList<RepositoryDB> selectedItems = tableView.getSelectionModel().getSelectedItems();
 		final Optional<ButtonType> result = DialogUtil.showConfirmDialog("リポジトリDB削除",
 				selectedItems.size() > 1 ? String.format("選択された[%d] 個の削除します。よろしいですか？", selectedItems.size())
 						: String.format("[%s] を削除します。よろしいですか？", selectedItems.get(0).getName()));
@@ -116,13 +108,9 @@ public class RepositoryDBContentController extends BaseController {
 
 		ConcurrentUtil.run(() -> {
 			if (AuthSetting.hasSetting()) {
-				selectedItems.forEach(db -> {
-					try {
-						service.dropRepositoryDB(db.getName());
-					} catch (final SQLException e) {
-						e.printStackTrace();
-					}
-				});
+				for (final RepositoryDB db : selectedItems) {
+					service.dropRepositoryDB(db.getName());
+				}
 				items.removeAll(selectedItems);
 			}
 		});
@@ -130,8 +118,10 @@ public class RepositoryDBContentController extends BaseController {
 
 	private void loadRepositoryDB() throws SQLException {
 		try {
-			Platform.runLater(() -> refreshButton.setDisable(true));
-			Platform.runLater(() -> createButton.setDisable(true));
+			Platform.runLater(() -> {
+				refreshButton.setDisable(true);
+				createButton.setDisable(true);
+			});
 			items.clear();
 			if (AuthSetting.hasSetting()) {
 				items.addAll(service.listRepositoryDB());
@@ -142,18 +132,18 @@ public class RepositoryDBContentController extends BaseController {
 		}
 	}
 
-	private Button createCopyButton(final RepositoryDB db) {
+	private Button createCopyToClipboardButton(final RepositoryDB db) {
 		if (Strings.isNullOrEmpty(db.getName())) {
 			return null;
 		}
 		final Button button = new Button();
 		button.setGraphic(new ImageView(AssetUtil.getImage("16x16/clipboard.png")));
-		button.setOnAction(this::onCopyButtonClick);
+		button.setOnAction(this::onCopyToClipboardButtonClick);
 		button.setUserData(db);
 		return button;
 	}
 
-	private void onCopyButtonClick(final ActionEvent event) {
+	private void onCopyToClipboardButtonClick(final ActionEvent event) {
 		final Button button = (Button) event.getSource();
 		final ClipboardContent content = new ClipboardContent();
 		final RepositoryDB db = (RepositoryDB) button.getUserData();
@@ -168,13 +158,4 @@ public class RepositoryDBContentController extends BaseController {
 			scheduler.shutdown();
 		}, 1000, MILLISECONDS);
 	}
-
-	private void onSelectedItemsChanged(final Change<? extends RepositoryDB> change) {
-		if (selectedItems.size() > 0) {
-			deleteButton.setDisable(false);
-		} else {
-			deleteButton.setDisable(true);
-		}
-	}
-
 }

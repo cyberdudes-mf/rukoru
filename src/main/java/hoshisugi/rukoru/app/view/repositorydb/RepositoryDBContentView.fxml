@@ -7,7 +7,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="RIGHT_TO_LEFT" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController">
+<VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="RIGHT_TO_LEFT" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController">
 	<children>
 		<ButtonBar prefHeight="40.0" prefWidth="200.0">
 			<buttons>
@@ -19,7 +19,7 @@
 		<TableView fx:id="tableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
 			<columns>
 				<TableColumn fx:id="copyButtonColumn" editable="false" maxWidth="40.0" minWidth="30.0" prefWidth="40.0" sortable="false" />
-				<TableColumn fx:id="nameColumn" maxWidth="1.7976931348623157E308" minWidth="294.0" prefWidth="294.0" text="リポジトリ名">
+				<TableColumn fx:id="nameColumn" maxWidth="1.7976931348623157E308" minWidth="300.0" prefWidth="300.0" text="リポジトリ名">
 					<cellValueFactory>
 						<PropertyValueFactory property="name" />
 					</cellValueFactory>
