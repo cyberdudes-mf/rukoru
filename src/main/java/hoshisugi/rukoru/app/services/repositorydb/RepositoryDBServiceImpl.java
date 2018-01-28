@@ -1,5 +1,6 @@
 package hoshisugi.rukoru.app.services.repositorydb;
 
+import static hoshisugi.rukoru.framework.util.SelectBuilder.query;
 import static java.util.Arrays.asList;
 
 import java.sql.ResultSet;
@@ -34,7 +35,7 @@ public class RepositoryDBServiceImpl extends BaseService implements RepositoryDB
 	@Override
 	public List<RepositoryDB> listRepositoryDB() throws SQLException {
 		try (MariaDB db = new MariaDB()) {
-			return db.executeQuery("show databases", this::createModel);
+			return db.executeQuery(query("show databases"), this::createModel);
 		}
 	}
 
