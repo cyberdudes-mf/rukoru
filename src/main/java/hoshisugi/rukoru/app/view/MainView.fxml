@@ -27,6 +27,7 @@
             <Menu mnemonicParsing="false" text="Settings">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#onAuthSetting" text="認証設定" />
+                  <MenuItem mnemonicParsing="false" onAction="#onRepositoryDBClick" text="リポジトリDB" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">

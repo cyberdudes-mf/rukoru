@@ -6,6 +6,8 @@ import hoshisugi.rukoru.app.services.auth.AuthService;
 import hoshisugi.rukoru.app.services.auth.AuthServiceImpl;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.services.ec2.EC2ServiceImpl;
+import hoshisugi.rukoru.app.services.rds.RDSService;
+import hoshisugi.rukoru.app.services.rds.RDSServiceImpl;
 import hoshisugi.rukoru.app.services.repositorydb.RepositoryDBService;
 import hoshisugi.rukoru.app.services.repositorydb.RepositoryDBServiceImpl;
 import hoshisugi.rukoru.app.services.s3.S3Service;
@@ -43,12 +45,12 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(S3ExplorerMenuController.class);
 		provide(S3ExplorerTreeController.class);
 		provide(S3ExplorerTableController.class);
-
 	}
 
 	private void configureServices() {
 		bind(AuthService.class).toProvider(() -> new AuthServiceImpl()).in(Singleton.class);
 		bind(EC2Service.class).toProvider(() -> new EC2ServiceImpl()).in(Singleton.class);
+		bind(RDSService.class).toProvider(() -> new RDSServiceImpl()).in(Singleton.class);
 		bind(S3Service.class).toProvider(() -> new S3ServiceImpl()).in(Singleton.class);
 		bind(RepositoryDBService.class).toProvider(() -> new RepositoryDBServiceImpl()).in(Singleton.class);
 	}
