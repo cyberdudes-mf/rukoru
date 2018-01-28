@@ -22,7 +22,10 @@ public class DatabaseImpl implements Database {
 			}
 			try (ResultSet rs = stmt.executeQuery()) {
 				while (rs.next()) {
-					result.add(generator.apply(rs));
+					final T t = generator.apply(rs);
+					if (t != null) {
+						result.add(generator.apply(rs));
+					}
 				}
 			}
 		}
