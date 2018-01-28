@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.settings.Preference;
@@ -57,11 +56,9 @@ public class HomePreferenceController extends BaseController implements Preferen
 
 	@Override
 	public void apply() {
-		if (!Strings.isNullOrEmpty(imageUrl.getText())) {
-			ConcurrentUtil.run(() -> {
-				service.savePreferences(preferences.values());
-				Platform.runLater(() -> contentController.refreshTopImage());
-			});
-		}
+		ConcurrentUtil.run(() -> {
+			service.savePreferences(preferences.values());
+			Platform.runLater(() -> contentController.refreshTopImage());
+		});
 	}
 }
