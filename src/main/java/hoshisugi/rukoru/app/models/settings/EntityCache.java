@@ -5,8 +5,8 @@ import java.util.concurrent.Callable;
 
 public class EntityCache<T extends DBEntity> {
 
-	private Optional<T> savedEntity = Optional.empty();;
-	private Callable<Optional<T>> provider;
+	private Optional<T> savedEntity = Optional.empty();
+	private final Callable<Optional<T>> provider;
 
 	public EntityCache(final Callable<Optional<T>> provider) {
 		this.provider = provider;
@@ -25,10 +25,6 @@ public class EntityCache<T extends DBEntity> {
 
 	public T get() {
 		return savedEntity.get();
-	}
-
-	public void setProvider(final Callable<Optional<T>> provider) {
-		this.provider = provider;
 	}
 
 	public void reload() throws Exception {
