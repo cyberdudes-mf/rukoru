@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.view;
 
+import static hoshisugi.rukoru.app.enums.Preferences.Home.ImageUrl;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -8,6 +10,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.google.inject.Inject;
+
+import hoshisugi.rukoru.app.models.settings.Preference;
+import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
@@ -32,10 +38,15 @@ import javafx.scene.layout.Region;
 
 public class ContentController extends BaseController {
 
+	private static final String DEFAULT_IMAGE_URL = "https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg";
+
 	private final Map<Class<? extends BaseController>, Parent> contents = new HashMap<>();
 
 	@FXML
 	private AnchorPane layoutRoot;
+
+	@Inject
+	private LocalSettingService service;
 
 	private Node homeContent;
 
@@ -77,8 +88,10 @@ public class ContentController extends BaseController {
 
 	private void showTopImage() {
 		ConcurrentUtil.run(() -> {
-			final ImageView topImage = new ImageView(
-					new Image("https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg"));
+			final Optional<Preference> preference = service.findPreferenceByCategoryAndKey(ImageUrl.getCategory(),
+					ImageUrl.getKey());
+			final String imageUrl = preference.isPresent() ? preference.get().getValue() : DEFAULT_IMAGE_URL;
+			final ImageView topImage = new ImageView(new Image(imageUrl));
 			topImage.setPreserveRatio(true);
 			final BorderPane parent = (BorderPane) layoutRoot.getParent();
 			final Optional<ReadOnlyDoubleProperty> left = Optional.ofNullable(parent.getLeft()).map(Region.class::cast)

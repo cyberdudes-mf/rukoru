@@ -38,7 +38,7 @@ public class HomePreferenceController extends BaseController implements Preferen
 		ConcurrentUtil.run(() -> {
 			final String category = "Home";
 			final String key = "imageUrl";
-			preferences = service.getPreferences(category);
+			preferences = service.getPreferencesByCategory(category);
 			if (preferences.get(key) == null) {
 				preferences.put(key, new Preference(category, key));
 			}

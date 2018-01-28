@@ -105,19 +105,15 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	@Override
-	public Map<String, Preference> getPreferences(final String category) throws SQLException {
+	public Map<String, Preference> getPreferencesByCategory(final String category) throws SQLException {
 		try (H2Database h2 = new H2Database()) {
-			return getPreferences(h2, category);
+			if (!h2.exists("PREFERENCES")) {
+				return Collections.emptyMap();
+			}
+			final SelectBuilder select = from("preferences").where("category", category);
+			final List<Preference> preferences = h2.executeQuery(select, Preference::new);
+			return preferences.stream().collect(Collectors.toMap(Preference::getKey, Function.identity()));
 		}
-	}
-
-	private Map<String, Preference> getPreferences(final H2Database h2, final String category) throws SQLException {
-		if (!h2.exists("PREFERENCES")) {
-			return Collections.emptyMap();
-		}
-		final SelectBuilder select = from("preferences").where("category", category);
-		final List<Preference> preferences = h2.executeQuery(select, Preference::new);
-		return preferences.stream().collect(Collectors.toMap(Preference::getKey, Function.identity()));
 	}
 
 	@Override
@@ -149,6 +145,18 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 				preference.getKey(), preference.getValue(), preference.getId(), preference.getUpdatedAt());
 		if (result == 0) {
 			throw new IllegalStateException("Record has been updated from other thread.");
+		}
+	}
+
+	@Override
+	public Optional<Preference> findPreferenceByCategoryAndKey(final String category, final String key)
+			throws SQLException {
+		try (H2Database h2 = new H2Database()) {
+			if (!h2.exists("PREFERENCES")) {
+				return Optional.empty();
+			}
+			final SelectBuilder select = from("preferences").where("category", category).and("key", key);
+			return h2.executeQuery(select, Preference::new).stream().findFirst();
 		}
 	}
 

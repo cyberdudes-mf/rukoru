@@ -19,7 +19,9 @@ public interface LocalSettingService {
 
 	Optional<RepositoryDBConnection> loadRepositoryDBConnection() throws SQLException;
 
-	Map<String, Preference> getPreferences(String category) throws SQLException;
+	Map<String, Preference> getPreferencesByCategory(String category) throws SQLException;
+
+	Optional<Preference> findPreferenceByCategoryAndKey(String category, String key) throws SQLException;
 
 	void savePreferences(Collection<Preference> preferences) throws SQLException;
 }
