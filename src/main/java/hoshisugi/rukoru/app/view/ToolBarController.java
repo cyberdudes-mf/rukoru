@@ -15,6 +15,7 @@ import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.BrowserUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -94,7 +95,7 @@ public class ToolBarController extends BaseController {
 	private void toolBarSelectionChanged(final ObservableValue<? extends Toggle> observable, final Toggle oldValue,
 			final Toggle newValue) {
 		if (newValue == null) {
-			toolBar.selectToggle(oldValue);
+			Platform.runLater(contentController::showHome);
 		}
 	}
 

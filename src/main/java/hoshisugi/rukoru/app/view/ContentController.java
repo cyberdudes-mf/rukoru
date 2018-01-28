@@ -22,6 +22,7 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -36,6 +37,8 @@ public class ContentController extends BaseController {
 	@FXML
 	private AnchorPane layoutRoot;
 
+	private Node homeContent;
+
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
 		showTopImage();
@@ -47,13 +50,20 @@ public class ContentController extends BaseController {
 	}
 
 	public void showContent(final Class<? extends BaseController> controller) {
+		setContent(contents.get(controller));
+	}
+
+	public void showHome() {
+		setContent(homeContent);
+	}
+
+	private void setContent(final Node node) {
 		layoutRoot.getChildren().clear();
-		final Parent content = contents.get(controller);
-		layoutRoot.getChildren().add(content);
-		AnchorPane.setTopAnchor(content, 0.0);
-		AnchorPane.setLeftAnchor(content, 0.0);
-		AnchorPane.setRightAnchor(content, 0.0);
-		AnchorPane.setBottomAnchor(content, 0.0);
+		layoutRoot.getChildren().add(node);
+		AnchorPane.setTopAnchor(node, 0.0);
+		AnchorPane.setLeftAnchor(node, 0.0);
+		AnchorPane.setRightAnchor(node, 0.0);
+		AnchorPane.setBottomAnchor(node, 0.0);
 	}
 
 	private void loadContent(final Class<? extends BaseController> controller) {
@@ -67,8 +77,8 @@ public class ContentController extends BaseController {
 
 	private void showTopImage() {
 		ConcurrentUtil.run(() -> {
-			final ImageView topImage = new ImageView(new Image(
-					"https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg"));
+			final ImageView topImage = new ImageView(
+					new Image("https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg"));
 			topImage.setPreserveRatio(true);
 			final BorderPane parent = (BorderPane) layoutRoot.getParent();
 			final Optional<ReadOnlyDoubleProperty> left = Optional.ofNullable(parent.getLeft()).map(Region.class::cast)
@@ -79,9 +89,10 @@ public class ContentController extends BaseController {
 			final DoubleBinding fitWidth = parent.widthProperty().subtract(10d).subtract(left.orElse(defaultValue))
 					.subtract(right.orElse(defaultValue));
 			topImage.fitWidthProperty().bind(fitWidth);
+			homeContent = topImage;
 			final ToolBarController toolBar = Injector.getInstance(ToolBarController.class);
 			if (!toolBar.isSelected()) {
-				Platform.runLater(() -> layoutRoot.getChildren().add(topImage));
+				Platform.runLater(() -> layoutRoot.getChildren().add(homeContent));
 			}
 		});
 	}
