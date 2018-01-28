@@ -5,12 +5,12 @@ import static hoshisugi.rukoru.app.enums.Preferences.Home.ImageUrl;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.settings.Preference;
@@ -111,8 +111,9 @@ public class ContentController extends BaseController {
 		try {
 			final Optional<Preference> preference = service.findPreferenceByCategoryAndKey(ImageUrl.getCategory(),
 					ImageUrl.getKey());
-			return preference.isPresent() ? preference.get().getValue() : DEFAULT_IMAGE_URL;
-		} catch (final SQLException e) {
+			return preference.map(Preference::getValue).filter(v -> !Strings.isNullOrEmpty(v))
+					.orElse(DEFAULT_IMAGE_URL);
+		} catch (final Exception e) {
 			return DEFAULT_IMAGE_URL;
 		}
 	}
