@@ -1,7 +1,6 @@
 package hoshisugi.rukoru.app.view.settings;
 
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
@@ -35,7 +34,7 @@ public class CredentialSettingController extends BaseController {
 	private Button saveButton;
 
 	@Inject
-	private LocalSettingService authService;
+	private LocalSettingService service;
 
 	private Credential entity;
 
@@ -49,8 +48,8 @@ public class CredentialSettingController extends BaseController {
 	@FXML
 	private void onSaveButtonClick(final ActionEvent event) {
 		try {
-			authService.saveCredential(entity);
-		} catch (final SQLException e) {
+			service.saveCredential(entity);
+		} catch (final Exception e) {
 			DialogUtil.showErrorDialog(e);
 		}
 		close(FXUtil.getStage(event));
@@ -62,9 +61,9 @@ public class CredentialSettingController extends BaseController {
 	}
 
 	private void loadSetting() {
-		try {
-			entity = authService.loadCredential().orElseGet(Credential::new);
-		} catch (final SQLException e) {
+		if (Credential.hasCredential()) {
+			entity = Credential.get();
+		} else {
 			entity = new Credential();
 		}
 		account.textProperty().bindBidirectional(entity.accountProperty());

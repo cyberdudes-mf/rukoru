@@ -1,9 +1,7 @@
 package hoshisugi.rukoru.app.models.setings;
 
-import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Optional;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -13,14 +11,10 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.inject.Injector;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class Credential implements Serializable {
-
-	private final ObjectProperty<Integer> id = new SimpleObjectProperty<>(this, "id");
+public class Credential extends DBEntity {
 
 	private final StringProperty account = new SimpleStringProperty(this, "account");
 
@@ -28,30 +22,23 @@ public class Credential implements Serializable {
 
 	private final StringProperty secretAccessKey = new SimpleStringProperty(this, "secretAccessKey");
 
-	private final ObjectProperty<Timestamp> createdAt = new SimpleObjectProperty<>(this, "createdAt");
-
-	private final ObjectProperty<Timestamp> updatedAt = new SimpleObjectProperty<>(this, "updatedAt");
-
-	private static Optional<Credential> savedCredential = Optional.empty();
+	private static EntityCache<Credential> cache = new EntityCache<>(Credential::load);
 
 	public static Credential get() {
-		return savedCredential.get();
+		return cache.get();
 	}
 
 	public static boolean hasCredential() {
-		if (!savedCredential.isPresent()) {
-			try {
-				reload();
-			} catch (final SQLException e) {
-				return false;
-			}
-		}
-		return savedCredential.isPresent();
+		return cache.hasEntity();
 	}
 
-	public static void reload() throws SQLException {
+	public static void reload() throws Exception {
+		cache.reload();
+	}
+
+	private static Optional<Credential> load() throws SQLException {
 		final LocalSettingService service = Injector.getInstance(LocalSettingService.class);
-		savedCredential = service.loadCredential();
+		return service.loadCredential();
 	}
 
 	public Credential() {
@@ -73,14 +60,6 @@ public class Credential implements Serializable {
 	public AWSCredentialsProvider createCredentialsProvider() {
 		final BasicAWSCredentials credentials = new BasicAWSCredentials(getAccessKeyId(), getSecretAccessKey());
 		return new AWSStaticCredentialsProvider(credentials);
-	}
-
-	public Integer getId() {
-		return id.get();
-	}
-
-	public void setId(final Integer id) {
-		this.id.set(id);
 	}
 
 	public String getAccount() {
@@ -107,26 +86,6 @@ public class Credential implements Serializable {
 		this.secretAccessKey.set(secretAccessKey);
 	}
 
-	public Timestamp getCreatedAt() {
-		return createdAt.get();
-	}
-
-	public void setCreatedAt(final Timestamp createdAt) {
-		this.createdAt.set(createdAt);
-	}
-
-	public Timestamp getUpdatedAt() {
-		return updatedAt.get();
-	}
-
-	public void setUpdatedAt(final Timestamp updatedAt) {
-		this.updatedAt.set(updatedAt);
-	}
-
-	public ObjectProperty<Integer> idProperty() {
-		return id;
-	}
-
 	public StringProperty accountProperty() {
 		return account;
 	}
@@ -137,14 +96,6 @@ public class Credential implements Serializable {
 
 	public StringProperty secretAccessKeyProperty() {
 		return secretAccessKey;
-	}
-
-	public ObjectProperty<Timestamp> createdAtProperty() {
-		return createdAt;
-	}
-
-	public ObjectProperty<Timestamp> updatedAtProperty() {
-		return updatedAt;
 	}
 
 }
