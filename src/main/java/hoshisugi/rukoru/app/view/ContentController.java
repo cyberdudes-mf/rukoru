@@ -5,6 +5,7 @@ import static hoshisugi.rukoru.app.enums.Preferences.Home.ImageUrl;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -48,7 +49,7 @@ public class ContentController extends BaseController {
 	@Inject
 	private LocalSettingService service;
 
-	private Node homeContent;
+	private ImageView topImage;
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
@@ -65,7 +66,7 @@ public class ContentController extends BaseController {
 	}
 
 	public void showHome() {
-		setContent(homeContent);
+		setContent(topImage);
 	}
 
 	private void setContent(final Node node) {
@@ -88,10 +89,7 @@ public class ContentController extends BaseController {
 
 	private void showTopImage() {
 		ConcurrentUtil.run(() -> {
-			final Optional<Preference> preference = service.findPreferenceByCategoryAndKey(ImageUrl.getCategory(),
-					ImageUrl.getKey());
-			final String imageUrl = preference.isPresent() ? preference.get().getValue() : DEFAULT_IMAGE_URL;
-			final ImageView topImage = new ImageView(new Image(imageUrl));
+			topImage = new ImageView(getImageUrl());
 			topImage.setPreserveRatio(true);
 			final BorderPane parent = (BorderPane) layoutRoot.getParent();
 			final Optional<ReadOnlyDoubleProperty> left = Optional.ofNullable(parent.getLeft()).map(Region.class::cast)
@@ -102,12 +100,24 @@ public class ContentController extends BaseController {
 			final DoubleBinding fitWidth = parent.widthProperty().subtract(10d).subtract(left.orElse(defaultValue))
 					.subtract(right.orElse(defaultValue));
 			topImage.fitWidthProperty().bind(fitWidth);
-			homeContent = topImage;
 			final ToolBarController toolBar = Injector.getInstance(ToolBarController.class);
 			if (!toolBar.isSelected()) {
-				Platform.runLater(() -> layoutRoot.getChildren().add(homeContent));
+				Platform.runLater(() -> layoutRoot.getChildren().add(topImage));
 			}
 		});
 	}
 
+	private String getImageUrl() {
+		try {
+			final Optional<Preference> preference = service.findPreferenceByCategoryAndKey(ImageUrl.getCategory(),
+					ImageUrl.getKey());
+			return preference.isPresent() ? preference.get().getValue() : DEFAULT_IMAGE_URL;
+		} catch (final SQLException e) {
+			return DEFAULT_IMAGE_URL;
+		}
+	}
+
+	public void refreshTopImage() {
+		topImage.setImage(new Image(getImageUrl()));
+	}
 }
