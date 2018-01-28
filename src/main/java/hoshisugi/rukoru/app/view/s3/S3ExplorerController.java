@@ -5,10 +5,10 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.s3.ExplorerSelection;
 import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.app.models.s3.S3Root;
+import hoshisugi.rukoru.app.models.setings.Credential;
 import hoshisugi.rukoru.app.services.s3.S3Service;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
@@ -48,7 +48,7 @@ public class S3ExplorerController extends BaseController {
 
 	public void reload(final S3Item item) {
 		ConcurrentUtil.run(() -> {
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				s3Service.updateItems(item);
 			}
 		});

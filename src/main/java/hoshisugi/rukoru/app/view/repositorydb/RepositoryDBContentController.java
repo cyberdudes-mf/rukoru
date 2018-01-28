@@ -12,8 +12,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.repositorydb.RepositoryDB;
+import hoshisugi.rukoru.app.models.setings.Credential;
 import hoshisugi.rukoru.app.services.repositorydb.RepositoryDBService;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.GraphicTableCell;
@@ -84,7 +84,7 @@ public class RepositoryDBContentController extends BaseController {
 		final Optional<String> repositorydbNameOptional = DialogUtil.showTextInputDialog("リポジトリDB作成", "リポジトリ名");
 		if (repositorydbNameOptional.isPresent()) {
 			ConcurrentUtil.run(() -> {
-				if (AuthSetting.hasSetting()) {
+				if (Credential.hasCredential()) {
 					final String dbName = repositorydbNameOptional.get();
 					final RepositoryDB db = service.createRepositoryDB(dbName);
 					Platform.runLater(() -> {
@@ -108,7 +108,7 @@ public class RepositoryDBContentController extends BaseController {
 		}
 
 		ConcurrentUtil.run(() -> {
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				for (final RepositoryDB db : selectedItems) {
 					service.dropRepositoryDB(db.getName());
 					items.remove(db);
@@ -124,7 +124,7 @@ public class RepositoryDBContentController extends BaseController {
 				createButton.setDisable(true);
 			});
 			items.clear();
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				items.addAll(service.listRepositoryDB());
 				Platform.runLater(() -> createButton.setDisable(false));
 			}

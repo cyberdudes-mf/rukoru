@@ -26,10 +26,7 @@ import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
@@ -42,7 +39,6 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.common.base.Strings;
 
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.s3.AsyncResult;
 import hoshisugi.rukoru.app.models.s3.S3Bucket;
 import hoshisugi.rukoru.app.models.s3.S3Folder;
@@ -50,6 +46,7 @@ import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.app.models.s3.S3Object;
 import hoshisugi.rukoru.app.models.s3.S3Root;
 import hoshisugi.rukoru.app.models.s3.UploadObjectResult;
+import hoshisugi.rukoru.app.models.setings.Credential;
 import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 
@@ -221,10 +218,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 	}
 
 	private AmazonS3 createClient() {
-		final AuthSetting authSetting = AuthSetting.get();
-		final AWSCredentials credential = new BasicAWSCredentials(authSetting.getAccessKeyId(),
-				authSetting.getSecretAccessKey());
-		final AWSCredentialsProvider provider = new AWSStaticCredentialsProvider(credential);
+		final AWSCredentialsProvider provider = Credential.get().createCredentialsProvider();
 		return AmazonS3ClientBuilder.standard().withCredentials(provider).withRegion(AP_NORTHEAST_1).build();
 	}
 

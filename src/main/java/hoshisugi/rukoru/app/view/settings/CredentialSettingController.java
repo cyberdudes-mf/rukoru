@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.app.view.auth;
+package hoshisugi.rukoru.app.view.settings;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -6,8 +6,8 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
-import hoshisugi.rukoru.app.services.auth.AuthService;
+import hoshisugi.rukoru.app.models.setings.Credential;
+import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
@@ -20,7 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 @FXController(title = "認証設定")
-public class AuthSettingController extends BaseController {
+public class CredentialSettingController extends BaseController {
 
 	@FXML
 	private TextField account;
@@ -35,9 +35,9 @@ public class AuthSettingController extends BaseController {
 	private Button saveButton;
 
 	@Inject
-	private AuthService authService;
+	private LocalSettingService authService;
 
-	private AuthSetting entity;
+	private Credential entity;
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resouce) {
@@ -49,7 +49,7 @@ public class AuthSettingController extends BaseController {
 	@FXML
 	private void onSaveButtonClick(final ActionEvent event) {
 		try {
-			authService.save(entity);
+			authService.saveCredential(entity);
 		} catch (final SQLException e) {
 			DialogUtil.showErrorDialog(e);
 		}
@@ -63,9 +63,9 @@ public class AuthSettingController extends BaseController {
 
 	private void loadSetting() {
 		try {
-			entity = authService.load().orElseGet(AuthSetting::new);
+			entity = authService.loadCredential().orElseGet(Credential::new);
 		} catch (final SQLException e) {
-			entity = new AuthSetting();
+			entity = new Credential();
 		}
 		account.textProperty().bindBidirectional(entity.accountProperty());
 		accessKeyId.textProperty().bindBidirectional(entity.accessKeyIdProperty());

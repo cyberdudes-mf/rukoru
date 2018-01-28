@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.app.services.auth;
+package hoshisugi.rukoru.app.services.settings;
 
 import java.net.URISyntaxException;
 import java.net.URL;

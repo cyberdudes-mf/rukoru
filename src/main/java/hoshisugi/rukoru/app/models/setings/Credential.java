@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.app.models.auth;
+package hoshisugi.rukoru.app.models.setings;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -6,16 +6,19 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Optional;
 
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-import hoshisugi.rukoru.app.services.auth.AuthService;
+import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.inject.Injector;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class AuthSetting implements Serializable {
+public class Credential implements Serializable {
 
 	private final ObjectProperty<Integer> id = new SimpleObjectProperty<>(this, "id");
 
@@ -29,32 +32,32 @@ public class AuthSetting implements Serializable {
 
 	private final ObjectProperty<Timestamp> updatedAt = new SimpleObjectProperty<>(this, "updatedAt");
 
-	private static Optional<AuthSetting> setting = Optional.empty();
+	private static Optional<Credential> savedCredential = Optional.empty();
 
-	public static AuthSetting get() {
-		return setting.get();
+	public static Credential get() {
+		return savedCredential.get();
 	}
 
-	public static boolean hasSetting() {
-		if (!setting.isPresent()) {
+	public static boolean hasCredential() {
+		if (!savedCredential.isPresent()) {
 			try {
 				reload();
 			} catch (final SQLException e) {
 				return false;
 			}
 		}
-		return setting.isPresent();
+		return savedCredential.isPresent();
 	}
 
 	public static void reload() throws SQLException {
-		final AuthService service = Injector.getInstance(AuthService.class);
-		setting = service.load();
+		final LocalSettingService service = Injector.getInstance(LocalSettingService.class);
+		savedCredential = service.loadCredential();
 	}
 
-	public AuthSetting() {
+	public Credential() {
 	}
 
-	public AuthSetting(final ResultSet rs) {
+	public Credential(final ResultSet rs) {
 		try {
 			setId(rs.getInt("id"));
 			setAccount(rs.getString("account"));
@@ -65,6 +68,11 @@ public class AuthSetting implements Serializable {
 		} catch (final SQLException e) {
 			throw new UncheckedExecutionException(e);
 		}
+	}
+
+	public AWSCredentialsProvider createCredentialsProvider() {
+		final BasicAWSCredentials credentials = new BasicAWSCredentials(getAccessKeyId(), getSecretAccessKey());
+		return new AWSStaticCredentialsProvider(credentials);
 	}
 
 	public Integer getId() {

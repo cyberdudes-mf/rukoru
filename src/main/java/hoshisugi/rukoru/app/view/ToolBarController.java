@@ -6,8 +6,8 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
-import hoshisugi.rukoru.app.services.auth.AuthService;
+import hoshisugi.rukoru.app.models.setings.Credential;
+import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
@@ -45,7 +45,7 @@ public class ToolBarController extends BaseController {
 	private ToggleGroup toolBar;
 
 	@Inject
-	private AuthService authService;
+	private LocalSettingService authService;
 
 	@Inject
 	private ContentController contentController;
@@ -62,7 +62,7 @@ public class ToolBarController extends BaseController {
 
 	@FXML
 	private void onMCButtonClick(final ActionEvent event) throws Exception {
-		final Optional<AuthSetting> authSetting = authService.load();
+		final Optional<Credential> authSetting = authService.loadCredential();
 		if (authSetting.isPresent()) {
 			BrowserUtil
 					.browse(String.format("https://%s.signin.aws.amazon.com/console", authSetting.get().getAccount()));

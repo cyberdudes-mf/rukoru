@@ -1,12 +1,12 @@
-package hoshisugi.rukoru.app.view.auth;
+package hoshisugi.rukoru.app.view.settings;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.rds.RDSInstance;
+import hoshisugi.rukoru.app.models.setings.Credential;
 import hoshisugi.rukoru.app.services.rds.RDSService;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
@@ -59,7 +59,7 @@ public class RepositoryDBSettingController extends BaseController {
 
 	private void loadInstances() {
 		ConcurrentUtil.run(() -> {
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				instance.getItems().setAll(rdsService.listInstances());
 				Platform.runLater(instance.getSelectionModel()::selectFirst);
 			}

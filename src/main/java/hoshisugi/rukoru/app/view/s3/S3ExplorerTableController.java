@@ -17,7 +17,6 @@ import com.google.common.net.UrlEscapers;
 import com.google.inject.Inject;
 import com.sun.javafx.scene.control.skin.TableColumnHeader;
 
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.s3.AsyncResult;
 import hoshisugi.rukoru.app.models.s3.S3Bucket;
 import hoshisugi.rukoru.app.models.s3.S3Clipboard;
@@ -25,6 +24,7 @@ import hoshisugi.rukoru.app.models.s3.S3Folder;
 import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.app.models.s3.S3Root;
 import hoshisugi.rukoru.app.models.s3.UploadObjectResult;
+import hoshisugi.rukoru.app.models.setings.Credential;
 import hoshisugi.rukoru.app.services.s3.S3Service;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.GraphicTableCell;
@@ -441,7 +441,7 @@ public class S3ExplorerTableController extends BaseController {
 	}
 
 	private boolean checkAuth() {
-		final boolean hasSetting = AuthSetting.hasSetting();
+		final boolean hasSetting = Credential.hasCredential();
 		if (!hasSetting) {
 			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
 		}

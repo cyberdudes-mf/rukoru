@@ -6,11 +6,11 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.ec2.CreateMachineImageRequest;
 import hoshisugi.rukoru.app.models.ec2.EC2Instance;
 import hoshisugi.rukoru.app.models.ec2.MachineImage;
 import hoshisugi.rukoru.app.models.ec2.Tag;
+import hoshisugi.rukoru.app.models.setings.Credential;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
@@ -60,7 +60,7 @@ public class CreateImageController extends BaseController {
 	private void onOKButtonClick(final ActionEvent event) {
 
 		ConcurrentUtil.run(() -> {
-			if (!AuthSetting.hasSetting()) {
+			if (!Credential.hasCredential()) {
 				DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
 				return;
 			}

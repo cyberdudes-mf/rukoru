@@ -10,10 +10,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.CreateImageRequest;
@@ -37,11 +34,11 @@ import com.amazonaws.services.ec2.model.TagSpecification;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.ec2.CreateInstanceRequest;
 import hoshisugi.rukoru.app.models.ec2.CreateMachineImageRequest;
 import hoshisugi.rukoru.app.models.ec2.EC2Instance;
 import hoshisugi.rukoru.app.models.ec2.MachineImage;
+import hoshisugi.rukoru.app.models.setings.Credential;
 import hoshisugi.rukoru.framework.base.BaseService;
 import javafx.application.Platform;
 
@@ -187,10 +184,7 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 	}
 
 	private AmazonEC2 createClient() {
-		final AuthSetting authSetting = AuthSetting.get();
-		final AWSCredentials credential = new BasicAWSCredentials(authSetting.getAccessKeyId(),
-				authSetting.getSecretAccessKey());
-		final AWSCredentialsProvider provider = new AWSStaticCredentialsProvider(credential);
+		final AWSCredentialsProvider provider = Credential.get().createCredentialsProvider();
 		return AmazonEC2ClientBuilder.standard().withCredentials(provider).withRegion(AP_NORTHEAST_1).build();
 	}
 
