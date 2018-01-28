@@ -6,7 +6,7 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.MainController">
+<BorderPane xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.MainController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -28,6 +28,7 @@
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#onAuthSetting" text="認証設定" />
                   <MenuItem mnemonicParsing="false" onAction="#onRepositoryDBClick" text="リポジトリDB設定" />
+                  <MenuItem mnemonicParsing="false" onAction="#onPreferencesClick" text="Preferences" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">

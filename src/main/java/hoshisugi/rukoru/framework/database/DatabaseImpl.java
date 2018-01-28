@@ -1,6 +1,6 @@
 package hoshisugi.rukoru.framework.database;
 
-import static hoshisugi.rukoru.framework.util.AssetUtil.loadSQL;
+import static hoshisugi.rukoru.framework.util.SelectBuilder.from;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,16 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import hoshisugi.rukoru.framework.util.SelectBuilder;
+
 public class DatabaseImpl implements Database {
 
 	@Override
-	public <T> List<T> executeQuery(final Connection conn, final String sql, final Function<ResultSet, T> generator,
-			final Object... params) throws SQLException {
+	public <T> List<T> executeQuery(final Connection conn, final SelectBuilder sql,
+			final Function<ResultSet, T> generator) throws SQLException {
 		final ArrayList<T> result = new ArrayList<>();
-		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-			for (int i = 0; i < params.length; i++) {
-				stmt.setObject(i + 1, params[i]);
-			}
+		try (PreparedStatement stmt = conn.prepareStatement(sql.getSql())) {
+			sql.setParameter(stmt);
 			try (ResultSet rs = stmt.executeQuery()) {
 				while (rs.next()) {
 					final T t = generator.apply(rs);
@@ -44,7 +44,9 @@ public class DatabaseImpl implements Database {
 
 	@Override
 	public boolean exists(final Connection conn, final String tableName) throws SQLException {
-		return executeQuery(conn, loadSQL("select_table_exist.sql"), this::toBoolean, tableName).get(0);
+		final SelectBuilder select = from("information_schema.tables").where("table_schema", "PUBLIC").and("table_name",
+				tableName);
+		return executeQuery(conn, select, this::toBoolean).get(0);
 	}
 
 	private Boolean toBoolean(final ResultSet rs) {

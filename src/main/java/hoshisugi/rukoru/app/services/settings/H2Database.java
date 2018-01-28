@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import hoshisugi.rukoru.framework.database.Database;
 import hoshisugi.rukoru.framework.inject.Injector;
+import hoshisugi.rukoru.framework.util.SelectBuilder;
 
 class H2Database implements AutoCloseable {
 
@@ -47,9 +48,9 @@ class H2Database implements AutoCloseable {
 		return database.executeUpdate(conn, sql, params);
 	}
 
-	public <T> List<T> executeQuery(final String sql, final Function<ResultSet, T> generator, final Object... params)
+	public <T> List<T> executeQuery(final SelectBuilder select, final Function<ResultSet, T> generator)
 			throws SQLException {
-		return database.executeQuery(conn, sql, generator, params);
+		return database.executeQuery(conn, select, generator);
 	}
 
 	public boolean exists(final String tableName) throws SQLException {

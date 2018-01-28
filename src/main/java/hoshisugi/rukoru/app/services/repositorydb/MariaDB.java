@@ -10,6 +10,7 @@ import java.util.function.Function;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.framework.database.Database;
 import hoshisugi.rukoru.framework.inject.Injector;
+import hoshisugi.rukoru.framework.util.SelectBuilder;
 
 class MariaDB implements AutoCloseable {
 
@@ -26,8 +27,9 @@ class MariaDB implements AutoCloseable {
 		return database.executeUpdate(conn, sql);
 	}
 
-	public <T> List<T> executeQuery(final String sql, final Function<ResultSet, T> generator) throws SQLException {
-		return database.executeQuery(conn, sql, generator);
+	public <T> List<T> executeQuery(final SelectBuilder select, final Function<ResultSet, T> generator)
+			throws SQLException {
+		return database.executeQuery(conn, select, generator);
 	}
 
 	@Override

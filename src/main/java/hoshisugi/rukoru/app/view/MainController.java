@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import hoshisugi.rukoru.app.view.settings.CredentialSettingController;
+import hoshisugi.rukoru.app.view.settings.PreferencesController;
 import hoshisugi.rukoru.app.view.settings.RepositoryDBSettingController;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
@@ -42,5 +43,10 @@ public class MainController extends BaseController {
 	@FXML
 	private void onRepositoryDBClick(final ActionEvent event) throws Exception {
 		FXUtil.popup(RepositoryDBSettingController.class, FXUtil.getStage(event));
+	}
+
+	@FXML
+	private void onPreferencesClick(final ActionEvent event) throws Exception {
+		FXUtil.popup(PreferencesController.class, FXUtil.getStage(event));
 	}
 }
