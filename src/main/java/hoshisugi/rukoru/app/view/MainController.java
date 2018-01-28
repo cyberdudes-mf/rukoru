@@ -30,7 +30,8 @@ public class MainController extends BaseController {
 
 	@FXML
 	private void onHelp(final ActionEvent event) throws Exception {
-		BrowserUtil.browse(/* TODO あとでURL決める */"http://www.google.com");
+		BrowserUtil.browse(
+				"http://redmine.dataspidercloud.tokyo/projects/dataspidercloud/wiki/%E6%98%9F%E6%9D%89%E2%98%86%E3%82%8B%E3%81%93%E3%82%8B");
 	}
 
 	@FXML
