@@ -13,8 +13,8 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.repositorydb.RepositoryDB;
-import hoshisugi.rukoru.app.models.setings.Credential;
-import hoshisugi.rukoru.app.models.setings.RepositoryDBConnection;
+import hoshisugi.rukoru.app.models.settings.Credential;
+import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.app.services.repositorydb.RepositoryDBService;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.GraphicTableCell;

@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
 
-import hoshisugi.rukoru.app.models.setings.RepositoryDBConnection;
+import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.framework.database.Database;
 import hoshisugi.rukoru.framework.inject.Injector;
 

@@ -38,7 +38,7 @@ import hoshisugi.rukoru.app.models.ec2.CreateInstanceRequest;
 import hoshisugi.rukoru.app.models.ec2.CreateMachineImageRequest;
 import hoshisugi.rukoru.app.models.ec2.EC2Instance;
 import hoshisugi.rukoru.app.models.ec2.MachineImage;
-import hoshisugi.rukoru.app.models.setings.Credential;
+import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.framework.base.BaseService;
 import javafx.application.Platform;
 

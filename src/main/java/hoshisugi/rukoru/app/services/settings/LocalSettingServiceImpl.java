@@ -6,8 +6,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import hoshisugi.rukoru.app.models.setings.Credential;
-import hoshisugi.rukoru.app.models.setings.RepositoryDBConnection;
+import hoshisugi.rukoru.app.models.settings.Credential;
+import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.framework.base.BaseService;
 
 public class LocalSettingServiceImpl extends BaseService implements LocalSettingService {

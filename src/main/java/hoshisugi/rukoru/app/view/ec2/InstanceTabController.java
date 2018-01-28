@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.EC2InstanceState;
 import hoshisugi.rukoru.app.models.ec2.EC2Instance;
-import hoshisugi.rukoru.app.models.setings.Credential;
+import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.GraphicTableCell;

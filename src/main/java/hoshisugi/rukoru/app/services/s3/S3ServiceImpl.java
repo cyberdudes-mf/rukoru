@@ -46,7 +46,7 @@ import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.app.models.s3.S3Object;
 import hoshisugi.rukoru.app.models.s3.S3Root;
 import hoshisugi.rukoru.app.models.s3.UploadObjectResult;
-import hoshisugi.rukoru.app.models.setings.Credential;
+import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 

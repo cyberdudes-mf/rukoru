@@ -11,7 +11,7 @@ import hoshisugi.rukoru.app.models.ec2.CreateInstanceRequest;
 import hoshisugi.rukoru.app.models.ec2.EC2Instance;
 import hoshisugi.rukoru.app.models.ec2.MachineImage;
 import hoshisugi.rukoru.app.models.ec2.Tag;
-import hoshisugi.rukoru.app.models.setings.Credential;
+import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;

@@ -10,7 +10,7 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.MachineImageState;
 import hoshisugi.rukoru.app.models.ec2.MachineImage;
-import hoshisugi.rukoru.app.models.setings.Credential;
+import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.GraphicTableCell;

@@ -3,8 +3,8 @@ package hoshisugi.rukoru.app.services.settings;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import hoshisugi.rukoru.app.models.setings.Credential;
-import hoshisugi.rukoru.app.models.setings.RepositoryDBConnection;
+import hoshisugi.rukoru.app.models.settings.Credential;
+import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 
 public interface LocalSettingService {
 

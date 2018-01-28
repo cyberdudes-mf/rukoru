@@ -24,7 +24,7 @@ import hoshisugi.rukoru.app.models.s3.S3Folder;
 import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.app.models.s3.S3Root;
 import hoshisugi.rukoru.app.models.s3.UploadObjectResult;
-import hoshisugi.rukoru.app.models.setings.Credential;
+import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.s3.S3Service;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.GraphicTableCell;

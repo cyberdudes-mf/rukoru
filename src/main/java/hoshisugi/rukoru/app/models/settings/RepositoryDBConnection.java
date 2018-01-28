@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.app.models.setings;
+package hoshisugi.rukoru.app.models.settings;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

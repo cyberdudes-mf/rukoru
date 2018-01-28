@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.app.models.setings;
+package hoshisugi.rukoru.app.models.settings;
 
 import java.io.Serializable;
 import java.sql.Timestamp;

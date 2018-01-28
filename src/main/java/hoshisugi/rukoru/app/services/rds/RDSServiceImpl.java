@@ -11,7 +11,7 @@ import com.amazonaws.services.rds.AmazonRDSClientBuilder;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 
 import hoshisugi.rukoru.app.models.rds.RDSInstance;
-import hoshisugi.rukoru.app.models.setings.Credential;
+import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.framework.base.BaseService;
 
 public class RDSServiceImpl extends BaseService implements RDSService {

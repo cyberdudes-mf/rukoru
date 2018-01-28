@@ -9,8 +9,8 @@ import java.util.ResourceBundle;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.rds.RDSInstance;
-import hoshisugi.rukoru.app.models.setings.Credential;
-import hoshisugi.rukoru.app.models.setings.RepositoryDBConnection;
+import hoshisugi.rukoru.app.models.settings.Credential;
+import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.app.services.rds.RDSService;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
