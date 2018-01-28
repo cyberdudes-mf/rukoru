@@ -90,6 +90,7 @@ public class RepositoryDBContentController extends BaseController {
 					Platform.runLater(() -> {
 						items.add(db);
 						tableView.getSelectionModel().select(db);
+						tableView.scrollTo(db);
 					});
 				}
 			});
@@ -100,7 +101,7 @@ public class RepositoryDBContentController extends BaseController {
 	private void onDeleteButtonClick() {
 		final ObservableList<RepositoryDB> selectedItems = tableView.getSelectionModel().getSelectedItems();
 		final Optional<ButtonType> result = DialogUtil.showConfirmDialog("リポジトリDB削除",
-				selectedItems.size() > 1 ? String.format("選択された[%d] 個の削除します。よろしいですか？", selectedItems.size())
+				selectedItems.size() > 1 ? String.format("選択された[%d] 個のデータベースを削除します。よろしいですか？", selectedItems.size())
 						: String.format("[%s] を削除します。よろしいですか？", selectedItems.get(0).getName()));
 		if (!result.map(type -> type == ButtonType.OK).orElse(false)) {
 			return;
@@ -110,8 +111,8 @@ public class RepositoryDBContentController extends BaseController {
 			if (AuthSetting.hasSetting()) {
 				for (final RepositoryDB db : selectedItems) {
 					service.dropRepositoryDB(db.getName());
+					items.remove(db);
 				}
-				items.removeAll(selectedItems);
 			}
 		});
 	}
