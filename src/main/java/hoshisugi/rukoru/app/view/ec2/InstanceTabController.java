@@ -19,8 +19,8 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.EC2InstanceState;
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.ec2.EC2Instance;
+import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.GraphicTableCell;
@@ -123,7 +123,7 @@ public class InstanceTabController extends BaseController {
 			Platform.runLater(() -> refreshButton.setDisable(true));
 			items.stream().forEach(i -> i.autoStopProperty().removeListener(this::onAutoStopChanged));
 			items.clear();
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				final List<EC2Instance> instances = ec2Service.listInstances();
 				instances.stream().forEach(i -> i.autoStopProperty().addListener(this::onAutoStopChanged));
 				items.addAll(instances);
@@ -210,7 +210,7 @@ public class InstanceTabController extends BaseController {
 			final Button button = (Button) event.getSource();
 			final EC2Instance instance = (EC2Instance) button.getUserData();
 			final boolean start = instance.getState().equals("stopped");
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				if (start) {
 					ec2Service.startInstance(instance);
 				} else {
@@ -232,7 +232,7 @@ public class InstanceTabController extends BaseController {
 		}
 
 		ConcurrentUtil.run(() -> {
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				ec2Service.terminateInstance(instance);
 				ec2Service.monitorInstances(Arrays.asList(instance));
 			}
@@ -249,7 +249,7 @@ public class InstanceTabController extends BaseController {
 	private void onAutoStopChanged(final ObservableValue<? extends Boolean> observable, final Boolean oldValue,
 			final Boolean newValue) {
 		ConcurrentUtil.run(() -> {
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				final BooleanProperty property = (BooleanProperty) observable;
 				final EC2Instance instance = (EC2Instance) property.getBean();
 				final Map<String, String> tags = new HashMap<>();
@@ -265,7 +265,7 @@ public class InstanceTabController extends BaseController {
 			return;
 		}
 		ConcurrentUtil.run(() -> {
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				final List<EC2Instance> instances = items.stream().filter(EC2Service::needMonitoring)
 						.collect(Collectors.toList());
 				ec2Service.monitorInstances(instances);

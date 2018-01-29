@@ -7,18 +7,19 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
 
+import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.framework.database.Database;
 import hoshisugi.rukoru.framework.inject.Injector;
 
 class MariaDB implements AutoCloseable {
-	private final String jdbcUrl = "jdbc:mariadb://repositorydb-mariadb.cis3jmdkfkbo.ap-northeast-1.rds.amazonaws.com:3306";
 
 	private final Database database;
 	private final Connection conn;
 
 	public MariaDB() throws SQLException {
 		database = Injector.getInstance(Database.class);
-		conn = DriverManager.getConnection(jdbcUrl, "", "");
+		final RepositoryDBConnection connection = RepositoryDBConnection.get();
+		conn = DriverManager.getConnection(connection.getJdbcUrl(), connection.getUsername(), connection.getPassword());
 	}
 
 	public int executeUpdate(final String sql) throws SQLException {

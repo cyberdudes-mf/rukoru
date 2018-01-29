@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.MachineImageState;
-import hoshisugi.rukoru.app.models.auth.AuthSetting;
 import hoshisugi.rukoru.app.models.ec2.MachineImage;
+import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.GraphicTableCell;
@@ -86,7 +86,7 @@ public class ImageTabController extends BaseController {
 		try {
 			Platform.runLater(() -> refreshButton.setDisable(true));
 			items.clear();
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				final List<MachineImage> images = ec2Service.listImages();
 				items.addAll(images);
 			}
@@ -129,7 +129,7 @@ public class ImageTabController extends BaseController {
 		}
 
 		ConcurrentUtil.run(() -> {
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				ec2Service.deregisterMachineImage(image);
 				items.remove(image);
 			}
@@ -142,7 +142,7 @@ public class ImageTabController extends BaseController {
 			return;
 		}
 		ConcurrentUtil.run(() -> {
-			if (AuthSetting.hasSetting()) {
+			if (Credential.hasCredential()) {
 				final List<MachineImage> instances = items.stream().filter(EC2Service::needMonitoring)
 						.collect(Collectors.toList());
 				ec2Service.monitorImages(instances);
