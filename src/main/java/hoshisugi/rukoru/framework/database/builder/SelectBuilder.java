@@ -1,5 +1,8 @@
-package hoshisugi.rukoru.framework.util;
+package hoshisugi.rukoru.framework.database.builder;
 
+import static hoshisugi.rukoru.framework.util.AssetUtil.loadSQL;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,7 +23,7 @@ public class SelectBuilder {
 	}
 
 	public static SelectBuilder from(final String table) {
-		return new SelectBuilder(AssetUtil.loadSQL(String.format("select_%s.sql", table)));
+		return new SelectBuilder(loadSQL(String.format("select_%s.sql", table)));
 	}
 
 	public SelectBuilder where(final String column, final Object value) {
@@ -35,11 +38,25 @@ public class SelectBuilder {
 		return this;
 	}
 
-	public String getSql() {
+	public PreparedStatement build(final Connection conn) throws SQLException {
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(getSql());
+			setParameters(stmt);
+		} catch (final SQLException e) {
+			if (stmt != null) {
+				stmt.close();
+			}
+			throw e;
+		}
+		return stmt;
+	}
+
+	private String getSql() {
 		return sql.toString();
 	}
 
-	public void setParameter(final PreparedStatement statement) throws SQLException {
+	private void setParameters(final PreparedStatement statement) throws SQLException {
 		for (int i = 0; i < params.size(); i++) {
 			statement.setObject(i + 1, params.get(i));
 		}

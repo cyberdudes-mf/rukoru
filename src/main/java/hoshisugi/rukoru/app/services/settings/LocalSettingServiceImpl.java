@@ -1,7 +1,8 @@
 package hoshisugi.rukoru.app.services.settings;
 
-import static hoshisugi.rukoru.framework.util.AssetUtil.loadSQL;
-import static hoshisugi.rukoru.framework.util.SelectBuilder.from;
+import static hoshisugi.rukoru.framework.database.builder.CreateBuilder.table;
+import static hoshisugi.rukoru.framework.database.builder.InsertBuilder.into;
+import static hoshisugi.rukoru.framework.database.builder.SelectBuilder.from;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -16,7 +17,9 @@ import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.framework.base.BaseService;
-import hoshisugi.rukoru.framework.util.SelectBuilder;
+import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
+import hoshisugi.rukoru.framework.database.builder.InsertBuilder;
+import hoshisugi.rukoru.framework.database.builder.UpdateBuilder;
 
 public class LocalSettingServiceImpl extends BaseService implements LocalSettingService {
 
@@ -24,17 +27,20 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	public void saveCredential(final Credential entity) throws Exception {
 		try (H2Database h2 = new H2Database()) {
 			if (!h2.exists("AUTH_SETTINGS")) {
-				h2.executeUpdate(loadSQL("create_auth_settings.sql"));
+				h2.create(table("auth_settings"));
 			}
 			if (entity.getId() == null) {
 				if (loadCredential(h2).isPresent()) {
 					throw new IllegalStateException("Record has been updated from other thread.");
 				}
-				h2.executeUpdate(loadSQL("insert_auth_settings.sql"), entity.getAccount(), entity.getAccessKeyId(),
-						entity.getSecretAccessKey());
+				h2.insert(into("auth_settings").values("account", entity.getAccount())
+						.values("access_key_id", entity.getAccessKeyId())
+						.values("secret_access_key", entity.getSecretAccessKey()));
 			} else {
-				final int result = h2.executeUpdate(loadSQL("update_auth_settings.sql"), entity.getAccount(),
-						entity.getAccessKeyId(), entity.getSecretAccessKey(), entity.getId(), entity.getUpdatedAt());
+				final int result = h2.update(UpdateBuilder.table("auth_settings").set("account", entity.getAccount())
+						.set("access_key_id", entity.getAccessKeyId())
+						.set("secret_access_key", entity.getSecretAccessKey()).where("id", entity.getId())
+						.and("updated_at", entity.getUpdatedAt()));
 				if (result == 0) {
 					throw new IllegalStateException("Record has been updated from other thread.");
 				}
@@ -54,7 +60,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		if (!h2.exists("AUTH_SETTINGS")) {
 			return Optional.empty();
 		}
-		final List<Credential> results = h2.executeQuery(from("auth_settings"), Credential::new);
+		final List<Credential> results = h2.select(from("auth_settings"), Credential::new);
 		if (results.isEmpty()) {
 			return Optional.empty();
 		}
@@ -72,7 +78,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		if (!h2.exists("REPOSITORYDB_SETTINGS")) {
 			return Optional.empty();
 		}
-		final List<RepositoryDBConnection> results = h2.executeQuery(from("repositorydb_settings"),
+		final List<RepositoryDBConnection> results = h2.select(from("repositorydb_settings"),
 				RepositoryDBConnection::new);
 		if (results.isEmpty()) {
 			return Optional.empty();
@@ -84,18 +90,21 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	public void saveRepositoryDBConnection(final RepositoryDBConnection entity) throws Exception {
 		try (H2Database h2 = new H2Database()) {
 			if (!h2.exists("REPOSITORYDB_SETTINGS")) {
-				h2.executeUpdate(loadSQL("create_repositorydb_settings.sql"));
+				h2.create(CreateBuilder.table("repositorydb_settings"));
 			}
 			if (entity.getId() == null) {
 				if (loadRepositoryDBConnection(h2).isPresent()) {
 					throw new IllegalStateException("Record has been updated from other thread.");
 				}
-				h2.executeUpdate(loadSQL("insert_repositorydb_settings.sql"), entity.getInstanceName(),
-						entity.getEndpoint(), entity.getPort(), entity.getUsername(), entity.getPassword());
+				h2.insert(into("repositorydb_settings").values("instance_name", entity.getInstanceName())
+						.values("endpoint", entity.getEndpoint()).values("port", entity.getPort())
+						.values("username", entity.getUsername()).values("password", entity.getPassword()));
 			} else {
-				final int result = h2.executeUpdate(loadSQL("update_repositorydb_settings.sql"),
-						entity.getInstanceName(), entity.getEndpoint(), entity.getPort(), entity.getUsername(),
-						entity.getPassword(), entity.getId(), entity.getUpdatedAt());
+				final int result = h2.update(
+						UpdateBuilder.table("repositorydb_settings").set("instance_name", entity.getInstanceName())
+								.set("endpoint", entity.getEndpoint()).set("port", entity.getPort())
+								.set("username", entity.getUsername()).set("password", entity.getPassword())
+								.where("id", entity.getId()).and("updated_at", entity.getUpdatedAt()));
 				if (result == 0) {
 					throw new IllegalStateException("Record has been updated from other thread.");
 				}
@@ -110,8 +119,8 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			if (!h2.exists("PREFERENCES")) {
 				return Collections.emptyMap();
 			}
-			final SelectBuilder select = from("preferences").where("category", category);
-			final List<Preference> preferences = h2.executeQuery(select, Preference::new);
+			final List<Preference> preferences = h2.select(from("preferences").where("category", category),
+					Preference::new);
 			return preferences.stream().collect(Collectors.toMap(Preference::getKey, Function.identity()));
 		}
 	}
@@ -120,16 +129,16 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	public void savePreferences(final Collection<Preference> preferences) throws SQLException {
 		try (final H2Database h2 = new H2Database()) {
 			if (!h2.exists("PREFERENCES")) {
-				h2.executeUpdate(loadSQL("create_preferences.sql"));
+				h2.create(CreateBuilder.table("preferences"));
 			}
 			for (final Preference preference : preferences) {
 				if (preference.getId() == null) {
-					final SelectBuilder select = from("preferences").where("category", preference.getCategory())
-							.and("key", preference.getKey());
-					final List<Preference> entities = h2.executeQuery(select, Preference::new);
+					final List<Preference> entities = h2.select(from("preferences")
+							.where("category", preference.getCategory()).and("key", preference.getKey()),
+							Preference::new);
 					if (entities.isEmpty()) {
-						h2.executeUpdate(loadSQL("insert_preferences.sql"), preference.getCategory(),
-								preference.getKey(), preference.getValue());
+						h2.insert(InsertBuilder.into("preferences").values("category", preference.getCategory())
+								.values("key", preference.getKey()).values("value", preference.getValue()));
 					} else {
 						updatePreference(h2, entities.get(0));
 					}
@@ -141,8 +150,9 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	private void updatePreference(final H2Database h2, final Preference preference) throws SQLException {
-		final int result = h2.executeUpdate(loadSQL("update_preferences.sql"), preference.getCategory(),
-				preference.getKey(), preference.getValue(), preference.getId(), preference.getUpdatedAt());
+		final int result = h2.update(UpdateBuilder.table("preferences").set("category", preference.getCategory())
+				.set("key", preference.getKey()).set("value", preference.getValue()).where("id", preference.getId())
+				.and("updated_at", preference.getUpdatedAt()));
 		if (result == 0) {
 			throw new IllegalStateException("Record has been updated from other thread.");
 		}
@@ -155,8 +165,8 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			if (!h2.exists("PREFERENCES")) {
 				return Optional.empty();
 			}
-			final SelectBuilder select = from("preferences").where("category", category).and("key", key);
-			return h2.executeQuery(select, Preference::new).stream().findFirst();
+			return h2.select(from("preferences").where("category", category).and("key", key), Preference::new).stream()
+					.findFirst();
 		}
 	}
 
