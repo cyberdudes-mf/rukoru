@@ -34,7 +34,6 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 				if (loadCredential(h2).isPresent()) {
 					throw new IllegalStateException("Record has been updated from other thread.");
 				}
-				$("", "");
 				h2.insert(into("auth_settings").values($("account", entity.getAccount()),
 						$("access_key_id", entity.getAccessKeyId()),
 						$("secret_access_key", entity.getSecretAccessKey())));
