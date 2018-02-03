@@ -1,6 +1,6 @@
 package hoshisugi.rukoru.app.services.repositorydb;
 
-import static hoshisugi.rukoru.framework.util.SelectBuilder.query;
+import static hoshisugi.rukoru.framework.database.builder.SelectBuilder.query;
 import static java.util.Arrays.asList;
 
 import java.sql.ResultSet;
@@ -11,6 +11,8 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import hoshisugi.rukoru.app.models.repositorydb.RepositoryDB;
 import hoshisugi.rukoru.framework.base.BaseService;
+import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
+import hoshisugi.rukoru.framework.database.builder.DropBuilder;
 
 public class RepositoryDBServiceImpl extends BaseService implements RepositoryDBService {
 
@@ -20,14 +22,14 @@ public class RepositoryDBServiceImpl extends BaseService implements RepositoryDB
 	@Override
 	public void dropRepositoryDB(final String dbName) throws SQLException {
 		try (MariaDB db = new MariaDB()) {
-			db.executeUpdate("drop database " + dbName);
+			db.drop(DropBuilder.table(dbName));
 		}
 	}
 
 	@Override
 	public RepositoryDB createRepositoryDB(final String dbName) throws SQLException {
 		try (MariaDB db = new MariaDB()) {
-			db.executeUpdate("create database " + dbName);
+			db.create(CreateBuilder.table(dbName));
 		}
 		return new RepositoryDB(dbName);
 	}
@@ -35,7 +37,7 @@ public class RepositoryDBServiceImpl extends BaseService implements RepositoryDB
 	@Override
 	public List<RepositoryDB> listRepositoryDB() throws SQLException {
 		try (MariaDB db = new MariaDB()) {
-			return db.executeQuery(query("show databases"), this::createModel);
+			return db.select(query("show databases"), this::createModel);
 		}
 	}
 
