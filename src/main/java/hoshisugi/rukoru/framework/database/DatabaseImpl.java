@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
@@ -31,6 +32,13 @@ public class DatabaseImpl implements Database {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public <T> Optional<T> find(final Connection conn, final SelectBuilder build,
+			final Function<ResultSet, T> generator) throws SQLException {
+		final List<T> select = select(conn, build, generator);
+		return select.isEmpty() ? Optional.empty() : Optional.ofNullable(select.get(0));
 	}
 
 	@Override

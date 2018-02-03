@@ -26,15 +26,12 @@ public class SelectBuilder {
 		return new SelectBuilder(loadSQL(String.format("select_%s.sql", table)));
 	}
 
-	public SelectBuilder where(final String column, final Object value) {
-		sql.append(" where ").append(column).append(" = ?");
-		params.add(value);
-		return this;
-	}
-
-	public SelectBuilder and(final String column, final Object value) {
-		sql.append(" and ").append(column).append(" = ?");
-		params.add(value);
+	public SelectBuilder where(final Column... columns) {
+		for (int i = 0; i < columns.length; i++) {
+			final Column col = columns[i];
+			sql.append(i == 0 ? " where " : " and ").append(col.getName()).append(" = ?");
+			params.add(col.getValue());
+		}
 		return this;
 	}
 

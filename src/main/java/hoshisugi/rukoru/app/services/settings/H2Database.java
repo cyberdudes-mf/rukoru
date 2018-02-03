@@ -1,5 +1,6 @@
 package hoshisugi.rukoru.app.services.settings;
 
+import static hoshisugi.rukoru.framework.database.builder.Column.$;
 import static hoshisugi.rukoru.framework.database.builder.SelectBuilder.from;
 
 import java.net.URISyntaxException;
@@ -69,10 +70,9 @@ class H2Database implements AutoCloseable {
 	}
 
 	public boolean exists(final String tableName) throws SQLException {
-		final SelectBuilder select = from("information_schema.tables").where("table_schema", "PUBLIC").and("table_name",
-				tableName);
-		final List<Boolean> result = database.select(conn, select, this::toBoolean);
-		return result.get(0);
+		final SelectBuilder select = from("information_schema.tables").where($("table_schema", "PUBLIC"),
+				$("table_name", tableName));
+		return database.find(conn, select, this::toBoolean).get();
 	}
 
 	private Boolean toBoolean(final ResultSet rs) {

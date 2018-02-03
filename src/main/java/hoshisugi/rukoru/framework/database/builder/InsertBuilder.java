@@ -21,18 +21,18 @@ public class InsertBuilder extends QueryBuilder {
 		return builder;
 	}
 
-	public InsertBuilder values(final String column, final Object value) {
-		values.put(column, value);
+	public InsertBuilder values(final Column... columns) {
+		for (final Column column : columns) {
+			values.put(column.getName(), column.getValue());
+		}
 		return this;
 	}
 
-	public InsertBuilder where(final String column, final Object value) {
-		where.put(column, value);
+	public InsertBuilder where(final Column... columns) {
+		for (final Column column : columns) {
+			where.put(column.getName(), column.getValue());
+		}
 		return this;
-	}
-
-	public InsertBuilder and(final String column, final Object value) {
-		return where(column, value);
 	}
 
 	@Override
@@ -40,7 +40,8 @@ public class InsertBuilder extends QueryBuilder {
 		final StringBuilder sql = new StringBuilder();
 		sql.append("insert into ").append(table).append(" (").append(String.join(",", values.keySet()))
 				.append(") values (")
-				.append(String.join(",", IntStream.rangeClosed(1, values.size()).mapToObj(i -> "?").collect(Collectors.toList())))
+				.append(String.join(",",
+						IntStream.rangeClosed(1, values.size()).mapToObj(i -> "?").collect(Collectors.toList())))
 				.append(")");
 		if (!where.isEmpty()) {
 			sql.append(" where ").append(

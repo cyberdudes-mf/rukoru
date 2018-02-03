@@ -20,18 +20,18 @@ public class UpdateBuilder extends QueryBuilder {
 		return builder;
 	}
 
-	public UpdateBuilder set(final String column, final Object value) {
-		set.put(column, value);
+	public UpdateBuilder set(final Column... columns) {
+		for (final Column column : columns) {
+			set.put(column.getName(), column.getValue());
+		}
 		return this;
 	}
 
-	public UpdateBuilder where(final String column, final Object value) {
-		where.put(column, value);
+	public UpdateBuilder where(final Column... columns) {
+		for (final Column column : columns) {
+			where.put(column.getName(), column.getValue());
+		}
 		return this;
-	}
-
-	public UpdateBuilder and(final String column, final Object value) {
-		return where(column, value);
 	}
 
 	@Override

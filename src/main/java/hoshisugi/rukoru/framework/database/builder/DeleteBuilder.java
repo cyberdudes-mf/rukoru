@@ -19,13 +19,11 @@ public class DeleteBuilder extends QueryBuilder {
 		return builder;
 	}
 
-	public DeleteBuilder where(final String column, final Object value) {
-		where.put(column, value);
+	public DeleteBuilder where(final Column... columns) {
+		for (final Column column : columns) {
+			where.put(column.getName(), column.getValue());
+		}
 		return this;
-	}
-
-	public DeleteBuilder and(final String column, final Object value) {
-		return where(column, value);
 	}
 
 	@Override
