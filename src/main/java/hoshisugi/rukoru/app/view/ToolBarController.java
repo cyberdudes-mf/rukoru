@@ -1,7 +1,5 @@
 package hoshisugi.rukoru.app.view;
 
-import static hoshisugi.rukoru.app.enums.Preferences.MicrosoftSDKPath;
-
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -10,7 +8,6 @@ import java.util.ResourceBundle;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.settings.Credential;
-import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
@@ -61,9 +58,6 @@ public class ToolBarController extends BaseController {
 	private LocalSettingService authService;
 
 	@Inject
-	private LocalSettingService settingService;
-
-	@Inject
 	private ContentController contentController;
 
 	@Override
@@ -96,9 +90,8 @@ public class ToolBarController extends BaseController {
 	@FXML
 	private void onMageButtonClick(final ActionEvent event) throws Exception {
 		ConcurrentUtil.run(() -> {
-			final Optional<Preference> preference = settingService.findPreference(MicrosoftSDKPath);
-			final String directory = preference.map(Preference::getValue).orElse(MicrosoftSDKPath.getDefaultValue());
-			try (final CLIState state = CLI.command("mage.exe").options("-cc").directory(Paths.get(directory))
+			try (final CLIState state = CLI.command("mage.exe").options("-cc")
+					.directory(Paths.get("C:/Program Files (x86)/Microsoft SDKs/Windows/v8.1A/bin/NETFX 4.5.1 Tools"))
 					.execute()) {
 				state.waitFor();
 				if (state.isSuccess()) {
