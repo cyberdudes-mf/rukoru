@@ -1,7 +1,6 @@
 package hoshisugi.rukoru.app.view.ec2;
 
 import static hoshisugi.rukoru.framework.util.AssetUtil.getImage;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static javafx.beans.binding.Bindings.when;
 
 import java.net.URL;
@@ -11,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
@@ -44,7 +41,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -137,14 +133,7 @@ public class InstanceTabController extends BaseController {
 		final ClipboardContent content = new ClipboardContent();
 		content.putString(button.getText());
 		Clipboard.getSystemClipboard().setContent(content);
-		final Tooltip tooltip = new Tooltip("クリップボードにコピーしました。");
-		tooltip.setAutoHide(true);
-		tooltip.show(FXUtil.getStage(event));
-		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.schedule(() -> {
-			Platform.runLater(() -> tooltip.hide());
-			scheduler.shutdown();
-		}, 1000, MILLISECONDS);
+		FXUtil.showTooltip("クリップボードにコピーしました。", event);
 	}
 
 	private Button createImageButton(final EC2Instance entity) {

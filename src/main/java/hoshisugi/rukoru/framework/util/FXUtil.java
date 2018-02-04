@@ -1,21 +1,27 @@
 package hoshisugi.rukoru.framework.util;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 
 import com.google.common.base.Strings;
 
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
@@ -113,5 +119,16 @@ public class FXUtil {
 
 	public static Stage getPrimaryStage() {
 		return primaryStage;
+	}
+
+	public static void showTooltip(final String message, final Event event) {
+		final Tooltip tooltip = new Tooltip(message);
+		tooltip.setAutoHide(true);
+		tooltip.show(FXUtil.getStage(event));
+		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.schedule(() -> {
+			Platform.runLater(() -> tooltip.hide());
+			scheduler.shutdown();
+		}, 1000, MILLISECONDS);
 	}
 }
