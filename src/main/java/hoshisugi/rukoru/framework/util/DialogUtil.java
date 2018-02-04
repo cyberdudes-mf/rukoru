@@ -30,6 +30,10 @@ public class DialogUtil {
 		return createTextInputDialog(title, label);
 	}
 
+	public static Optional<ButtonType> showErrorDialog(final String title, final String message, final Throwable t) {
+		return createExceptionDialog(title, message, t);
+	}
+
 	public static Optional<ButtonType> showErrorDialog(final Throwable t) {
 		return createExceptionDialog(t);
 	}
@@ -65,14 +69,19 @@ public class DialogUtil {
 	}
 
 	public static Optional<ButtonType> createExceptionDialog(final Throwable th) {
+		return createExceptionDialog("Program exception", th.getMessage(), th);
+	}
+
+	public static Optional<ButtonType> createExceptionDialog(final String title, final String message,
+			final Throwable th) {
 		final Dialog<ButtonType> dialog = new Dialog<>();
 
-		dialog.setTitle("Program exception");
+		dialog.setTitle(title);
 
 		final DialogPane dialogPane = dialog.getDialogPane();
 		dialogPane.setContentText("Details of the problem:");
 		dialogPane.getButtonTypes().addAll(ButtonType.OK);
-		dialogPane.setContentText(th.getMessage());
+		dialogPane.setContentText(message);
 		dialog.initModality(Modality.APPLICATION_MODAL);
 
 		final Label label = new Label("Exception stacktrace:");

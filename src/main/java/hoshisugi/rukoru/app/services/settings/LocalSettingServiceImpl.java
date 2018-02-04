@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import hoshisugi.rukoru.app.enums.Preferences;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
@@ -143,13 +144,14 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	@Override
-	public Optional<Preference> findPreferenceByCategoryAndKey(final String category, final String key)
-			throws SQLException {
+	public Optional<Preference> findPreference(final Preferences preference) throws SQLException {
 		try (H2Database h2 = new H2Database()) {
 			if (!h2.exists("PREFERENCES")) {
 				return Optional.empty();
 			}
-			return h2.find(from("preferences").where($("category", category), $("key", key)), Preference::new);
+			return h2.find(
+					from("preferences").where($("category", preference.getCategory()), $("key", preference.getKey())),
+					Preference::new);
 		}
 	}
 
