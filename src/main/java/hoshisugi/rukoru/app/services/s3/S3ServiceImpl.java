@@ -45,6 +45,7 @@ import hoshisugi.rukoru.app.models.s3.S3Folder;
 import hoshisugi.rukoru.app.models.s3.S3Item;
 import hoshisugi.rukoru.app.models.s3.S3Object;
 import hoshisugi.rukoru.app.models.s3.S3Root;
+import hoshisugi.rukoru.app.models.s3.S3Virtual;
 import hoshisugi.rukoru.app.models.s3.UploadObjectResult;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.framework.base.BaseService;
@@ -260,9 +261,9 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		final Map<String, S3Item> structured = new HashMap<>();
 		structured.put(rootItem.getKey(), rootItem);
 		rootItem.getItems().clear();
-		objects.forEach(i -> storeInParent(structured, i));
 		folders.stream().filter(f -> !structured.containsKey(f)).map(f -> new S3Folder(rootItem.getBucketName(), f))
 				.peek(f -> structured.put(f.getKey(), f)).forEach(f -> storeInParent(structured, f));
+		objects.forEach(i -> storeInParent(structured, i));
 	}
 
 	private void storeInParent(final Map<String, S3Item> structured, final S3Item item) {
@@ -270,7 +271,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		if (structured.containsKey(parentKey)) {
 			structured.get(parentKey).getItems().add(item);
 		} else {
-			final S3Folder parent = new S3Folder(item.getBucketName(), parentKey);
+			final S3Virtual parent = new S3Virtual(item.getBucketName(), parentKey);
 			parent.getItems().add(item);
 			storeInParent(structured, parent);
 			structured.put(parentKey, parent);
