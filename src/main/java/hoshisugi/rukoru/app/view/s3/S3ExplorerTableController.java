@@ -1,6 +1,5 @@
 package hoshisugi.rukoru.app.view.s3;
 
-import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Done;
 import static hoshisugi.rukoru.app.models.s3.S3Item.DELIMITER;
 import static hoshisugi.rukoru.app.models.s3.S3Item.Type.Root;
 import static java.lang.Double.MAX_VALUE;
@@ -206,7 +205,7 @@ public class S3ExplorerTableController extends BaseController {
 			final ProgressBar progressBar = createProgressBar(result);
 			explorer.addBottom(progressBar);
 			ConcurrentUtil.run(() -> {
-				waitForDone(result);
+				result.waitFor();
 				Platform.runLater(() -> {
 					explorer.removeBottom(progressBar);
 					if (result.checkResult()) {
@@ -239,7 +238,7 @@ public class S3ExplorerTableController extends BaseController {
 				final ProgressBar progressBar = createProgressBar(result);
 				explorer.addBottom(progressBar);
 				ConcurrentUtil.run(() -> {
-					waitForDone(result);
+					result.waitFor();
 					Platform.runLater(() -> {
 						explorer.removeBottom(progressBar);
 						result.checkResult();
@@ -248,12 +247,6 @@ public class S3ExplorerTableController extends BaseController {
 			} catch (final Exception e) {
 				DialogUtil.showErrorDialog(e);
 			}
-		}
-	}
-
-	private void waitForDone(final AsyncResult result) throws InterruptedException {
-		while (result.getStatus() != Done) {
-			Thread.sleep(1000);
 		}
 	}
 
