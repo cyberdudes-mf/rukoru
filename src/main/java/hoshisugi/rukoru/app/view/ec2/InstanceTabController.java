@@ -66,7 +66,7 @@ public class InstanceTabController extends BaseController {
 	private TableColumn<EC2Instance, String> stateColumn;
 
 	@FXML
-	private TableColumn<EC2Instance, EC2Instance> publicIpAddressColumn;
+	private TableColumn<EC2Instance, String> publicIpAddressColumn;
 
 	@FXML
 	private TableColumn<EC2Instance, EC2Instance> runAndStopColumn;
@@ -98,7 +98,6 @@ public class InstanceTabController extends BaseController {
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
 		stateColumn.setCellFactory(TextFillTableCell.forTableCellFactory(this::provideColor));
-		publicIpAddressColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		publicIpAddressColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createPublicIpAddressButton));
 		autoStopColumn.setCellFactory(CheckBoxTableCell.forTableColumn(autoStopColumn));
 		runAndStopColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
@@ -179,14 +178,13 @@ public class InstanceTabController extends BaseController {
 		return button;
 	}
 
-	private Button createPublicIpAddressButton(final EC2Instance entity) {
-		if (Strings.isNullOrEmpty(entity.getPublicIpAddress())) {
+	private Button createPublicIpAddressButton(final String publicIpAddress) {
+		if (Strings.isNullOrEmpty(publicIpAddress)) {
 			return null;
 		}
 		final Button button = new Button();
-		button.setText(entity.getPublicIpAddress());
+		button.setText(publicIpAddress);
 		button.setOnAction(this::onCopyButtonClick);
-		button.setUserData(entity);
 		return button;
 	}
 

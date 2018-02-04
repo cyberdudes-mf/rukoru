@@ -31,7 +31,11 @@
       				</TableColumn>
       				<TableColumn fx:id="runAndStopColumn" maxWidth="1.7976931348623157E308" minWidth="80.0" text="起動/停止">
 				</TableColumn>
-      				<TableColumn fx:id="publicIpAddressColumn" maxWidth="1.7976931348623157E308" minWidth="110.0" prefWidth="110.0" text="IPアドレス" />
+      				<TableColumn fx:id="publicIpAddressColumn" maxWidth="1.7976931348623157E308" minWidth="110.0" prefWidth="110.0" text="IPアドレス">
+      					<cellValueFactory>
+      						<PropertyValueFactory property="publicIpAddress" />
+      					</cellValueFactory>
+      				</TableColumn>
       				<TableColumn fx:id="instanceTypeColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="100.0" text="インスタンスタイプ">
       					<cellValueFactory>
       						<PropertyValueFactory property="instanceType" />
