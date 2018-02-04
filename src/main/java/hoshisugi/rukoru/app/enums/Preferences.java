@@ -1,25 +1,29 @@
 package hoshisugi.rukoru.app.enums;
 
-public interface Preferences {
+public enum Preferences {
+	HomeImageUrl("Home", "imageUrl", "https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg"),
+	MicrosoftSDKPath("MicrosoftSDK", "path", "C:/Program Files (x86)/Microsoft SDKs/Windows/v8.1A/bin/NETFX 4.5.1 Tools"),
+	;
 
-	public static enum Home {
-		ImageUrl("Home", "imageUrl");
+	private final String category;
+	private final String key;
+	private final String defaultValue;
 
-		private final String category;
-		private final String key;
+	private Preferences(final String category, final String key, final String defaultValue) {
+		this.category = category;
+		this.key = key;
+		this.defaultValue = defaultValue;
+	}
 
-		private Home(final String category, final String key) {
-			this.category = category;
-			this.key = key;
-		}
+	public String getCategory() {
+		return category;
+	}
 
-		public String getCategory() {
-			return category;
-		}
+	public String getKey() {
+		return key;
+	}
 
-		public String getKey() {
-			return key;
-		}
-
+	public String getDefaultValue() {
+		return defaultValue;
 	}
 }

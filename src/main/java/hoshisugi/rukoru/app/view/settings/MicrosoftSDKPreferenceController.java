@@ -1,6 +1,6 @@
 package hoshisugi.rukoru.app.view.settings;
 
-import static hoshisugi.rukoru.app.enums.Preferences.HomeImageUrl;
+import static hoshisugi.rukoru.app.enums.Preferences.MicrosoftSDKPath;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -11,7 +11,6 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
-import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
@@ -20,17 +19,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
-@FXController(title = "Home")
-public class HomePreferenceController extends BaseController implements PreferenceContent {
+@FXController(title = "Microsoft SDK")
+public class MicrosoftSDKPreferenceController extends BaseController implements PreferenceContent {
 
 	@FXML
-	private TextField imageUrl;
+	private TextField path;
 
 	@Inject
 	private LocalSettingService service;
-
-	@Inject
-	private ContentController contentController;
 
 	private final Map<String, Preference> preferences = new HashMap<>();
 
@@ -41,15 +37,16 @@ public class HomePreferenceController extends BaseController implements Preferen
 
 	private void loadPreferences() {
 		ConcurrentUtil.run(() -> {
-			final String category = "Home";
-			final String key = "imageUrl";
-			preferences.putAll(service.getPreferencesByCategory(category));
+			final String category = "MicrosoftSDK";
+			final String key = "path";
+			final Map<String, Preference> sdkPreferences = service.getPreferencesByCategory(category);
+			preferences.putAll(sdkPreferences);
 			if (preferences.get(key) == null) {
 				final Preference preference = new Preference(category, key);
-				preference.setValue(HomeImageUrl.getDefaultValue());
+				preference.setValue(MicrosoftSDKPath.getDefaultValue());
 				preferences.put(key, preference);
 			}
-			Platform.runLater(() -> imageUrl.textProperty().bindBidirectional(preferences.get(key).valueProperty()));
+			Platform.runLater(() -> path.textProperty().bindBidirectional(preferences.get(key).valueProperty()));
 		});
 	}
 
@@ -62,7 +59,6 @@ public class HomePreferenceController extends BaseController implements Preferen
 	public void apply() {
 		ConcurrentUtil.run(() -> {
 			service.savePreferences(preferences.values());
-			Platform.runLater(() -> contentController.refreshTopImage());
 		});
 	}
 }
