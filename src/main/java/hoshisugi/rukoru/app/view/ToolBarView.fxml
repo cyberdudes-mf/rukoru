@@ -10,7 +10,6 @@
    <children>
       <Button fx:id="mcButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onMCButtonClick" text="マネコン" />
       <Button fx:id="testPortalButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onTestPortalButtonClick" text="テストポータル" />
-      <Button fx:id="mageButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onMageButtonClick" text="Clear Cache" />
       <ToggleButton fx:id="ec2Button" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onEC2ButtonClick" text="EC2">
          <toggleGroup>
             <ToggleGroup fx:id="toolBar" />

@@ -1,7 +1,6 @@
 package hoshisugi.rukoru.app.view;
 
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -13,14 +12,9 @@ import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.framework.base.BaseController;
-import hoshisugi.rukoru.framework.cli.CLI;
-import hoshisugi.rukoru.framework.cli.CLIException;
-import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.BrowserUtil;
-import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
-import hoshisugi.rukoru.framework.util.IOUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -38,9 +32,6 @@ public class ToolBarController extends BaseController {
 
 	@FXML
 	private Button testPortalButton;
-
-	@FXML
-	private Button mageButton;
 
 	@FXML
 	private ToggleButton ec2Button;
@@ -64,7 +55,6 @@ public class ToolBarController extends BaseController {
 	public void initialize(final URL url, final ResourceBundle resource) {
 		mcButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/AWS.png")));
 		testPortalButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DS.png")));
-		mageButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/WPF.png")));
 		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/EC2.png")));
 		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DB.png")));
 		s3Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/S3.png")));
@@ -85,27 +75,6 @@ public class ToolBarController extends BaseController {
 	@FXML
 	private void onTestPortalButtonClick(final ActionEvent event) throws Exception {
 		BrowserUtil.browse(String.format("http://front.dataspidercloud.tokyo/"));
-	}
-
-	@FXML
-	private void onMageButtonClick(final ActionEvent event) throws Exception {
-		ConcurrentUtil.run(() -> {
-			try (final CLIState state = CLI.command("mage.exe").options("-cc")
-					.directory(Paths.get("C:/Program Files (x86)/Microsoft SDKs/Windows/v8.1A/bin/NETFX 4.5.1 Tools"))
-					.execute()) {
-				state.waitFor();
-				if (state.isSuccess()) {
-					final String message = IOUtil.readAll(state.getInputStream());
-					Platform.runLater(() -> DialogUtil.showInfoDialog("Clear Cache", message));
-				} else {
-					final String message = IOUtil.readAll(state.getErrorStream());
-					Platform.runLater(() -> DialogUtil.showWarningDialog("Clear Cache", message));
-				}
-			} catch (final CLIException e) {
-				Platform.runLater(() -> DialogUtil.showErrorDialog("Clear Cache",
-						e.getMessage() + "\nMicrosoft SDK がインストールされているか確認してください。", e));
-			}
-		});
 	}
 
 	@FXML
