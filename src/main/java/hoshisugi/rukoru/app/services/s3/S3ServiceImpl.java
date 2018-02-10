@@ -15,6 +15,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -142,6 +143,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		final AmazonS3 client = createClient();
 		final ObjectMetadata metadata = new ObjectMetadata();
 		metadata.setContentLength(Files.size(path));
+		metadata.setContentType(URLConnection.guessContentTypeFromName(path.toString()));
 
 		final UploadObjectResult result = new UploadObjectResult();
 		result.setName(path.getFileName().toString());
