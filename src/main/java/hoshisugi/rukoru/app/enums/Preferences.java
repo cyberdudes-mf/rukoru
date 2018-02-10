@@ -1,25 +1,26 @@
 package hoshisugi.rukoru.app.enums;
 
-public interface Preferences {
+public enum Preferences {
 
-	public static enum Home {
-		ImageUrl("Home", "imageUrl");
+	ImageUrl("Home", "imageUrl"),
+	RedmineLoginId("Redmine", "loginId"),
+	RedminePassword("Redmine", "password")
+	;
+	
 
-		private final String category;
-		private final String key;
+	private final String category;
+	private final String key;
 
-		private Home(final String category, final String key) {
-			this.category = category;
-			this.key = key;
-		}
+	private Preferences(final String category, final String key) {
+		this.category = category;
+		this.key = key;
+	}
 
-		public String getCategory() {
-			return category;
-		}
+	public String getCategory() {
+		return category;
+	}
 
-		public String getKey() {
-			return key;
-		}
-
+	public String getKey() {
+		return key;
 	}
 }

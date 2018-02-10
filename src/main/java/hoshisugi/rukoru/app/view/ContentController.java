@@ -1,6 +1,6 @@
 package hoshisugi.rukoru.app.view;
 
-import static hoshisugi.rukoru.app.enums.Preferences.Home.ImageUrl;
+import static hoshisugi.rukoru.app.enums.Preferences.ImageUrl;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -16,6 +16,7 @@ import com.google.inject.Inject;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
+import hoshisugi.rukoru.app.view.redmine.TaskboardController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.framework.base.BaseController;
@@ -58,6 +59,7 @@ public class ContentController extends BaseController {
 			loadContent(EC2ContentController.class);
 			loadContent(RepositoryDBContentController.class);
 			loadContent(S3ExplorerController.class);
+			loadContent(TaskboardController.class);
 		});
 	}
 
@@ -109,8 +111,7 @@ public class ContentController extends BaseController {
 
 	private String getImageUrl() {
 		try {
-			final Optional<Preference> preference = service.findPreferenceByCategoryAndKey(ImageUrl.getCategory(),
-					ImageUrl.getKey());
+			final Optional<Preference> preference = service.findPreferenceByCategoryAndKey(ImageUrl);
 			return preference.map(Preference::getValue).filter(v -> !Strings.isNullOrEmpty(v))
 					.orElse(DEFAULT_IMAGE_URL);
 		} catch (final Exception e) {
