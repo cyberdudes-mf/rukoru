@@ -9,8 +9,6 @@ import java.util.function.Function;
 
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.framework.database.Database;
-import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
-import hoshisugi.rukoru.framework.database.builder.DropBuilder;
 import hoshisugi.rukoru.framework.database.builder.SelectBuilder;
 import hoshisugi.rukoru.framework.inject.Injector;
 
@@ -25,12 +23,12 @@ class MariaDB implements AutoCloseable {
 		conn = DriverManager.getConnection(connection.getJdbcUrl(), connection.getUsername(), connection.getPassword());
 	}
 
-	public int create(final CreateBuilder builder) throws SQLException {
-		return database.create(conn, builder);
+	public int createDatabase(final String dbName) throws SQLException {
+		return database.executeUpdate(conn, "create database " + dbName);
 	}
 
-	public int drop(final DropBuilder builder) throws SQLException {
-		return database.drop(conn, builder);
+	public int dropDatabase(final String dbName) throws SQLException {
+		return database.executeUpdate(conn, "drop database " + dbName);
 	}
 
 	public <T> List<T> select(final SelectBuilder builder, final Function<ResultSet, T> generator) throws SQLException {

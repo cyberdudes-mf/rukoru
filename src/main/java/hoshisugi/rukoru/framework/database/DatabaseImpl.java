@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +65,13 @@ public class DatabaseImpl implements Database {
 	@Override
 	public int drop(final Connection conn, final DropBuilder builder) throws SQLException {
 		return execute(conn, builder);
+	}
+
+	@Override
+	public int executeUpdate(final Connection conn, final String query) throws SQLException {
+		try (Statement statement = conn.createStatement()) {
+			return statement.executeUpdate(query);
+		}
 	}
 
 	private int execute(final Connection conn, final QueryBuilder builder) throws SQLException {

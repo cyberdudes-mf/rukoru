@@ -11,8 +11,6 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import hoshisugi.rukoru.app.models.repositorydb.RepositoryDB;
 import hoshisugi.rukoru.framework.base.BaseService;
-import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
-import hoshisugi.rukoru.framework.database.builder.DropBuilder;
 
 public class RepositoryDBServiceImpl extends BaseService implements RepositoryDBService {
 
@@ -22,14 +20,14 @@ public class RepositoryDBServiceImpl extends BaseService implements RepositoryDB
 	@Override
 	public void dropRepositoryDB(final String dbName) throws SQLException {
 		try (MariaDB db = new MariaDB()) {
-			db.drop(DropBuilder.table(dbName));
+			db.dropDatabase(dbName);
 		}
 	}
 
 	@Override
 	public RepositoryDB createRepositoryDB(final String dbName) throws SQLException {
 		try (MariaDB db = new MariaDB()) {
-			db.create(CreateBuilder.table(dbName));
+			db.createDatabase(dbName);
 		}
 		return new RepositoryDB(dbName);
 	}

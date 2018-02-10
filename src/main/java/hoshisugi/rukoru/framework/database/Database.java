@@ -31,4 +31,5 @@ public interface Database extends Injectable {
 
 	int drop(Connection conn, DropBuilder builder) throws SQLException;
 
+	int executeUpdate(Connection conn, String query) throws SQLException;
 }
