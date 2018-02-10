@@ -58,7 +58,7 @@ public class HomePreferenceController extends BaseController implements Preferen
 	public void apply() {
 		ConcurrentUtil.run(() -> {
 			service.savePreferences(preferences.values());
-			Platform.runLater(() -> contentController.refreshTopImage());
+			contentController.refreshTopImage();
 		});
 	}
 }

@@ -119,6 +119,7 @@ public class ContentController extends BaseController {
 	}
 
 	public void refreshTopImage() {
-		topImage.setImage(new Image(getImageUrl()));
+		final Image image = new Image(getImageUrl());
+		Platform.runLater(() -> topImage.setImage(image));
 	}
 }
