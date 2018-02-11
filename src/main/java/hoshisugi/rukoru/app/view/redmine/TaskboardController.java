@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import org.w3c.dom.Document;
-
 import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;
 import com.google.inject.Inject;
@@ -90,7 +88,7 @@ public class TaskboardController extends BaseController {
 		}
 		if (colWidth != currentColWidth) {
 			currentColWidth = colWidth;
-			engine.executeScript(loadJS("updateColWidths.js", colWidth));
+			engine.executeScript(loadJS("update_col_widths.js", colWidth));
 		}
 	}
 
@@ -139,9 +137,7 @@ public class TaskboardController extends BaseController {
 	}
 
 	private void onTaskboardPageLoaded() {
-		final Document document = engine.getDocument();
-		document.getElementById("top-menu").setAttribute("style", "display:none;");
-		document.getElementById("header").setAttribute("style", "display:none;");
+		engine.executeScript(loadJS("hide_header.js"));
 		showTaskboard();
 	}
 
