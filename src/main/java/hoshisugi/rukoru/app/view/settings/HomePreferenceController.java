@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.view.settings;
 
+import static hoshisugi.rukoru.app.enums.Preferences.ImageUrl;
+
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +41,10 @@ public class HomePreferenceController extends BaseController implements Preferen
 
 	private void loadPreferences() {
 		ConcurrentUtil.run(() -> {
-			final String category = "Home";
-			final String key = "imageUrl";
-			preferences.putAll(service.getPreferencesByCategory(category));
+			final String key = ImageUrl.key();
+			preferences.putAll(service.getPreferencesByCategory("Home"));
 			if (preferences.get(key) == null) {
-				preferences.put(key, new Preference(category, key));
+				preferences.put(key, new Preference(ImageUrl));
 			}
 			Platform.runLater(() -> imageUrl.textProperty().bindBidirectional(preferences.get(key).valueProperty()));
 		});

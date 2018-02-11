@@ -4,7 +4,9 @@ public enum Preferences {
 
 	ImageUrl("Home", "imageUrl"),
 	RedmineLoginId("Redmine", "loginId"),
-	RedminePassword("Redmine", "password")
+	RedminePassword("Redmine", "password"),
+	RedmineDefaultProject("Redmine", "defaultProject"),
+	RedmineDefaultVersion("Redmine", "defaultVersion"),
 	;
 	
 
@@ -16,11 +18,11 @@ public enum Preferences {
 		this.key = key;
 	}
 
-	public String getCategory() {
+	public String category() {
 		return category;
 	}
 
-	public String getKey() {
+	public String key() {
 		return key;
 	}
 }
