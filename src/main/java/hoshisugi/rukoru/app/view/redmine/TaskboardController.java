@@ -137,17 +137,20 @@ public class TaskboardController extends BaseController {
 		}
 	}
 
-	private void load() {
+	public void load() {
 		loadPreferences();
 		final String version = preferences.get(RedmineDefaultVersion.key());
 		if (!preferences.isEmpty() && !Strings.isNullOrEmpty(version)) {
 			final String taskboardUrl = String.format("http://redmine.dataspidercloud.tokyo/rb/taskboards/%s", version);
 			final Escaper escaper = UrlEscapers.urlFragmentEscaper();
 			final String backUrl = escaper.escape(taskboardUrl);
-			engine.load("http://redmine.dataspidercloud.tokyo/login?back_url=" + backUrl);
-			showLoading();
+			Platform.runLater(() -> {
+				engine.load("http://redmine.dataspidercloud.tokyo/login?back_url=" + backUrl);
+				showLoading();
+			});
 		} else {
-			showContent(new Label("Redmine のログイン情報を設定してください。\n[メニュー] - [Settings] - [Preferences] - [Redmine]"));
+			Platform.runLater(() -> showContent(
+					new Label("Redmine のログイン情報を設定してください。\n[メニュー] - [Settings] - [Preferences] - [Redmine]")));
 		}
 	}
 
@@ -186,6 +189,7 @@ public class TaskboardController extends BaseController {
 	}
 
 	private void loadPreferences() {
+		loggedIn = false;
 		try {
 			final Map<String, Preference> preferences = settingService
 					.getPreferencesByCategory(RedmineLoginId.category());

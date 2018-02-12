@@ -24,6 +24,7 @@ import hoshisugi.rukoru.app.models.redmine.VersionsRequest;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.redmine.RedmineService;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
+import hoshisugi.rukoru.app.view.redmine.TaskboardController;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.PropertyListCell;
@@ -50,6 +51,9 @@ public class RedminePreferenceController extends BaseController implements Prefe
 
 	@FXML
 	private ComboBox<Version> defaultVersion;
+
+	@Inject
+	private TaskboardController controller;
 
 	@Inject
 	private LocalSettingService settingService;
@@ -108,6 +112,7 @@ public class RedminePreferenceController extends BaseController implements Prefe
 	public void apply() {
 		ConcurrentUtil.run(() -> {
 			settingService.savePreferences(preferences.values());
+			controller.load();
 		});
 	}
 
