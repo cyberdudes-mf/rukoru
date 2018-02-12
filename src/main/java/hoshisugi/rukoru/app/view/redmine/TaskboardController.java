@@ -47,9 +47,9 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.PopupFeatures;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -106,23 +106,24 @@ public class TaskboardController extends BaseController {
 		final Worker<Void> worker = engine.getLoadWorker();
 		worker.stateProperty().addListener(this::onLoaded);
 		webView.widthProperty().addListener(this::onWidthChanged);
-		engine.setCreatePopupHandler(p -> {
-			final Stage owner = FXUtil.getStage(webView);
-			final VBox parent = new VBox();
-			final WebView wv = new WebView();
-			parent.getChildren().add(wv);
-			VBox.setVgrow(wv, Priority.ALWAYS);
-			final Scene scene = new Scene(parent);
-			scene.getStylesheets().addAll(owner.getScene().getStylesheets());
-			final Stage stage = new Stage();
-			stage.initStyle(StageStyle.UTILITY);
-			stage.initModality(Modality.WINDOW_MODAL);
-			stage.initOwner(owner);
-			stage.setScene(scene);
-			stage.show();
-			return wv.getEngine();
-		});
+		engine.setCreatePopupHandler(this::showPopupWindow);
 		return webView;
+	}
+
+	private WebEngine showPopupWindow(final PopupFeatures featuers) {
+		final Stage owner = FXUtil.getStage(webView);
+		final VBox parent = new VBox();
+		final WebView wv = new WebView();
+		parent.getChildren().add(wv);
+		VBox.setVgrow(wv, Priority.ALWAYS);
+		final Scene scene = new Scene(parent);
+		scene.getStylesheets().addAll(owner.getScene().getStylesheets());
+		final Stage stage = new Stage();
+		stage.initStyle(StageStyle.UTILITY);
+		stage.initOwner(owner);
+		stage.setScene(scene);
+		stage.show();
+		return wv.getEngine();
 	}
 
 	private void onWidthChanged(final ObservableValue<? extends Number> observable, final Number oldValue,
