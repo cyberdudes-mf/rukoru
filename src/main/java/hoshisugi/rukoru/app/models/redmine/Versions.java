@@ -14,7 +14,12 @@ public class Versions extends RedmineAPIResponse {
 	}
 
 	public void setVersions(final List<Version> versions) {
-		this.versions.setAll(versions);
+		this.versions.addAll(versions);
+	}
+
+	@Override
+	public int count() {
+		return versions.size();
 	}
 
 }

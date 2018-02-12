@@ -14,7 +14,12 @@ public class Projects extends RedmineAPIResponse {
 	}
 
 	public void setProjects(final List<Project> projects) {
-		this.projects.setAll(projects);
+		this.projects.addAll(projects);
+	}
+
+	@Override
+	public int count() {
+		return projects.size();
 	}
 
 }

@@ -30,4 +30,9 @@ public abstract class RedmineAPIResponse {
 		this.total_count = total_count;
 	}
 
+	public abstract int count();
+
+	public boolean hasNext() {
+		return count() < total_count;
+	}
 }

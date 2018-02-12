@@ -14,7 +14,12 @@ public class TimeEntries extends RedmineAPIResponse {
 	}
 
 	public void setTime_entries(final List<TimeEntry> time_entries) {
-		this.time_entries.setAll(time_entries);
+		this.time_entries.addAll(time_entries);
+	}
+
+	@Override
+	public int count() {
+		return time_entries.size();
 	}
 
 }

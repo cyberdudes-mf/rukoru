@@ -32,12 +32,27 @@ public abstract class RedmineAPIRequest {
 		this.offset = offset;
 	}
 
+	public void addOffset(final int offset) {
+		if (this.offset == null) {
+			this.offset = offset;
+		} else {
+			this.offset += offset;
+		}
+	}
+
 	public String getPath() {
 		return path;
 	}
 
 	protected WebTarget applyQueries(final WebTarget target) {
-		return target;
+		WebTarget t = target;
+		if (limit != null) {
+			t = t.queryParam("limit", limit);
+		}
+		if (offset != null) {
+			t = t.queryParam("offset", offset);
+		}
+		return t;
 	}
 
 	public WebTarget createTarget() {

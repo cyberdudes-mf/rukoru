@@ -1,6 +1,9 @@
 package hoshisugi.rukoru.app.models.redmine;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+
+import javax.ws.rs.client.WebTarget;
 
 public class TimeEntriesRequest extends RedmineAPIRequest {
 
@@ -46,6 +49,22 @@ public class TimeEntriesRequest extends RedmineAPIRequest {
 
 	public void setSpent_on_max(final LocalDate spent_on_max) {
 		this.spent_on_max = spent_on_max;
+	}
+
+	@Override
+	protected WebTarget applyQueries(final WebTarget target) {
+		WebTarget t = super.applyQueries(target);
+		if (user_id != null) {
+			t = t.queryParam("user_id", user_id);
+		}
+		if (project_id != null) {
+			t = t.queryParam("project_id", project_id);
+		}
+		if (spent_on_min != null && spent_on_max != null) {
+			final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+			t = t.queryParam("spent_on", String.format("><%x|%x", f.format(spent_on_min), f.format(spent_on_max)));
+		}
+		return t;
 	}
 
 }
