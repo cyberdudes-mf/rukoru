@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.view;
 
+import static hoshisugi.rukoru.app.enums.Preferences.Home.ImageUrl;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -8,6 +10,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.google.common.base.Strings;
+import com.google.inject.Inject;
+
+import hoshisugi.rukoru.app.models.settings.Preference;
+import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
@@ -22,6 +29,7 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -31,10 +39,17 @@ import javafx.scene.layout.Region;
 
 public class ContentController extends BaseController {
 
+	private static final String DEFAULT_IMAGE_URL = "https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg";
+
 	private final Map<Class<? extends BaseController>, Parent> contents = new HashMap<>();
 
 	@FXML
 	private AnchorPane layoutRoot;
+
+	@Inject
+	private LocalSettingService service;
+
+	private ImageView topImage;
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
@@ -47,13 +62,20 @@ public class ContentController extends BaseController {
 	}
 
 	public void showContent(final Class<? extends BaseController> controller) {
+		setContent(contents.get(controller));
+	}
+
+	public void showHome() {
+		setContent(topImage);
+	}
+
+	private void setContent(final Node node) {
 		layoutRoot.getChildren().clear();
-		final Parent content = contents.get(controller);
-		layoutRoot.getChildren().add(content);
-		AnchorPane.setTopAnchor(content, 0.0);
-		AnchorPane.setLeftAnchor(content, 0.0);
-		AnchorPane.setRightAnchor(content, 0.0);
-		AnchorPane.setBottomAnchor(content, 0.0);
+		layoutRoot.getChildren().add(node);
+		AnchorPane.setTopAnchor(node, 0.0);
+		AnchorPane.setLeftAnchor(node, 0.0);
+		AnchorPane.setRightAnchor(node, 0.0);
+		AnchorPane.setBottomAnchor(node, 0.0);
 	}
 
 	private void loadContent(final Class<? extends BaseController> controller) {
@@ -67,8 +89,7 @@ public class ContentController extends BaseController {
 
 	private void showTopImage() {
 		ConcurrentUtil.run(() -> {
-			final ImageView topImage = new ImageView(new Image(
-					"https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg"));
+			topImage = new ImageView(getImageUrl());
 			topImage.setPreserveRatio(true);
 			final BorderPane parent = (BorderPane) layoutRoot.getParent();
 			final Optional<ReadOnlyDoubleProperty> left = Optional.ofNullable(parent.getLeft()).map(Region.class::cast)
@@ -86,4 +107,19 @@ public class ContentController extends BaseController {
 		});
 	}
 
+	private String getImageUrl() {
+		try {
+			final Optional<Preference> preference = service.findPreferenceByCategoryAndKey(ImageUrl.getCategory(),
+					ImageUrl.getKey());
+			return preference.map(Preference::getValue).filter(v -> !Strings.isNullOrEmpty(v))
+					.orElse(DEFAULT_IMAGE_URL);
+		} catch (final Exception e) {
+			return DEFAULT_IMAGE_URL;
+		}
+	}
+
+	public void refreshTopImage() {
+		final Image image = new Image(getImageUrl());
+		Platform.runLater(() -> topImage.setImage(image));
+	}
 }
