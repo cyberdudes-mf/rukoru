@@ -1,7 +1,6 @@
 package hoshisugi.rukoru.app.view.ec2;
 
 import static hoshisugi.rukoru.framework.util.AssetUtil.getImage;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static javafx.beans.binding.Bindings.when;
 
 import java.net.URL;
@@ -11,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
@@ -44,7 +41,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -66,7 +62,7 @@ public class InstanceTabController extends BaseController {
 	private TableColumn<EC2Instance, String> stateColumn;
 
 	@FXML
-	private TableColumn<EC2Instance, EC2Instance> publicIpAddressColumn;
+	private TableColumn<EC2Instance, String> publicIpAddressColumn;
 
 	@FXML
 	private TableColumn<EC2Instance, EC2Instance> runAndStopColumn;
@@ -98,7 +94,6 @@ public class InstanceTabController extends BaseController {
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
 		stateColumn.setCellFactory(TextFillTableCell.forTableCellFactory(this::provideColor));
-		publicIpAddressColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
 		publicIpAddressColumn.setCellFactory(GraphicTableCell.forTableCellFactory(this::createPublicIpAddressButton));
 		autoStopColumn.setCellFactory(CheckBoxTableCell.forTableColumn(autoStopColumn));
 		runAndStopColumn.setCellValueFactory(GraphicTableCell.forTableCellValueFactory());
@@ -138,14 +133,7 @@ public class InstanceTabController extends BaseController {
 		final ClipboardContent content = new ClipboardContent();
 		content.putString(button.getText());
 		Clipboard.getSystemClipboard().setContent(content);
-		final Tooltip tooltip = new Tooltip("クリップボードにコピーしました。");
-		tooltip.setAutoHide(true);
-		tooltip.show(FXUtil.getStage(event));
-		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.schedule(() -> {
-			Platform.runLater(() -> tooltip.hide());
-			scheduler.shutdown();
-		}, 1000, MILLISECONDS);
+		FXUtil.showTooltip("クリップボードにコピーしました。", event);
 	}
 
 	private Button createImageButton(final EC2Instance entity) {
@@ -179,14 +167,13 @@ public class InstanceTabController extends BaseController {
 		return button;
 	}
 
-	private Button createPublicIpAddressButton(final EC2Instance entity) {
-		if (Strings.isNullOrEmpty(entity.getPublicIpAddress())) {
+	private Button createPublicIpAddressButton(final String publicIpAddress) {
+		if (Strings.isNullOrEmpty(publicIpAddress)) {
 			return null;
 		}
 		final Button button = new Button();
-		button.setText(entity.getPublicIpAddress());
+		button.setText(publicIpAddress);
 		button.setOnAction(this::onCopyButtonClick);
-		button.setUserData(entity);
 		return button;
 	}
 
