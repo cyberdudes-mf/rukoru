@@ -1,26 +1,31 @@
 package hoshisugi.rukoru.app.models.settings;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import hoshisugi.rukoru.app.enums.ExecutionType;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class DSSetting extends DBEntity {
 	private final StringProperty name = new SimpleStringProperty(this, "name");
-	private final StringProperty dsHome = new SimpleStringProperty(this, "dsHome");
-	private final IntegerProperty executionType = new SimpleIntegerProperty(this, "executionType");
+	private final StringProperty executionPath = new SimpleStringProperty(this, "executionPath");
+	private final StringProperty executionType = new SimpleStringProperty(this, "executionType");
+
+	public DSSetting() {
+
+	}
 
 	public DSSetting(final ResultSet rs) {
 		try {
 			setId(rs.getInt("id"));
 			setName(rs.getString("name"));
-			setDSHome(rs.getString("ds"));
-			setExecutionType(rs.getInt("execution"));
+			setExecutionPath(rs.getString("executionPath"));
+			setExecutionType(ExecutionType.of(rs.getString("executiontype")));
 			setCreatedAt(rs.getTimestamp("created_at"));
 			setUpdatedAt(rs.getTimestamp("updated_at"));
 		} catch (final SQLException e) {
@@ -36,19 +41,35 @@ public class DSSetting extends DBEntity {
 		this.name.set(name);
 	}
 
-	public String getDataSpiderHome() {
-		return dsHome.get();
+	public String getExecutionPath() {
+		return executionPath.get();
 	}
 
-	public void setDSHome(final String path) {
-		this.dsHome.set(path);
+	public void setExecutionPath(final String dsHome) {
+		this.executionPath.set(dsHome);
 	}
 
-	public int getExecutionType() {
+	public String getExecutionType() {
 		return executionType.get();
 	}
 
-	public void setExecutionType(final int execution) {
-		this.executionType.set(execution);
+	public void setExecutionType(final String executionType) {
+		this.executionType.set(executionType);
+	}
+
+	public StringProperty nameProperty() {
+		return name;
+	}
+
+	public StringProperty executionPathProperty() {
+		return executionPath;
+	}
+
+	public StringProperty executionTypeProperty() {
+		return executionType;
+	}
+
+	public boolean executionDisable() {
+		return Files.isExecutable(Paths.get(getExecutionPath()));
 	}
 }

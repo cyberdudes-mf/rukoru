@@ -23,6 +23,7 @@ import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerMenuController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTableController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTreeController;
+import hoshisugi.rukoru.app.view.settings.DSSettingsController;
 import hoshisugi.rukoru.framework.inject.ModuleConfigurator;
 
 public class RukoruModuleConfigurator extends ModuleConfigurator {
@@ -45,6 +46,7 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(S3ExplorerMenuController.class);
 		provide(S3ExplorerTreeController.class);
 		provide(S3ExplorerTableController.class);
+		provide(DSSettingsController.class);
 	}
 
 	private void configureServices() {
