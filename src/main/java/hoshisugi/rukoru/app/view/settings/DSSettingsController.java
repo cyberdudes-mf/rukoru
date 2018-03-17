@@ -67,7 +67,7 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
 		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		tableView.setItems(dssettings);
+		tableView.setItems(items);
 		loadSettings();
 	}
 

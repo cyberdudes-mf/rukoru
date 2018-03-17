@@ -39,14 +39,14 @@
 					maxWidth="1.7976931348623157E308" minWidth="240.0" prefWidth="240.0"
 					text="インストールディレクトリ">
 					<cellValueFactory>
-						<PropertyValueFactory property="state" />
+						<PropertyValueFactory property="executionPath" />
 					</cellValueFactory>
 				</TableColumn>
 				<TableColumn fx:id="executionTypeColumn" editable="false"
 					maxWidth="1.7976931348623157E308" minWidth="80.0" resizable="false"
 					text="起動方法">
 					<cellValueFactory>
-						<PropertyValueFactory property="updatedAt" />
+						<PropertyValueFactory property="executionType" />
 					</cellValueFactory>
 				</TableColumn>
 			</columns>
