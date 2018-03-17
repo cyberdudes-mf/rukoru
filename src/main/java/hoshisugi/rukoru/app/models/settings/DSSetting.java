@@ -17,17 +17,6 @@ public class DSSetting extends DBEntity {
 	private final StringProperty state = new SimpleStringProperty(this, "state");
 
 	public DSSetting() {
-
-	}
-
-	public DSSetting(final DSSetting ds) {
-		setId(ds.getId());
-		setName(ds.getName());
-		setExecutionPath(ds.getExecutionPath());
-		setExecutionType(ds.getExecutionType());
-		setCreatedAt(ds.getCreatedAt());
-		setUpdatedAt(ds.getUpdatedAt());
-		setState(DSSettingState.of(ds.getState()));
 	}
 
 	public DSSetting(final ResultSet rs) {

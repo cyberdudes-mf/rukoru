@@ -11,36 +11,26 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="hoshisugi.rukoru.app.view.settings.EntryDSController">
+<VBox xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.settings.EntryDSController">
 	<children>
 		<GridPane vgap="5.0">
 			<rowConstraints>
-				<RowConstraints minHeight="10.0" prefHeight="30.0"
-					vgrow="SOMETIMES" />
-				<RowConstraints minHeight="10.0" prefHeight="30.0"
-					vgrow="SOMETIMES" />
-				<RowConstraints minHeight="10.0" prefHeight="30.0"
-					vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
 			</rowConstraints>
 			<children>
 				<Label text="名前" />
-				<TextField fx:id="name" maxWidth="1.7976931348623157E308"
-					GridPane.columnIndex="1">
+				<TextField fx:id="name" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1">
 					<GridPane.margin>
 						<Insets />
 					</GridPane.margin>
 				</TextField>
 				<Label text="DS_HOME" GridPane.rowIndex="1" />
-				<TextField fx:id="executionPath" editable="false"
-					maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="205.0"
-					GridPane.columnIndex="1" GridPane.rowIndex="1" />
-				<Button fx:id="directoryChooserButton" mnemonicParsing="false"
-					onAction="#onDirectoryChooserButtonClick" GridPane.columnIndex="2"
-					GridPane.rowIndex="1" />
+				<TextField fx:id="executionPath" editable="false" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="205.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+				<Button fx:id="directoryChooserButton" mnemonicParsing="false" onAction="#onDirectoryChooserButtonClick" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 				<Label text="起動方法" GridPane.rowIndex="2" />
-				<ComboBox fx:id="executionType" maxWidth="1.7976931348623157E308"
-					GridPane.columnIndex="1" GridPane.rowIndex="2" />
+				<ComboBox fx:id="executionType" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 			</children>
 			<VBox.margin>
 				<Insets />
@@ -49,19 +39,15 @@
 				<Insets right="5.0" top="5.0" />
 			</padding>
 			<columnConstraints>
-				<ColumnConstraints maxWidth="64.0" minWidth="64.0"
-					prefWidth="64.0" />
+				<ColumnConstraints maxWidth="64.0" minWidth="64.0" prefWidth="64.0" />
 				<ColumnConstraints minWidth="-Infinity" prefWidth="230.0" />
-				<ColumnConstraints maxWidth="50.0" minWidth="50.0"
-					prefWidth="50.0" />
+				<ColumnConstraints maxWidth="50.0" minWidth="50.0" prefWidth="50.0" />
 			</columnConstraints>
 		</GridPane>
 		<ButtonBar prefHeight="40.0" prefWidth="200.0">
 			<buttons>
-				<Button fx:id="okButton" mnemonicParsing="false" onAction="#onOKButtonClick"
-					text="OK" />
-				<Button mnemonicParsing="false" onAction="#onCancelButtonClick"
-					text="Cancel" />
+				<Button fx:id="okButton" mnemonicParsing="false" text="OK" />
+				<Button mnemonicParsing="false" onAction="#onCancelButtonClick" text="Cancel" />
 			</buttons>
 		</ButtonBar>
 	</children>

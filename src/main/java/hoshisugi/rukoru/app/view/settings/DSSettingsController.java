@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import com.google.inject.Inject;
 
@@ -57,10 +58,6 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 	private final FilteredList<DSSetting> items = new FilteredList<>(dssettings,
 			dssetting -> dssetting.getState() != "Delete");
 
-	public ObservableList<DSSetting> getItems() {
-		return dssettings;
-	}
-
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
 		createButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/add.png")));
@@ -80,7 +77,8 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 
 	@FXML
 	private void onEntryButtonClick(final ActionEvent event) {
-		FXUtil.popup(EntryDSController.class, FXUtil.getStage(event));
+		final EntryDSController controller = FXUtil.popup(EntryDSController.class, FXUtil.getStage(event));
+		controller.setOnOkButtonClick(setting -> dssettings.add(setting));
 	}
 
 	@FXML
@@ -92,10 +90,8 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		if (!result.map(type -> type == ButtonType.OK).orElse(false)) {
 			return;
 		}
-		ConcurrentUtil.run(() -> {
-			selectedItems.stream().forEach(s -> s.setState(DSSettingState.Delete));
-			dssettings.replaceAll(DSSetting::new);
-		});
+		selectedItems.forEach(s -> s.setState(DSSettingState.Delete));
+		dssettings.replaceAll(UnaryOperator.identity());
 	}
 
 	@FXML

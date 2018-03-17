@@ -1,9 +1,9 @@
 package hoshisugi.rukoru.app.view.settings;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
-
-import com.google.inject.Inject;
+import java.util.function.Consumer;
 
 import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
@@ -38,9 +38,6 @@ public class EntryDSController extends BaseController {
 	@FXML
 	private Button okButton;
 
-	@Inject
-	private DSSettingsController controller;
-
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
 		executionType.getItems().addAll(ExecutionType.values());
@@ -53,26 +50,22 @@ public class EntryDSController extends BaseController {
 
 	@FXML
 	private void onDirectoryChooserButtonClick(final ActionEvent event) {
-		// DirectoryChooser 画面で「×」やらで落とすとなぜかフリーズする。解決策が見つからないのでいったんこれで。
-		try {
-			executionPath.setText(new DirectoryChooser().showDialog(FXUtil.getStage(event)).getAbsolutePath());
-		} catch (final Exception e) {
-			executionPath.setText("");
+		final File file = new DirectoryChooser().showDialog(FXUtil.getStage(event));
+		if (file != null) {
+			executionPath.setText(file.getAbsolutePath());
 		}
 	}
 
-	@FXML
-	private void onOKButtonClick(final ActionEvent event) {
-		final DSSetting setting = new DSSetting();
-		setting.setName(name.getText());
-		setting.setExecutionPath(executionPath.getText());
-		setting.setExecutionType(executionType.getSelectionModel().getSelectedItem().toString());
-		setting.setState(DSSettingState.Insert);
-		System.out.println(controller.getItems().size());
-		controller.getItems().add(setting);
-		System.out.println(controller.getItems().size());
-
-		FXUtil.getStage(event).close();
+	public void setOnOkButtonClick(final Consumer<DSSetting> consumer) {
+		okButton.setOnAction(e -> {
+			final DSSetting setting = new DSSetting();
+			setting.setName(name.getText());
+			setting.setExecutionPath(executionPath.getText());
+			setting.setExecutionType(executionType.getSelectionModel().getSelectedItem().toString());
+			setting.setState(DSSettingState.Insert);
+			consumer.accept(setting);
+			FXUtil.getStage(e).close();
+		});
 	}
 
 	@FXML
