@@ -27,6 +27,7 @@ import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
@@ -35,6 +36,7 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.common.base.Strings;
@@ -65,7 +67,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 
 	@Override
 	public S3Bucket createBucket(final String bucketName) {
-		final AmazonS3 client = createClient();
+		final AmazonS3 client = createDefaultClient();
 		final Bucket bucket = client.createBucket(bucketName);
 		return client.listBuckets().stream().filter(b -> b.getName().equals(bucketName)).map(S3Bucket::new).findFirst()
 				.orElseGet(() -> new S3Bucket(bucket));
@@ -73,13 +75,13 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 
 	@Override
 	public void deleteBucket(final S3Bucket bucket) {
-		final AmazonS3 client = createClient();
+		final AmazonS3 client = createClient(bucket.getBucketName());
 		client.deleteBucket(bucket.getBucketName());
 	}
 
 	@Override
 	public void deleteObject(final S3Item item) {
-		final AmazonS3 client = createClient();
+		final AmazonS3 client = createClient(item.getBucketName());
 		if (!item.isContainer()) {
 			client.deleteObject(item.getBucketName(), item.getKey());
 		} else {
@@ -95,7 +97,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		if (!key.endsWith(DELIMITER)) {
 			throw new IllegalArgumentException("The key must be end with \"/\".");
 		}
-		final AmazonS3 client = createClient();
+		final AmazonS3 client = createClient(bucketName);
 		final ByteArrayInputStream emptyInputStream = new ByteArrayInputStream(new byte[0]);
 		final ObjectMetadata metadata = new ObjectMetadata();
 		metadata.setContentLength(0);
@@ -107,7 +109,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 
 	@Override
 	public AsyncResult downloadObject(final S3Item item, final Path destination) throws IOException {
-		final AmazonS3 client = createClient();
+		final AmazonS3 client = createClient(item.getBucketName());
 		final GetObjectRequest request = new GetObjectRequest(item.getBucketName(), item.getKey());
 		final com.amazonaws.services.s3.model.S3Object object = client.getObject(request);
 
@@ -140,7 +142,7 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		if (!Files.exists(path)) {
 			throw new IllegalArgumentException("File does not exist.");
 		}
-		final AmazonS3 client = createClient();
+		final AmazonS3 client = createClient(bucketName);
 		final ObjectMetadata metadata = new ObjectMetadata();
 		metadata.setContentLength(Files.size(path));
 
@@ -170,20 +172,19 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 	@Override
 	public S3Item copyObject(final String sourceBucketName, final String sourceKey, final String destinationBucketName,
 			final String destinationKey) {
-		final AmazonS3 client = createClient();
-		listObjects(client, sourceBucketName, sourceKey, result -> {
+		final AmazonS3 srcClient = createClient(sourceBucketName);
+		final AmazonS3 destClient = createClient(destinationBucketName);
+		listObjects(srcClient, sourceBucketName, sourceKey, result -> {
 			result.getObjectSummaries().stream().forEach(s -> {
 				final String key = s.getKey().replaceAll(sourceKey, destinationKey);
 				final CopyObjectRequest request = new CopyObjectRequest(s.getBucketName(), s.getKey(),
 						destinationBucketName, key);
-				client.copyObject(request);
+				destClient.copyObject(request);
 			});
 		});
-		final ListObjectsRequest request = new ListObjectsRequest();
-		request.setBucketName(destinationBucketName);
-		request.setPrefix(destinationKey);
-		request.setDelimiter(S3Item.DELIMITER);
-		final ObjectListing listObjects = client.listObjects(request);
+		final ListObjectsRequest request = new ListObjectsRequest().withBucketName(destinationBucketName)
+				.withPrefix(destinationKey).withDelimiter(S3Item.DELIMITER).withMaxKeys(1);
+		final ObjectListing listObjects = destClient.listObjects(request);
 		final S3Item item = listObjects.getObjectSummaries().stream().filter(s -> s.getKey().equals(destinationKey))
 				.map(s -> isObject(s) ? new S3Object(s) : new S3Folder(s.getBucketName(), s.getKey())).findFirst()
 				.get();
@@ -197,16 +198,16 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 	public S3Item moveObject(final String sourceBucketName, final String sourceKey, final String destinationBucketName,
 			final String destinationKey) {
 		final S3Item item = copyObject(sourceBucketName, sourceKey, destinationBucketName, destinationKey);
-		final AmazonS3 client = createClient();
-		listObjects(client, sourceBucketName, sourceKey, result -> {
-			result.getObjectSummaries().stream().forEach(s -> client.deleteObject(s.getBucketName(), s.getKey()));
+		final AmazonS3 srcClient = createClient(sourceBucketName);
+		listObjects(srcClient, sourceBucketName, sourceKey, result -> {
+			result.getObjectSummaries().stream().forEach(s -> srcClient.deleteObject(s.getBucketName(), s.getKey()));
 		});
 		return item;
 	}
 
 	@Override
 	public void publishObject(final S3Item item) {
-		final AmazonS3 client = createClient();
+		final AmazonS3 client = createClient(item.getBucketName());
 		if (item.getType() == S3Item.Type.Bucket) {
 			client.setBucketAcl(item.getBucketName(), PublicRead);
 		} else if (item.isContainer()) {
@@ -218,13 +219,27 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 		}
 	}
 
-	private AmazonS3 createClient() {
+	private AmazonS3 createClient(final String bucketName) {
+		final AmazonS3 client = createDefaultClient();
+		final Region region = Region.fromValue(client.getBucketLocation(bucketName));
+		final Regions regions = Regions.fromName(region.toAWSRegion().getName());
+		if (regions == AP_NORTHEAST_1) {
+			return client;
+		}
+		return createClient(regions);
+	}
+
+	private AmazonS3 createClient(final Regions regions) {
 		final AWSCredentialsProvider provider = Credential.get().createCredentialsProvider();
-		return AmazonS3ClientBuilder.standard().withCredentials(provider).withRegion(AP_NORTHEAST_1).build();
+		return AmazonS3ClientBuilder.standard().withCredentials(provider).withRegion(regions).build();
+	}
+
+	private AmazonS3 createDefaultClient() {
+		return createClient(AP_NORTHEAST_1);
 	}
 
 	private void updateBuckets(final S3Root item) {
-		final AmazonS3 client = createClient();
+		final AmazonS3 client = createDefaultClient();
 		final List<S3Bucket> buckets = client.listBuckets().stream().map(S3Bucket::new).collect(Collectors.toList());
 		item.getItems().setAll(buckets);
 		buckets.stream().forEach(i -> ConcurrentUtil.run(() -> updateItems(i)));
@@ -279,7 +294,8 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 	}
 
 	private void listObjects(final S3Item item, final Consumer<ObjectListing> consumer) {
-		listObjects(createClient(), item, consumer);
+		final AmazonS3 client = createClient(item.getBucketName());
+		listObjects(client, item, consumer);
 	}
 
 	private void listObjects(final AmazonS3 client, final S3Item item, final Consumer<ObjectListing> consumer) {
