@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 
 import hoshisugi.rukoru.app.models.settings.DSSetting;
 import hoshisugi.rukoru.framework.base.BaseController;
+import hoshisugi.rukoru.framework.cli.CLI;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -42,7 +43,7 @@ public class DSEntryController extends BaseController {
 
 	@FXML
 	private void onOpenHomeButtonClick(final ActionEvent event) {
-
+		CLI.command("explorer").options(dsSetting.getExecutionPath()).execute();
 	}
 
 	@FXML
