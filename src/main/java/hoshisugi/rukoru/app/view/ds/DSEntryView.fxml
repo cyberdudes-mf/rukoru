@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+
+<HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.ds.DSEntryController">
+   <children>
+      <Button fx:id="openHomeButton" mnemonicParsing="false" onAction="#onOpenHomeButtonClick" />
+      <Label fx:id="name" maxWidth="1.7976931348623157E308" prefWidth="300.0" />
+      <ToggleButton fx:id="controlServerButton" mnemonicParsing="false" onAction="#onControlServerButtonClick" text="Server" />
+      <ToggleButton fx:id="controlStudioButton" mnemonicParsing="false" onAction="#onControlStudioButtonClick" text="Studio" />
+      <ToggleButton fx:id="controlAllButton" mnemonicParsing="false" onAction="#onControlAllButtonClick" text="Server &amp; Studio" />
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+</HBox>

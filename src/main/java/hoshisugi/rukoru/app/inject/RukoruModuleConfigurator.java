@@ -15,6 +15,7 @@ import hoshisugi.rukoru.app.services.settings.LocalSettingServiceImpl;
 import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.app.view.MainController;
 import hoshisugi.rukoru.app.view.ToolBarController;
+import hoshisugi.rukoru.app.view.ds.DSContentController;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.ec2.ImageTabController;
 import hoshisugi.rukoru.app.view.ec2.InstanceTabController;
@@ -38,6 +39,7 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(MainController.class);
 		provide(ContentController.class);
 		provide(ToolBarController.class);
+		provide(DSContentController.class);
 		provide(EC2ContentController.class);
 		provide(RepositoryDBContentController.class);
 		provide(S3ExplorerController.class);

@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
+import hoshisugi.rukoru.app.view.ds.DSContentController;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
@@ -34,6 +35,9 @@ public class ToolBarController extends BaseController {
 	private Button testPortalButton;
 
 	@FXML
+	private ToggleButton dsButton;
+
+	@FXML
 	private ToggleButton ec2Button;
 
 	@FXML
@@ -55,6 +59,7 @@ public class ToolBarController extends BaseController {
 	public void initialize(final URL url, final ResourceBundle resource) {
 		mcButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/AWS.png")));
 		testPortalButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DS.png")));
+		dsButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DS.png")));
 		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/EC2.png")));
 		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DB.png")));
 		s3Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/S3.png")));
@@ -75,6 +80,11 @@ public class ToolBarController extends BaseController {
 	@FXML
 	private void onTestPortalButtonClick(final ActionEvent event) throws Exception {
 		BrowserUtil.browse(String.format("http://front.dataspidercloud.tokyo/"));
+	}
+
+	@FXML
+	private void onDSButtonClick(final ActionEvent event) {
+		contentController.showContent(DSContentController.class);
 	}
 
 	@FXML
