@@ -5,8 +5,10 @@ import static hoshisugi.rukoru.framework.database.builder.InsertBuilder.into;
 import static hoshisugi.rukoru.framework.database.builder.SelectBuilder.from;
 import static hoshisugi.rukoru.framework.database.builder.UpdateBuilder.table;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import hoshisugi.rukoru.app.enums.ExecutionType;
+import hoshisugi.rukoru.app.enums.Preferences;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Preference;
@@ -26,7 +29,6 @@ import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
 import hoshisugi.rukoru.framework.database.builder.DeleteBuilder;
 import hoshisugi.rukoru.framework.database.builder.InsertBuilder;
 import hoshisugi.rukoru.framework.database.builder.SelectBuilder;
-import hoshisugi.rukoru.framework.database.builder.UpdateBuilder;
 
 public class LocalSettingServiceImpl extends BaseService implements LocalSettingService {
 
@@ -149,24 +151,22 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	@Override
-	public Optional<Preference> findPreferenceByCategoryAndKey(final String category, final String key)
-			throws SQLException {
+	public Optional<Preference> findPreference(final Preferences preference) throws SQLException {
 		try (H2Database h2 = new H2Database()) {
 			if (!h2.exists("PREFERENCES")) {
 				return Optional.empty();
 			}
-			return h2.find(from("preferences").where($("category", category), $("key", key)), Preference::new);
+			return h2.find(
+					from("preferences").where($("category", preference.getCategory()), $("key", preference.getKey())),
+					Preference::new);
 		}
 	}
 
 	@Override
 	public void saveDSSettings(final List<DSSetting> settings) throws SQLException {
 		try (final H2Database h2 = new H2Database()) {
-			final int sequence = getDSSettingsSequence(h2);
-			if (sequence == 0) {
-				h2.create(CreateBuilder.table("ds_settings_sequence"));
-			}
 			if (!h2.exists("DS_SETTINGS")) {
+				h2.create(CreateBuilder.table("ds_settings_sequence"));
 				h2.create(CreateBuilder.table("ds_settings"));
 			}
 
@@ -183,12 +183,12 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 
 			updateDSSettingsToDSSettings(h2, updateSettings);
 
-			updateDSSettingsToPreference(h2);
+			for (final DSSetting setting : insertSettings) {
+				final int sequence = getDSSettingsSequence(h2);
+				insertDSSettingsToDSSettings(h2, setting, sequence);
 
-			insertDSSettingsToDSSettings(h2, insertSettings);
-
-			insertDSSettingsToPreference(h2, insertSettings, sequence);
-
+				insertDSSettingsToPreference(h2, setting, sequence);
+			}
 		}
 	}
 
@@ -218,36 +218,20 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		}
 	}
 
-	private void insertDSSettingsToDSSettings(final H2Database h2, final List<DSSetting> insertSettings)
+	private void insertDSSettingsToDSSettings(final H2Database h2, final DSSetting setting, final int sequence)
 			throws SQLException {
-		for (final DSSetting setting : insertSettings) {
-			h2.insert(into("ds_settings").values($("name", setting.getName()),
-					$("executionpath", setting.getExecutionPath()),
-					$("executiontype", ExecutionType.toId(setting.getExecutionType()))));
-		}
+		h2.insert(into("ds_settings").values($("id", sequence), $("name", setting.getName()),
+				$("executionpath", setting.getExecutionPath()),
+				$("executiontype", ExecutionType.toId(setting.getExecutionType()))));
 	}
 
-	private void updateDSSettingsToPreference(final H2Database h2) throws SQLException {
-		final List<DSSetting> settings = h2.select(SelectBuilder.query("select * from ds_settings order by id ASC"),
-				DSSetting::new);
-		for (int index = 0; index < settings.size(); index++) {
-			if (!findPreferenceByCategoryAndKey("DSSetting", index + "").isPresent()) {
-				h2.update(UpdateBuilder.table("preferences").set($("key", index + ""))
-						.where($("value", settings.get(index).getId())));
-			}
-		}
-	}
-
-	private void insertDSSettingsToPreference(final H2Database h2, final List<DSSetting> insertSettings, int sequence)
+	private void insertDSSettingsToPreference(final H2Database h2, final DSSetting setting, final int sequence)
 			throws SQLException {
-		final List<Preference> preferences = new ArrayList<>();
-		final int seq = getPreferencesByCategory("DSSetting").values().size();
-		for (int index = 0; index < insertSettings.size(); index++) {
-			final Preference p = new Preference("DSSetting", index + seq + "");
-			p.setValue("" + ++sequence);
-			preferences.add(p);
-		}
-		savePreferences(preferences);
+		final Optional<Integer> nextKey = h2
+				.find(SelectBuilder.query("select MAX(key) from preferences where category='DSSetting'"), this::getInt);
+		final Preference p = new Preference("DSSetting", nextKey.get().toString());
+		p.setValue(Integer.toString(sequence));
+		savePreferences(Arrays.asList(p));
 	}
 
 	private void deleteDSSettings(final H2Database h2, final List<DSSetting> deleteSettings) throws SQLException {
@@ -256,6 +240,14 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 					.where($("id", setting.getId() != null ? setting.getId() + "" : "0")));
 			h2.delete(DeleteBuilder.from("preferences").where($("category", "DSSetting"),
 					$("value", setting.getId() + "")));
+		}
+	}
+
+	private int getInt(final ResultSet rs) {
+		try {
+			return rs.getInt(1);
+		} catch (final SQLException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

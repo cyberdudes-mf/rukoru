@@ -34,14 +34,6 @@ public class DSEntryController extends BaseController {
 
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
-		// openHomeButton.setGraphic(new
-		// ImageView(AssetUtil.getImage("24x24/add.png")));
-		// controlServerButton.setGraphic(new
-		// ImageView(AssetUtil.getImage("24x24/add.png")));
-		// controlStudioButton.setGraphic(new
-		// ImageView(AssetUtil.getImage("24x24/add.png")));
-		// controlAllButton.setGraphic(new
-		// ImageView(AssetUtil.getImage("24x24/add.png")));
 		openHomeButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/icon.png")));
 		controlServerButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/icon.png")));
 		controlStudioButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/icon.png")));
@@ -50,7 +42,7 @@ public class DSEntryController extends BaseController {
 
 	@FXML
 	private void onOpenHomeButtonClick(final ActionEvent event) {
-		System.out.println("onOpenHomeButtonClick");
+
 	}
 
 	@FXML

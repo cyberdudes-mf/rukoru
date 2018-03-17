@@ -1,6 +1,6 @@
 package hoshisugi.rukoru.app.view;
 
-import static hoshisugi.rukoru.app.enums.Preferences.Home.ImageUrl;
+import static hoshisugi.rukoru.app.enums.Preferences.HomeImageUrl;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -39,8 +39,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 
 public class ContentController extends BaseController {
-
-	private static final String DEFAULT_IMAGE_URL = "https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg";
 
 	private final Map<Class<? extends BaseController>, Parent> contents = new HashMap<>();
 
@@ -111,12 +109,11 @@ public class ContentController extends BaseController {
 
 	private String getImageUrl() {
 		try {
-			final Optional<Preference> preference = service.findPreferenceByCategoryAndKey(ImageUrl.getCategory(),
-					ImageUrl.getKey());
+			final Optional<Preference> preference = service.findPreference(HomeImageUrl);
 			return preference.map(Preference::getValue).filter(v -> !Strings.isNullOrEmpty(v))
-					.orElse(DEFAULT_IMAGE_URL);
+					.orElse(HomeImageUrl.getDefaultValue());
 		} catch (final Exception e) {
-			return DEFAULT_IMAGE_URL;
+			return HomeImageUrl.getDefaultValue();
 		}
 	}
 

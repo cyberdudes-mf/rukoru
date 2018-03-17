@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import hoshisugi.rukoru.app.enums.Preferences;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Preference;
@@ -27,7 +28,7 @@ public interface LocalSettingService {
 
 	Map<String, Preference> getPreferencesByCategory(String category) throws SQLException;
 
-	Optional<Preference> findPreferenceByCategoryAndKey(String category, String key) throws SQLException;
+	Optional<Preference> findPreference(Preferences preference) throws SQLException;
 
 	void savePreferences(Collection<Preference> preferences) throws SQLException;
 }
