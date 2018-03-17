@@ -1,7 +1,6 @@
 package hoshisugi.rukoru.app.models.s3;
 
 import java.util.Comparator;
-import java.util.Date;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -25,7 +24,7 @@ public abstract class S3Item {
 	private final StringProperty bucketName = new SimpleStringProperty(this, "bucketName");
 	private final StringProperty key = new SimpleStringProperty(this, "key");
 	private final StringProperty name = new SimpleStringProperty(this, "name");
-	private final ObjectProperty<Date> lastModified = new SimpleObjectProperty<>(this, "lastModified");
+	private final StringProperty lastModified = new SimpleStringProperty(this, "lastModified");
 	private final ObjectProperty<Long> size = new SimpleObjectProperty<>(this, "size");
 	private final StringProperty storageClass = new SimpleStringProperty(this, "storageClass");
 	private final StringProperty owner = new SimpleStringProperty(this, "owner");
@@ -73,11 +72,11 @@ public abstract class S3Item {
 		}
 	}
 
-	public Date getLastModified() {
+	public String getLastModified() {
 		return lastModified.get();
 	}
 
-	public void setLastModified(final Date lastModified) {
+	public void setLastModified(final String lastModified) {
 		this.lastModified.set(lastModified);
 	}
 
@@ -125,7 +124,7 @@ public abstract class S3Item {
 		return name;
 	}
 
-	public ObjectProperty<Date> lastModifiedProperty() {
+	public StringProperty lastModifiedProperty() {
 		return lastModified;
 	}
 
