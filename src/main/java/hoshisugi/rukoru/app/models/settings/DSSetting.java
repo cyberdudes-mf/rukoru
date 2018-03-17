@@ -1,12 +1,11 @@
 package hoshisugi.rukoru.app.models.settings;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
+import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -15,9 +14,20 @@ public class DSSetting extends DBEntity {
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 	private final StringProperty executionPath = new SimpleStringProperty(this, "executionPath");
 	private final StringProperty executionType = new SimpleStringProperty(this, "executionType");
+	private final StringProperty state = new SimpleStringProperty(this, "state");
 
 	public DSSetting() {
 
+	}
+
+	public DSSetting(final DSSetting ds) {
+		setId(ds.getId());
+		setName(ds.getName());
+		setExecutionPath(ds.getExecutionPath());
+		setExecutionType(ds.getExecutionType());
+		setCreatedAt(ds.getCreatedAt());
+		setUpdatedAt(ds.getUpdatedAt());
+		setState(DSSettingState.of(ds.getState()));
 	}
 
 	public DSSetting(final ResultSet rs) {
@@ -28,6 +38,7 @@ public class DSSetting extends DBEntity {
 			setExecutionType(ExecutionType.of(rs.getString("executiontype")));
 			setCreatedAt(rs.getTimestamp("created_at"));
 			setUpdatedAt(rs.getTimestamp("updated_at"));
+			setState(DSSettingState.Update);
 		} catch (final SQLException e) {
 			throw new UncheckedExecutionException(e);
 		}
@@ -57,6 +68,14 @@ public class DSSetting extends DBEntity {
 		this.executionType.set(executionType);
 	}
 
+	public String getState() {
+		return state.get();
+	}
+
+	public void setState(final DSSettingState state) {
+		this.state.set(state.toString());
+	}
+
 	public StringProperty nameProperty() {
 		return name;
 	}
@@ -69,7 +88,7 @@ public class DSSetting extends DBEntity {
 		return executionType;
 	}
 
-	public boolean executionDisable() {
-		return Files.isExecutable(Paths.get(getExecutionPath()));
+	public StringProperty stateProperty() {
+		return state;
 	}
 }

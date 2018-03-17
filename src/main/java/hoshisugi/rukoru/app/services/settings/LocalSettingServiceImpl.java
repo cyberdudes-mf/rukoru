@@ -6,6 +6,7 @@ import static hoshisugi.rukoru.framework.database.builder.SelectBuilder.from;
 import static hoshisugi.rukoru.framework.database.builder.UpdateBuilder.table;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -14,13 +15,18 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.models.settings.Credential;
+import hoshisugi.rukoru.app.models.settings.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.database.builder.Column;
 import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
+import hoshisugi.rukoru.framework.database.builder.DeleteBuilder;
 import hoshisugi.rukoru.framework.database.builder.InsertBuilder;
+import hoshisugi.rukoru.framework.database.builder.SelectBuilder;
+import hoshisugi.rukoru.framework.database.builder.UpdateBuilder;
 
 public class LocalSettingServiceImpl extends BaseService implements LocalSettingService {
 
@@ -153,4 +159,113 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		}
 	}
 
+	@Override
+	public void saveDSSettings(final List<DSSetting> settings) throws SQLException {
+		try (final H2Database h2 = new H2Database()) {
+			final int sequence = getDSSettingsSequence(h2);
+			if (sequence == 0) {
+				h2.create(CreateBuilder.table("ds_settings_sequence"));
+			}
+			if (!h2.exists("DS_SETTINGS")) {
+				h2.create(CreateBuilder.table("ds_settings"));
+			}
+
+			final List<DSSetting> insertSettings = settings.stream().filter(t -> t.getState().equals("Insert"))
+					.collect(Collectors.toList());
+
+			final List<DSSetting> updateSettings = settings.stream().filter(t -> t.getState().equals("Update"))
+					.collect(Collectors.toList());
+
+			final List<DSSetting> deleteSettings = settings.stream().filter(t -> t.getState().equals("Delete"))
+					.collect(Collectors.toList());
+
+			deleteDSSettings(h2, deleteSettings);
+
+			updateDSSettingsToDSSettings(h2, updateSettings);
+
+			updateDSSettingsToPreference(h2);
+
+			insertDSSettingsToDSSettings(h2, insertSettings);
+
+			insertDSSettingsToPreference(h2, insertSettings, sequence);
+
+		}
+	}
+
+	private int getDSSettingsSequence(final H2Database h2) throws SQLException {
+		int sequence = 0;
+		try {
+			sequence = h2.select(from("ds_settings_sequence"), rs -> {
+				try {
+					return rs.getInt(1);
+				} catch (final SQLException e) {
+					return 0;
+				}
+			}).get(0);
+		} catch (final SQLException e) {
+			return sequence;
+		}
+		return sequence;
+	}
+
+	private void updateDSSettingsToDSSettings(final H2Database h2, final List<DSSetting> updateSettings)
+			throws SQLException {
+		for (final DSSetting setting : updateSettings) {
+			h2.update(table("ds_settings")
+					.set($("name", setting.getName()), $("executionpath", setting.getExecutionPath()),
+							$("executiontype", ExecutionType.toId(setting.getExecutionType())))
+					.where($("id", setting.getId()), $("updated_at", setting.getUpdatedAt())));
+		}
+	}
+
+	private void insertDSSettingsToDSSettings(final H2Database h2, final List<DSSetting> insertSettings)
+			throws SQLException {
+		for (final DSSetting setting : insertSettings) {
+			h2.insert(into("ds_settings").values($("name", setting.getName()),
+					$("executionpath", setting.getExecutionPath()),
+					$("executiontype", ExecutionType.toId(setting.getExecutionType()))));
+		}
+	}
+
+	private void updateDSSettingsToPreference(final H2Database h2) throws SQLException {
+		final List<DSSetting> settings = h2.select(SelectBuilder.query("select * from ds_settings order by id ASC"),
+				DSSetting::new);
+		for (int index = 0; index < settings.size(); index++) {
+			if (!findPreferenceByCategoryAndKey("DSSetting", index + "").isPresent()) {
+				h2.update(UpdateBuilder.table("preferences").set($("key", index + ""))
+						.where($("value", settings.get(index).getId())));
+			}
+		}
+	}
+
+	private void insertDSSettingsToPreference(final H2Database h2, final List<DSSetting> insertSettings, int sequence)
+			throws SQLException {
+		final List<Preference> preferences = new ArrayList<>();
+		final int seq = getPreferencesByCategory("DSSetting").values().size();
+		for (int index = 0; index < insertSettings.size(); index++) {
+			final Preference p = new Preference("DSSetting", index + seq + "");
+			p.setValue("" + ++sequence);
+			preferences.add(p);
+		}
+		savePreferences(preferences);
+	}
+
+	private void deleteDSSettings(final H2Database h2, final List<DSSetting> deleteSettings) throws SQLException {
+		for (final DSSetting setting : deleteSettings) {
+			h2.delete(DeleteBuilder.from("ds_settings")
+					.where($("id", setting.getId() != null ? setting.getId() + "" : "0")));
+			h2.delete(DeleteBuilder.from("preferences").where($("category", "DSSetting"),
+					$("value", setting.getId() + "")));
+		}
+	}
+
+	@Override
+	public List<DSSetting> loadDSSettings() throws SQLException {
+		try (final H2Database h2 = new H2Database()) {
+			if (!h2.exists("DS_SETTINGS")) {
+				return new ArrayList<>();
+			}
+			return h2.select(from("ds_settings"), DSSetting::new);
+		}
+	}
 }

@@ -1,0 +1,1 @@
+create sequence ds_settings_id_seq;

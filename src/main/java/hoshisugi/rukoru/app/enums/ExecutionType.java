@@ -10,8 +10,10 @@ public enum ExecutionType {
 	private final String id;
 	private final String value;
 
-	private static final Map<String, String> index = Stream.of(values())
+	private static final Map<String, String> idIndex = Stream.of(values())
 			.collect(Collectors.toMap(ExecutionType::getId, ExecutionType::toString));
+	private static final Map<String, String> valueIndex = Stream.of(values())
+			.collect(Collectors.toMap(ExecutionType::toString, ExecutionType::getId));
 
 	private ExecutionType(final String id, final String value) {
 		this.id = id;
@@ -28,6 +30,10 @@ public enum ExecutionType {
 	}
 
 	public static String of(final String id) {
-		return index.get(id);
+		return idIndex.get(id);
+	}
+
+	public static String toId(final String value) {
+		return valueIndex.get(value);
 	}
 }

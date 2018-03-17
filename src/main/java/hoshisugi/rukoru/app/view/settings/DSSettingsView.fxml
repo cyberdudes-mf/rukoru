@@ -28,7 +28,7 @@
 			maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT"
 			VBox.vgrow="ALWAYS">
 			<columns>
-				<TableColumn fx:id="nameColumn" editable="false"
+				<TableColumn fx:id="nameColumn" 
 					maxWidth="1.7976931348623157E308" minWidth="200.0" prefWidth="200.0"
 					text="名前">
 					<cellValueFactory>
@@ -39,14 +39,14 @@
 					maxWidth="1.7976931348623157E308" minWidth="240.0" prefWidth="240.0"
 					text="インストールディレクトリ">
 					<cellValueFactory>
-						<PropertyValueFactory property="executionPath" />
+						<PropertyValueFactory property="state" />
 					</cellValueFactory>
 				</TableColumn>
 				<TableColumn fx:id="executionTypeColumn" editable="false"
 					maxWidth="1.7976931348623157E308" minWidth="80.0" resizable="false"
 					text="起動方法">
 					<cellValueFactory>
-						<PropertyValueFactory property="executionType" />
+						<PropertyValueFactory property="updatedAt" />
 					</cellValueFactory>
 				</TableColumn>
 			</columns>

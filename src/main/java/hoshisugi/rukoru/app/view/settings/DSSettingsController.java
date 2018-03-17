@@ -3,8 +3,13 @@ package hoshisugi.rukoru.app.view.settings;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 
+import com.google.inject.Inject;
+
+import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.models.settings.DSSetting;
+import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
@@ -13,6 +18,7 @@ import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -24,6 +30,9 @@ import javafx.scene.image.ImageView;
 
 @FXController(title = "DSSetting")
 public class DSSettingsController extends BaseController implements PreferenceContent {
+
+	@Inject
+	private LocalSettingService service;
 
 	@FXML
 	private Button createButton;
@@ -43,10 +52,13 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 	@FXML
 	private TableColumn<DSSetting, String> executionTypeColumn;
 
-	private final ObservableList<DSSetting> items = FXCollections.observableArrayList();
+	private final ObservableList<DSSetting> dssettings = FXCollections.observableArrayList();
+
+	private final FilteredList<DSSetting> items = new FilteredList<>(dssettings,
+			dssetting -> dssetting.getState() != "Delete");
 
 	public ObservableList<DSSetting> getItems() {
-		return items;
+		return dssettings;
 	}
 
 	@Override
@@ -55,11 +67,15 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
 		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		tableView.setItems(items);
+		tableView.setItems(dssettings);
+		loadSettings();
 	}
 
-	@Override
-	public void apply() {
+	private void loadSettings() {
+		ConcurrentUtil.run(() -> {
+			dssettings.clear();
+			dssettings.addAll(service.loadDSSettings());
+		});
 	}
 
 	@FXML
@@ -76,9 +92,9 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		if (!result.map(type -> type == ButtonType.OK).orElse(false)) {
 			return;
 		}
-
 		ConcurrentUtil.run(() -> {
-			items.removeAll(selectedItems);
+			selectedItems.stream().forEach(s -> s.setState(DSSettingState.Delete));
+			dssettings.replaceAll(DSSetting::new);
 		});
 	}
 
@@ -87,7 +103,13 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		apply();
 	}
 
-	void add(final DSSetting setting) {
-		items.add(setting);
+	@Override
+	public void apply() {
+		final Predicate<DSSetting> p = t -> t.getState() == "Delete";
+		ConcurrentUtil.run(() -> {
+			service.saveDSSettings(dssettings);
+			dssettings.removeAll(dssettings.filtered(p));
+			dssettings.forEach(s -> s.setState(DSSettingState.Update));
+		});
 	}
 }

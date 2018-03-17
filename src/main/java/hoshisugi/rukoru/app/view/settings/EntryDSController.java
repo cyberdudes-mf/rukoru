@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
+import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.models.settings.DSSetting;
 import hoshisugi.rukoru.framework.annotations.FXController;
@@ -63,11 +64,14 @@ public class EntryDSController extends BaseController {
 	@FXML
 	private void onOKButtonClick(final ActionEvent event) {
 		final DSSetting setting = new DSSetting();
-		setting.setId(controller.getItems().size() + 1);
 		setting.setName(name.getText());
 		setting.setExecutionPath(executionPath.getText());
 		setting.setExecutionType(executionType.getSelectionModel().getSelectedItem().toString());
+		setting.setState(DSSettingState.Insert);
+		System.out.println(controller.getItems().size());
 		controller.getItems().add(setting);
+		System.out.println(controller.getItems().size());
+
 		FXUtil.getStage(event).close();
 	}
 
