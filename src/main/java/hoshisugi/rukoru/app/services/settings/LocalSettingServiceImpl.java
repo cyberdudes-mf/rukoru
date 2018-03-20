@@ -165,6 +165,9 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	@Override
 	public void saveDSSettings(final List<DSSetting> settings) throws SQLException {
 		try (final H2Database h2 = new H2Database()) {
+			if (!h2.exists("PREFERENCES")) {
+				h2.create(CreateBuilder.table("PREFERENCES"));
+			}
 			if (!h2.exists("DS_SETTINGS")) {
 				h2.create(CreateBuilder.table("ds_settings_sequence"));
 				h2.create(CreateBuilder.table("ds_settings"));
@@ -184,28 +187,16 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			updateDSSettingsToDSSettings(h2, updateSettings);
 
 			for (final DSSetting setting : insertSettings) {
-				final int sequence = getDSSettingsSequence(h2);
+				final String sequence = Integer.toString(getDSSettingsSequence(h2));
 				insertDSSettingsToDSSettings(h2, setting, sequence);
 
-				insertDSSettingsToPreference(h2, setting, sequence);
+				insertDSSettingsToPreferences(h2, setting, sequence);
 			}
 		}
 	}
 
 	private int getDSSettingsSequence(final H2Database h2) throws SQLException {
-		int sequence = 0;
-		try {
-			sequence = h2.select(from("ds_settings_sequence"), rs -> {
-				try {
-					return rs.getInt(1);
-				} catch (final SQLException e) {
-					return 0;
-				}
-			}).get(0);
-		} catch (final SQLException e) {
-			return sequence;
-		}
-		return sequence;
+		return h2.find(from("ds_settings_sequence"), this::getInt).get() + 1;
 	}
 
 	private void updateDSSettingsToDSSettings(final H2Database h2, final List<DSSetting> updateSettings)
@@ -218,28 +209,27 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		}
 	}
 
-	private void insertDSSettingsToDSSettings(final H2Database h2, final DSSetting setting, final int sequence)
+	private void insertDSSettingsToDSSettings(final H2Database h2, final DSSetting setting, final String sequence)
 			throws SQLException {
 		h2.insert(into("ds_settings").values($("id", sequence), $("name", setting.getName()),
 				$("executionpath", setting.getExecutionPath()),
 				$("executiontype", ExecutionType.toId(setting.getExecutionType()))));
 	}
 
-	private void insertDSSettingsToPreference(final H2Database h2, final DSSetting setting, final int sequence)
+	private void insertDSSettingsToPreferences(final H2Database h2, final DSSetting setting, final String sequence)
 			throws SQLException {
-		final Optional<Integer> nextKey = h2
-				.find(SelectBuilder.query("select MAX(key) from preferences where category='DSSetting'"), this::getInt);
-		final Preference p = new Preference("DSSetting", nextKey.get().toString());
-		p.setValue(Integer.toString(sequence));
+		final int nextKey = h2
+				.find(SelectBuilder.query("select MAX(key) from preferences where category='DSSetting'"), this::getInt)
+				.get() + 1;
+		final Preference p = new Preference("DSSetting", Integer.toString(nextKey));
+		p.setValue(sequence);
 		savePreferences(Arrays.asList(p));
 	}
 
 	private void deleteDSSettings(final H2Database h2, final List<DSSetting> deleteSettings) throws SQLException {
 		for (final DSSetting setting : deleteSettings) {
-			h2.delete(DeleteBuilder.from("ds_settings")
-					.where($("id", setting.getId() != null ? setting.getId() + "" : "0")));
-			h2.delete(DeleteBuilder.from("preferences").where($("category", "DSSetting"),
-					$("value", setting.getId() + "")));
+			h2.delete(DeleteBuilder.from("ds_settings").where($("id", setting.getId() != null ? setting.getId() : 0)));
+			h2.delete(DeleteBuilder.from("preferences").where($("category", "DSSetting"), $("value", setting.getId())));
 		}
 	}
 
@@ -254,7 +244,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	@Override
 	public List<DSSetting> loadDSSettings() throws SQLException {
 		try (final H2Database h2 = new H2Database()) {
-			if (!h2.exists("DS_SETTINGS")) {
+			if (!h2.exists("DS_SETTINGS") || !h2.exists("PREFERENCES")) {
 				return new ArrayList<>();
 			}
 			return h2.select(from("ds_settings"), DSSetting::new);
