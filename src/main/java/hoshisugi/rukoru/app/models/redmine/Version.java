@@ -105,6 +105,10 @@ public class Version {
 		this.updated_on.set(updated_on);
 	}
 
+	public boolean isClosed() {
+		return getStatus().equals("closed");
+	}
+
 	public ObjectProperty<Date> created_onProperty() {
 		return created_on;
 	}

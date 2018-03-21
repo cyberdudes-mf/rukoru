@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
@@ -31,19 +32,28 @@ import hoshisugi.rukoru.app.services.redmine.RedmineService;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.PropertyListCell;
+import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -56,10 +66,16 @@ import javafx.stage.StageStyle;
 public class TaskboardController extends BaseController {
 
 	@FXML
+	private Button addUserStoryButton;
+
+	@FXML
 	private ComboBox<Project> project;
 
 	@FXML
-	private ComboBox<Version> version;
+	private ComboBox<Version> sprint;
+
+	@FXML
+	private CheckBox showClosedSprintCheckBox;
 
 	@FXML
 	private VBox content;
@@ -72,6 +88,12 @@ public class TaskboardController extends BaseController {
 
 	private final Map<String, String> preferences = new HashMap<>();
 
+	private final ObservableList<Version> sprints = FXCollections.observableArrayList();
+
+	private final Predicate<Version> showOpendSprintsPredicate = v -> !v.isClosed();
+
+	private final ChangeListener<? super Version> onSprintSelected = this::onSprintSelected;
+
 	private WebView webView;
 
 	private WebEngine engine;
@@ -82,12 +104,15 @@ public class TaskboardController extends BaseController {
 
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
+		addUserStoryButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/add.png")));
 		project.setCellFactory(PropertyListCell.forListView(Project::getName));
 		project.setButtonCell(project.getCellFactory().call(null));
 		project.getSelectionModel().selectedItemProperty().addListener(this::onProjectSelected);
-		version.setCellFactory(PropertyListCell.forListView(Version::getName));
-		version.setButtonCell(version.getCellFactory().call(null));
-		version.getSelectionModel().selectedItemProperty().addListener(this::onVersionSelected);
+		sprint.setItems(new FilteredList<>(sprints));
+		sprint.setCellFactory(PropertyListCell.forListView(Version::getName));
+		sprint.setButtonCell(sprint.getCellFactory().call(null));
+		sprint.getSelectionModel().selectedItemProperty().addListener(onSprintSelected);
+
 		ConcurrentUtil.run(() -> {
 			final Projects projects = redmineService.listProjects(new ProjectsRequest());
 			project.getItems().setAll(projects.getProjects());
@@ -97,6 +122,31 @@ public class TaskboardController extends BaseController {
 			createWebView();
 			load();
 		});
+	}
+
+	@FXML
+	private void onAddUserStoryButtonClick(final ActionEvent event) {
+
+	}
+
+	@FXML
+	private void onShowClosedSprintCheckBoxChanged(final ActionEvent event) {
+		final FilteredList<Version> items = (FilteredList<Version>) sprint.getItems();
+		final SingleSelectionModel<Version> selectionModel = sprint.getSelectionModel();
+		selectionModel.selectedItemProperty().removeListener(onSprintSelected);
+		final Version selectedVersion = sprint.getValue();
+		if (showClosedSprintCheckBox.isSelected()) {
+			items.setPredicate(null);
+		} else {
+			items.setPredicate(showOpendSprintsPredicate);
+		}
+		if (items.contains(selectedVersion)) {
+			selectionModel.select(selectedVersion);
+		} else {
+			selectionModel.clearSelection();
+			sprint.setValue(null);
+		}
+		selectionModel.selectedItemProperty().addListener(onSprintSelected);
 	}
 
 	private WebView createWebView() {
@@ -216,15 +266,15 @@ public class TaskboardController extends BaseController {
 			ConcurrentUtil.run(() -> {
 				final Versions versions = redmineService.listVersions(new VersionsRequest(newValue.getId()));
 				Platform.runLater(() -> {
-					version.getSelectionModel().clearSelection();
-					version.getItems().setAll(versions.getVersions());
+					sprint.getSelectionModel().clearSelection();
+					sprints.setAll(versions.getVersions());
 					selectVersion();
 				});
 			});
 		}
 	}
 
-	private void onVersionSelected(final ObservableValue<? extends Version> observable, final Version oldValue,
+	private void onSprintSelected(final ObservableValue<? extends Version> observable, final Version oldValue,
 			final Version newValue) {
 		if (newValue != null && loggedIn) {
 			engine.load(newValue.getUrl());
@@ -244,12 +294,14 @@ public class TaskboardController extends BaseController {
 	}
 
 	private void selectVersion() {
-		if (!version.getItems().isEmpty() && preferences.containsKey(RedmineDefaultVersion.key())) {
+		if (!sprints.isEmpty() && preferences.containsKey(RedmineDefaultVersion.key())) {
 			final Integer versionId = Ints.tryParse(nullToEmpty(preferences.get(RedmineDefaultVersion.key())));
-			final Optional<Version> optional = version.getItems().stream().filter(v -> v.getId().equals(versionId))
-					.findFirst();
+			final Optional<Version> optional = sprints.stream().filter(v -> v.getId().equals(versionId)).findFirst();
 			optional.ifPresent(v -> {
-				Platform.runLater(() -> version.getSelectionModel().select(v));
+				if (!showClosedSprintCheckBox.isSelected() && v.isClosed()) {
+					return;
+				}
+				Platform.runLater(() -> sprint.getSelectionModel().select(v));
 			});
 		}
 	}
