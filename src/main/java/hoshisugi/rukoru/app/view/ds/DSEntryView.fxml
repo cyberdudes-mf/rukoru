@@ -9,7 +9,6 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
 <Accordion xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.ds.DSEntryController">
@@ -47,16 +46,12 @@
 					<tabs>
 						<Tab text="Server">
 							<content>
-								<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-								</AnchorPane>
-								<TextArea editable="false" />
+								<TextArea fx:id="serverLogText" editable="false" />
 							</content>
 						</Tab>
 						<Tab text="Studio">
 							<content>
-								<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-								</AnchorPane>
-								<TextArea editable="false" />
+								<TextArea fx:id="studioLogText" editable="false" />
 							</content>
 						</Tab>
 					</tabs>

@@ -1,5 +1,8 @@
 package hoshisugi.rukoru.app.view.ds;
 
+import static hoshisugi.rukoru.framework.util.AssetUtil.getImage;
+import static javafx.beans.binding.Bindings.when;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -11,6 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 
@@ -31,14 +35,23 @@ public class DSEntryController extends BaseController {
 	@FXML
 	private ToggleButton controlAllButton;
 
+	@FXML
+	private TextArea serverLogText;
+
+	@FXML
+	private TextArea studioLogText;
+
 	private DSSetting dsSetting;
 
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
 		openHomeButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/folder.png")));
-		controlServerButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/run.png")));
-		controlStudioButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/stop.png")));
-		controlAllButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/icon.png")));
+		controlServerButton.graphicProperty().bind(when(controlServerButton.selectedProperty().not())
+				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
+		controlStudioButton.graphicProperty().bind(when(controlStudioButton.selectedProperty().not())
+				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
+		controlAllButton.graphicProperty().bind(when(controlAllButton.selectedProperty().not())
+				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
 	}
 
 	@FXML
@@ -65,5 +78,4 @@ public class DSEntryController extends BaseController {
 		name.setText(dsSetting.getName());
 		this.dsSetting = dsSetting;
 	}
-
 }
