@@ -35,9 +35,9 @@ public class DSEntryController extends BaseController {
 
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
-		openHomeButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/icon.png")));
-		controlServerButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/icon.png")));
-		controlStudioButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/icon.png")));
+		openHomeButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/folder.png")));
+		controlServerButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/run.png")));
+		controlStudioButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/stop.png")));
 		controlAllButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/icon.png")));
 	}
 
