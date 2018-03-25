@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.enums.Preferences;
+import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Credential;
-import hoshisugi.rukoru.app.models.settings.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.framework.base.BaseService;

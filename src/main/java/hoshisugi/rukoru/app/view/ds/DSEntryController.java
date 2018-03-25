@@ -11,22 +11,38 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.settings.DSSetting;
+import hoshisugi.rukoru.app.models.ds.DSLogWriter;
+import hoshisugi.rukoru.app.models.ds.DSSetting;
+import hoshisugi.rukoru.app.services.ds.DSService;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.cli.CLI;
 import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
+import hoshisugi.rukoru.framework.util.FXUtil;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
+import javafx.stage.WindowEvent;
 
 public class DSEntryController extends BaseController {
+
+	@FXML
+	private Accordion accordion;
+
+	@FXML
+	private TitledPane titledPane;
 
 	@FXML
 	private Button openHomeButton;
@@ -49,9 +65,12 @@ public class DSEntryController extends BaseController {
 	@FXML
 	private TextArea studioLogText;
 
+	@Inject
+	private DSService service;
+
 	private DSSetting dsSetting;
 
-	private CLIState cliState;
+	private final EventHandler<WindowEvent> stopOnExit = e -> this.stopOnExit();
 
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
@@ -71,34 +90,17 @@ public class DSEntryController extends BaseController {
 
 	@FXML
 	private void onControlServerButtonClick(final ActionEvent event) {
+		if (accordion.getExpandedPane() == null) {
+			accordion.setExpandedPane(titledPane);
+		}
+		controlServerButton.setDisable(true);
 		if (controlServerButton.isSelected()) {
-			ConcurrentUtil.run(() -> {
-				serverLogText.clear();
-				final ProcessBuilder pb = new ProcessBuilder();
-				final List<String> commands = Lists.newArrayList("cmd", "/c",
-						dsSetting.getExecutionPath() + "/server/bin/DataSpiderServer.exe");
-				pb.command(commands);
-				final Process p = pb.start();
-				try (final BufferedInputStream bi = new BufferedInputStream(p.getInputStream());
-						final BufferedReader br = new BufferedReader(new InputStreamReader(bi, "MS932"));) {
-					while (true) {
-						try {
-							final String lines = br.readLine();
-							Thread.sleep(50);
-							if (lines != null) {
-								serverLogText.appendText(lines + "\r\n");
-							}
-						} catch (final Exception e) {
-						}
-					}
-				}
-				// final CLIBuilder builder = CLI.command("DataSpiderServer.exe")
-				// .directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/"));
-				// cliState = builder.execute();
-				// final BufferedReader br = new BufferedReader(new
-				// InputStreamReader(cliState.getInputStream()));
-				// br.lines().forEach(System.out::println);
-			});
+			serverLogText.clear();
+			ConcurrentUtil.run(
+					() -> service.startServerWithExe(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted));
+		} else {
+			controlServerButton.setDisable(true);
+			ConcurrentUtil.run(() -> service.stopServerWithExe(dsSetting, this::onServerStopped));
 		}
 	}
 
@@ -142,5 +144,38 @@ public class DSEntryController extends BaseController {
 	public void loadSetting(final DSSetting dsSetting) {
 		name.setText(dsSetting.getName());
 		this.dsSetting = dsSetting;
+	}
+
+	private void onServerStarted(final CLIState cliState) {
+		if (controlServerButton.isDisable()) {
+			Platform.runLater(() -> controlServerButton.setDisable(false));
+		}
+		if (cliState.isSuccess()) {
+			FXUtil.getPrimaryStage().setOnCloseRequest(stopOnExit);
+		}
+		if (cliState.isFailure()) {
+			Platform.runLater(() -> controlServerButton.setSelected(false));
+		}
+	}
+
+	private void onServerStopped(final CLIState cliState) {
+		if (!controlServerButton.isDisable()) {
+			Platform.runLater(() -> controlServerButton.setDisable(true));
+		}
+		if (cliState.isSuccess()) {
+			FXUtil.getPrimaryStage().removeEventHandler(new EventType<WindowEvent>("WindowEvent"), stopOnExit);
+		}
+		if (cliState.isFailure()) {
+			Platform.runLater(() -> controlServerButton.setSelected(true));
+		}
+	}
+
+	private void stopOnExit() {
+		try {
+			if (controlServerButton.isSelected()) {
+				service.stopServerWithExe(dsSetting, this::onServerStopped);
+			}
+		} catch (final InterruptedException e) {
+		}
 	}
 }

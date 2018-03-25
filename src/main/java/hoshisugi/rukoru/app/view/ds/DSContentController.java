@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.models.settings.DSSetting;
+import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
@@ -14,7 +14,6 @@ import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Accordion;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class DSContentController extends BaseController {

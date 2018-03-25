@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import hoshisugi.rukoru.app.enums.Preferences;
+import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Credential;
-import hoshisugi.rukoru.app.models.settings.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 

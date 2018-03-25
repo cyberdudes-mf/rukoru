@@ -2,6 +2,8 @@ package hoshisugi.rukoru.app.inject;
 
 import com.google.inject.Singleton;
 
+import hoshisugi.rukoru.app.services.ds.DSService;
+import hoshisugi.rukoru.app.services.ds.DSServiceImpl;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.services.ec2.EC2ServiceImpl;
 import hoshisugi.rukoru.app.services.rds.RDSService;
@@ -57,5 +59,6 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		bind(RDSService.class).toProvider(() -> new RDSServiceImpl()).in(Singleton.class);
 		bind(S3Service.class).toProvider(() -> new S3ServiceImpl()).in(Singleton.class);
 		bind(RepositoryDBService.class).toProvider(() -> new RepositoryDBServiceImpl()).in(Singleton.class);
+		bind(DSService.class).toProvider(() -> new DSServiceImpl()).in(Singleton.class);
 	}
 }

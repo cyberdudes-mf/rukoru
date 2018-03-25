@@ -9,7 +9,7 @@ import java.util.function.UnaryOperator;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.DSSettingState;
-import hoshisugi.rukoru.app.models.settings.DSSetting;
+import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;

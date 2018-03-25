@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
-import hoshisugi.rukoru.app.models.settings.DSSetting;
+import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.PropertyListCell;

@@ -6,7 +6,7 @@
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.ToolBarController">
+<VBox xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.ToolBarController">
    <children>
       <Button fx:id="mcButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onMCButtonClick" text="マネコン" />
       <Button fx:id="testPortalButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onTestPortalButtonClick" text="テストポータル" />

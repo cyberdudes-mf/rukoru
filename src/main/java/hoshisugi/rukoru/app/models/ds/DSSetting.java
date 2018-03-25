@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.app.models.settings;
+package hoshisugi.rukoru.app.models.ds;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,6 +7,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
+import hoshisugi.rukoru.app.models.settings.DBEntity;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
