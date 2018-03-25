@@ -111,7 +111,7 @@ class CLIExecutor {
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "MS932"));
 			final Optional<Predicate<String>> optional = Optional.ofNullable(predicate);
 			try (PrintWriter writer = new PrintWriter(output)) {
-				String line;
+				String line = null;
 				while ((line = reader.readLine()) != null) {
 					writer.println(line);
 					writer.flush();
@@ -124,7 +124,6 @@ class CLIExecutor {
 			}
 			return null;
 		}
-
 	}
 
 	static class TimeoutMonitor implements Callable<Void> {

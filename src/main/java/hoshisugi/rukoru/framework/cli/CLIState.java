@@ -62,7 +62,7 @@ public class CLIState implements AutoCloseable {
 	}
 
 	public void destroy() {
-		process.destroy();
+		process.destroyForcibly();
 	}
 
 	public int getExitValue() {

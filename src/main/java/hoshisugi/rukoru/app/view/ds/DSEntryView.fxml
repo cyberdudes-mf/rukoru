@@ -42,14 +42,14 @@
 				</HBox>
 			</graphic>
 			<content>
-				<TabPane prefHeight="300.0" tabClosingPolicy="UNAVAILABLE">
+				<TabPane fx:id="tabPane" prefHeight="300.0" tabClosingPolicy="UNAVAILABLE">
 					<tabs>
-						<Tab text="Server">
+						<Tab fx:id="serverConsole" text="Server">
 							<content>
 								<TextArea fx:id="serverLogText" editable="false" />
 							</content>
 						</Tab>
-						<Tab text="Studio">
+						<Tab fx:id="studioConsole" text="Studio">
 							<content>
 								<TextArea fx:id="studioLogText" editable="false" />
 							</content>

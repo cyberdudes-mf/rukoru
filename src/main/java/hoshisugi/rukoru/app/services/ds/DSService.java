@@ -12,4 +12,9 @@ public interface DSService {
 	void startServerWithExe(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
 
 	void stopServerWithExe(DSSetting dsSetting, Consumer<CLIState> callback) throws InterruptedException;
+
+	void startStudioWithExe(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
+
+	void stopStudioWithExe(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
+
 }

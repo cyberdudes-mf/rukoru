@@ -5,7 +5,6 @@ import java.util.TimerTask;
 
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.control.TextArea;
 import javafx.stage.WindowEvent;
 
@@ -14,7 +13,7 @@ public class DSLogWriter {
 	private final StringBuilder builder = new StringBuilder();
 	private final TextArea textArea;
 	private Timer timer;
-	private final EventHandler<WindowEvent> onClose = e -> timer.cancel();
+	private final EventHandler<WindowEvent> onClose = e -> this.shutDown();
 
 	public DSLogWriter(final TextArea textArea) {
 		this.textArea = textArea;
@@ -40,8 +39,11 @@ public class DSLogWriter {
 	}
 
 	public void shutDown() {
-		timer.cancel();
-		textArea.appendText(builder.toString());
-		FXUtil.getPrimaryStage().removeEventHandler(new EventType<WindowEvent>("WindowEvent"), onClose);
+		if (timer != null) {
+			timer.cancel();
+		}
+		if (builder.length() > 0) {
+			textArea.appendText(builder.toString());
+		}
 	}
 }

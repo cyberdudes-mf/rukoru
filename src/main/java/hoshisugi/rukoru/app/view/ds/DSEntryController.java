@@ -3,14 +3,9 @@ package hoshisugi.rukoru.app.view.ds;
 import static hoshisugi.rukoru.framework.util.AssetUtil.getImage;
 import static javafx.beans.binding.Bindings.when;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.ds.DSLogWriter;
@@ -25,11 +20,13 @@ import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
@@ -58,6 +55,15 @@ public class DSEntryController extends BaseController {
 
 	@FXML
 	private ToggleButton controlAllButton;
+
+	@FXML
+	private TabPane tabPane;
+
+	@FXML
+	private Tab serverConsole;
+
+	@FXML
+	private Tab studioConsole;
 
 	@FXML
 	private TextArea serverLogText;
@@ -93,47 +99,37 @@ public class DSEntryController extends BaseController {
 		if (accordion.getExpandedPane() == null) {
 			accordion.setExpandedPane(titledPane);
 		}
+		final SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
+		if (selectionModel.getSelectedItem() != serverConsole) {
+			selectionModel.select(serverConsole);
+		}
 		controlServerButton.setDisable(true);
 		if (controlServerButton.isSelected()) {
 			serverLogText.clear();
 			ConcurrentUtil.run(
 					() -> service.startServerWithExe(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted));
 		} else {
-			controlServerButton.setDisable(true);
 			ConcurrentUtil.run(() -> service.stopServerWithExe(dsSetting, this::onServerStopped));
 		}
 	}
 
 	@FXML
 	private void onControlStudioButtonClick(final ActionEvent event) {
-		ConcurrentUtil.run(() -> {
+		if (accordion.getExpandedPane() == null) {
+			accordion.setExpandedPane(titledPane);
+		}
+		final SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
+		if (selectionModel.getSelectedItem() != studioConsole) {
+			selectionModel.select(studioConsole);
+		}
+		controlStudioButton.setDisable(true);
+		if (controlStudioButton.isSelected()) {
 			studioLogText.clear();
-			final ProcessBuilder pb = new ProcessBuilder();
-			final List<String> commands = Lists.newArrayList("cmd", "/c",
-					dsSetting.getExecutionPath() + "/client/bin/DataSpiderStudio.exe");
-			pb.command(commands);
-			final Process p = pb.start();
-			try (final BufferedInputStream bi = new BufferedInputStream(p.getInputStream());
-					final BufferedReader br = new BufferedReader(new InputStreamReader(bi, "MS932"));) {
-				while (true) {
-					try {
-						final String lines = br.readLine();
-						Thread.sleep(50);
-						if (lines != null) {
-							studioLogText.appendText(lines + "\r\n");
-						}
-					} catch (final Exception e) {
-					}
-				}
-			}
-			// final CLIBuilder builder = CLI.command("DataSpiderServer.exe")
-			// .directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/"));
-			// cliState = builder.execute();
-			// final BufferedReader br = new BufferedReader(new
-			// InputStreamReader(cliState.getInputStream()));
-			// br.lines().forEach(System.out::println);
-		});
-		;
+			ConcurrentUtil.run(
+					() -> service.startStudioWithExe(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted));
+		} else {
+			ConcurrentUtil.run(() -> service.stopStudioWithExe(dsSetting, this::onStudioStopped));
+		}
 	}
 
 	@FXML
@@ -159,23 +155,38 @@ public class DSEntryController extends BaseController {
 	}
 
 	private void onServerStopped(final CLIState cliState) {
-		if (!controlServerButton.isDisable()) {
-			Platform.runLater(() -> controlServerButton.setDisable(true));
-		}
-		if (cliState.isSuccess()) {
-			FXUtil.getPrimaryStage().removeEventHandler(new EventType<WindowEvent>("WindowEvent"), stopOnExit);
+		if (controlServerButton.isDisable()) {
+			Platform.runLater(() -> controlServerButton.setDisable(false));
 		}
 		if (cliState.isFailure()) {
 			Platform.runLater(() -> controlServerButton.setSelected(true));
 		}
 	}
 
+	private void onStudioStarted(final CLIState cliState) {
+		if (controlStudioButton.isDisable()) {
+			Platform.runLater(() -> controlStudioButton.setDisable(false));
+		}
+		if (cliState.isFailure()) {
+			Platform.runLater(() -> controlStudioButton.setSelected(false));
+		}
+	}
+
+	private void onStudioStopped(final CLIState cliState) {
+		if (controlStudioButton.isDisable()) {
+			Platform.runLater(() -> controlStudioButton.setDisable(false));
+		}
+		if (cliState.isFailure()) {
+			Platform.runLater(() -> controlStudioButton.setSelected(true));
+		}
+	}
+
 	private void stopOnExit() {
-		try {
-			if (controlServerButton.isSelected()) {
-				service.stopServerWithExe(dsSetting, this::onServerStopped);
-			}
-		} catch (final InterruptedException e) {
+		if (controlServerButton.isSelected()) {
+			ConcurrentUtil.run(() -> service.stopServerWithExe(dsSetting, this::onServerStopped));
+		}
+		if (controlStudioButton.isSelected()) {
+			ConcurrentUtil.run(() -> service.stopServerWithExe(dsSetting, this::onServerStopped));
 		}
 	}
 }
