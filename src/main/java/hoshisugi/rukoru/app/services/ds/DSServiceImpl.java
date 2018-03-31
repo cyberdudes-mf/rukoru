@@ -21,12 +21,15 @@ public class DSServiceImpl extends BaseService implements DSService {
 	public void startServerWithExe(final DSSetting dsSetting, final DSLogWriter writer,
 			final Consumer<CLIState> callback) throws IOException {
 		final CLIState cliState = CLI.command("DataSpiderServer.exe")
-				.directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/"))
-				.successCondition(s -> s.contains("正常に起動しました。")).failureCondition(s -> s.contains("起動に失敗しました。"))
-				.execute();
+				.directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/")).execute();
 		try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
 			for (String line = null; (line = br.readLine()) != null;) {
 				writer.writeLine(line);
+				if (line.contains("正常に起動しました。")) {
+					cliState.succeed();
+				} else if (line.contains("起動に失敗しました。")) {
+					cliState.fail();
+				}
 				if (cliState.isSuccess() || cliState.isFailure()) {
 					callback.accept(cliState);
 				}

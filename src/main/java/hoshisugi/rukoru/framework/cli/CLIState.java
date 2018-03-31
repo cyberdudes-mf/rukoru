@@ -29,11 +29,11 @@ public class CLIState implements AutoCloseable {
 		return failure;
 	}
 
-	void succeed() {
+	public void succeed() {
 		this.success = true;
 	}
 
-	void fail() {
+	public void fail() {
 		this.failure = true;
 	}
 
