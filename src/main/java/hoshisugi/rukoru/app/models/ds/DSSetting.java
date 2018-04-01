@@ -1,7 +1,12 @@
 package hoshisugi.rukoru.app.models.ds;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
+import java.util.Properties;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
@@ -80,5 +85,11 @@ public class DSSetting extends DBEntity {
 
 	public StringProperty stateProperty() {
 		return state;
+	}
+
+	public Optional<String> getServiceName() throws IOException {
+		final Properties properties = new Properties();
+		properties.load(Files.newInputStream(Paths.get(getExecutionPath() + "/Uninstall/installvariables.properties")));
+		return Optional.ofNullable(properties.getProperty("SHORT_SERVICE_NAME"));
 	}
 }
