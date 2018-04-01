@@ -106,8 +106,22 @@ public class DSEntryController extends BaseController {
 		controlServerButton.setDisable(true);
 		if (controlServerButton.isSelected()) {
 			serverLogText.clear();
-			ConcurrentUtil.run(
-					() -> service.startServerWithExe(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted));
+			ConcurrentUtil.run(() -> {
+				final String executionType = dsSetting.getExecutionType();
+				switch (executionType) {
+				case "EXE":
+					service.startServerWithExe(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
+					break;
+				case "SERVICE":
+					service.startServerWithService(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
+					break;
+				case "Bat":
+					// 未実装
+					break;
+				default:
+					break;
+				}
+			});
 		} else {
 			ConcurrentUtil.run(() -> service.stopServerWithExe(dsSetting, this::onServerStopped));
 		}

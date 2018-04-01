@@ -3,8 +3,10 @@ package hoshisugi.rukoru.app.services.ds;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 import hoshisugi.rukoru.app.models.ds.DSLogWriter;
@@ -21,13 +23,12 @@ public class DSServiceImpl extends BaseService implements DSService {
 	public void startServerWithExe(final DSSetting dsSetting, final DSLogWriter writer,
 			final Consumer<CLIState> callback) throws IOException {
 		final CLIState cliState = CLI.command("DataSpiderServer.exe")
-				.directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/")).execute();
+				.directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/"))
+				.successCondition(s -> s.contains("正常に起動しました。")).execute();
 		try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
 			for (String line = null; (line = br.readLine()) != null;) {
 				writer.writeLine(line);
-				if (line.contains("正常に起動しました。")) {
-					cliState.succeed();
-				} else if (line.contains("起動に失敗しました。")) {
+				if (line.contains("起動に失敗しました。")) {
 					cliState.fail();
 				}
 				if (cliState.isSuccess() || cliState.isFailure()) {
@@ -75,6 +76,36 @@ public class DSServiceImpl extends BaseService implements DSService {
 					.execute();
 			callback.accept(state);
 		}
+	}
+
+	@Override
+	public void startServerWithService(final DSSetting dsSetting, final DSLogWriter writer,
+			final Consumer<CLIState> callback) throws IOException {
+		final Properties properties = new Properties();
+		properties.load(Files
+				.newInputStream(Paths.get(dsSetting.getExecutionPath() + "/Uninstall/installvariables.properties")));
+		final String serviceName = properties.getProperty("SHORT_SERVICE_NAME");
+		final CLIState cliState = CLI.command("sc start " + serviceName).successCondition(s -> s.contains("RUNNING"))
+				.execute();
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
+			for (String line = null; (line = br.readLine()) != null;) {
+				writer.writeLine(line);
+			}
+			callback.accept(cliState);
+		} finally {
+			writer.shutDown();
+		}
+	}
+
+	@Override
+	public void stopServerWithService(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
+		final Properties properties = new Properties();
+		properties.load(Files
+				.newInputStream(Paths.get(dsSetting.getExecutionPath() + "/Uninstall/installvariables.properties")));
+		final String serviceName = properties.getProperty("SHORT_SERVICE_NAME");
+		final CLIState cliState = CLI.command("sc stop " + serviceName).successCondition(s -> s.contains("STOPED"))
+				.execute();
+		callback.accept(cliState);
 	}
 
 	private Optional<WindowsProcess> getDataSpiderStudioProcess(final String getExecutionPath) throws IOException {
