@@ -36,4 +36,12 @@ public enum ExecutionType {
 	public static String toId(final String value) {
 		return valueIndex.get(value);
 	}
+
+	public static String[] toArray() {
+		final String[] args = new String[values().length];
+		for (int index = 0; index < values().length; index++) {
+			args[index] = values()[index].toString();
+		}
+		return args;
+	}
 }

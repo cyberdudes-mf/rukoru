@@ -5,8 +5,8 @@
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.VBox?>
 
 <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
 	nodeOrientation="RIGHT_TO_LEFT" xmlns="http://javafx.com/javafx/8.0.121"
@@ -24,11 +24,11 @@
 				<Insets right="10.0" />
 			</padding>
 		</ButtonBar>
-		<TableView fx:id="tableView" maxHeight="1.7976931348623157E308"
+		<TableView fx:id="tableView" editable="true" maxHeight="1.7976931348623157E308"
 			maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT"
 			VBox.vgrow="ALWAYS">
 			<columns>
-				<TableColumn fx:id="nameColumn" 
+				<TableColumn fx:id="nameColumn" editable="true"
 					maxWidth="1.7976931348623157E308" minWidth="200.0" prefWidth="200.0"
 					text="名前">
 					<cellValueFactory>
@@ -42,9 +42,8 @@
 						<PropertyValueFactory property="executionPath" />
 					</cellValueFactory>
 				</TableColumn>
-				<TableColumn fx:id="executionTypeColumn" editable="false"
-					maxWidth="1.7976931348623157E308" minWidth="80.0" resizable="false"
-					text="起動方法">
+				<TableColumn fx:id="executionTypeColumn" editable="true" maxWidth="1.7976931348623157E308"
+					minWidth="80.0" resizable="false" text="起動方法">
 					<cellValueFactory>
 						<PropertyValueFactory property="executionType" />
 					</cellValueFactory>

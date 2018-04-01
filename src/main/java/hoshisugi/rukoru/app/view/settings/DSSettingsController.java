@@ -9,6 +9,7 @@ import java.util.function.UnaryOperator;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.DSSettingState;
+import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
@@ -27,6 +28,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
 
 @FXController(title = "DSSetting")
@@ -63,6 +66,8 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		createButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/add.png")));
 		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
 		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
+		nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+		executionTypeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(ExecutionType.toArray()));
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableView.setItems(items);
 		loadSettings();

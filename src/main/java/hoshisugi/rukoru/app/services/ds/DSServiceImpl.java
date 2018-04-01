@@ -20,7 +20,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 	@Override
 	public void startServerWithExe(final DSSetting dsSetting, final DSLogWriter writer,
 			final Consumer<CLIState> callback) throws IOException {
-		final CLIState cliState = CLI.command("DataSpiderServer.exe")
+		final CLIState cliState = CLI.command(DSSetting.getServerName())
 				.directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/"))
 				.successCondition(s -> s.contains("正常に起動しました。")).execute();
 		try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
@@ -53,7 +53,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 	@Override
 	public void startStudioWithExe(final DSSetting dsSetting, final DSLogWriter writer,
 			final Consumer<CLIState> callback) throws IOException {
-		final CLIState cliState = CLI.command("DataSpiderStudio.exe")
+		final CLIState cliState = CLI.command(DSSetting.getStudioName())
 				.directory(Paths.get(dsSetting.getExecutionPath() + "/client/bin/")).execute();
 		ConcurrentUtil.run(() -> {
 			try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
@@ -109,8 +109,9 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	private Optional<WindowsProcess> getDataSpiderStudioProcess(final String getExecutionPath) throws IOException {
-		final CLIState wmicState = CLI.command("WMIC").options("PROCESS", "WHERE",
-				"\"Name LIKE 'DataSpiderStudio.exe'\"", "GET", "ExecutablePath,Name,ProcessId", "/FORMAT:CSV")
+		final CLIState wmicState = CLI.command("WMIC")
+				.options("PROCESS", "WHERE", "\"Name LIKE '" + DSSetting.getStudioName() + "'\"", "GET",
+						"ExecutablePath,Name,ProcessId", "/FORMAT:CSV")
 				.execute();
 		try (BufferedReader reader = IOUtil.newBufferedReader(wmicState.getInputStream())) {
 			for (String line = null; (line = reader.readLine()) != null;) {
@@ -155,6 +156,5 @@ public class DSServiceImpl extends BaseService implements DSService {
 		public String getProcessId() {
 			return processId;
 		}
-
 	}
 }

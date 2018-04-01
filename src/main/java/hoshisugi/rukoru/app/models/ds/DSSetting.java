@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.models.settings.DBEntity;
+import hoshisugi.rukoru.framework.util.AssetUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -21,6 +22,14 @@ public class DSSetting extends DBEntity {
 	private final StringProperty executionPath = new SimpleStringProperty(this, "executionPath");
 	private final StringProperty executionType = new SimpleStringProperty(this, "executionType");
 	private final StringProperty state = new SimpleStringProperty(this, "state");
+
+	private static String dsServerName;
+	private static String dsStudioName;
+
+	static {
+		setServerName();
+		setStudioName();
+	}
 
 	public DSSetting() {
 	}
@@ -91,5 +100,21 @@ public class DSSetting extends DBEntity {
 		final Properties properties = new Properties();
 		properties.load(Files.newInputStream(Paths.get(getExecutionPath() + "/Uninstall/installvariables.properties")));
 		return Optional.ofNullable(properties.getProperty("SHORT_SERVICE_NAME"));
+	}
+
+	private static void setServerName() {
+		dsServerName = AssetUtil.loadProperties("ds.properties").getProperty("ds.server");
+	}
+
+	public static String getServerName() {
+		return dsServerName;
+	}
+
+	private static void setStudioName() {
+		dsStudioName = AssetUtil.loadProperties("ds.properties").getProperty("ds.studio");
+	}
+
+	public static String getStudioName() {
+		return dsStudioName;
 	}
 }
