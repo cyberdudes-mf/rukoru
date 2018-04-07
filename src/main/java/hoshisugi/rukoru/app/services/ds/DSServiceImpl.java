@@ -118,6 +118,12 @@ public class DSServiceImpl extends BaseService implements DSService {
 		}
 	}
 
+	@Override
+	public boolean checkStudioLocked(final DSSetting dsSetting) {
+		final Path path = Paths.get(dsSetting.getExecutionPath()).resolve("client/bin/.lock");
+		return Files.exists(path);
+	}
+
 	private Optional<WindowsProcess> getDataSpiderStudioProcess(final DSSetting dsSetting) throws IOException {
 		final CLIState wmicState = CLI.command("WMIC")
 				.options("PROCESS", "WHERE", "\"Name LIKE '" + dsSetting.getStudioExecutorName() + "'\"", "GET",

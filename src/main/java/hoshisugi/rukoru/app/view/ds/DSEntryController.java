@@ -98,6 +98,11 @@ public class DSEntryController extends BaseController {
 				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
 		controlAllButton.graphicProperty().bind(when(controlAllButton.selectedProperty().not())
 				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
+		controlAllButton.selectedProperty()
+				.bind(controlServerButton.selectedProperty().or(controlStudioButton.selectedProperty()));
+		controlAllButton.disableProperty()
+				.bind(controlServerButton.disabledProperty().or(controlStudioButton.disabledProperty()));
+
 	}
 
 	@FXML
@@ -207,6 +212,7 @@ public class DSEntryController extends BaseController {
 		port.setText(dsSetting.getPort());
 		controlServerButton.setDisable(!dsSetting.isServerInstalled());
 		controlStudioButton.setDisable(!dsSetting.isStudioInstalled());
+		controlStudioButton.setSelected(service.checkStudioLocked(dsSetting));
 		controlAllButton.setDisable(!dsSetting.isServerInstalled() || !dsSetting.isStudioInstalled());
 		port.setDisable(!dsSetting.isServerInstalled());
 		changePortButton.setDisable(!dsSetting.isStudioInstalled());
