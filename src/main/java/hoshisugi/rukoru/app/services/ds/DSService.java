@@ -9,18 +9,17 @@ import hoshisugi.rukoru.framework.cli.CLIState;
 
 public interface DSService {
 
-	void startServerWithExe(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
+	void startServerExe(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
 
-	void stopServerWithExe(DSSetting dsSetting, Consumer<CLIState> callback) throws InterruptedException;
+	void stopServerExe(DSSetting dsSetting, Consumer<CLIState> callback) throws InterruptedException;
 
-	void startStudioWithExe(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
+	void startStudioExe(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
 
-	void stopStudioWithExe(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
+	void stopStudioExe(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
 
-	void startServerWithService(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback)
-			throws IOException;
+	void startServerService(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
 
-	void stopServerWithService(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
+	void stopServerService(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
 
 	void changePort(DSSetting setting, String port) throws IOException;
 }

@@ -121,10 +121,10 @@ public class DSEntryController extends BaseController {
 				final String executionType = dsSetting.getExecutionType();
 				switch (executionType) {
 				case "EXE":
-					service.startServerWithExe(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
+					service.startServerExe(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
 					break;
 				case "SERVICE":
-					service.startServerWithService(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
+					service.startServerService(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
 					break;
 				case "Bat":
 					// 未実装
@@ -134,7 +134,7 @@ public class DSEntryController extends BaseController {
 				}
 			});
 		} else {
-			ConcurrentUtil.run(() -> service.stopServerWithExe(dsSetting, this::onServerStopped));
+			ConcurrentUtil.run(() -> service.stopServerExe(dsSetting, this::onServerStopped));
 		}
 	}
 
@@ -151,9 +151,9 @@ public class DSEntryController extends BaseController {
 		if (controlStudioButton.isSelected()) {
 			studioLogText.clear();
 			ConcurrentUtil.run(
-					() -> service.startStudioWithExe(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted));
+					() -> service.startStudioExe(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted));
 		} else {
-			ConcurrentUtil.run(() -> service.stopStudioWithExe(dsSetting, this::onStudioStopped));
+			ConcurrentUtil.run(() -> service.stopStudioExe(dsSetting, this::onStudioStopped));
 		}
 	}
 
@@ -173,11 +173,11 @@ public class DSEntryController extends BaseController {
 	public void loadSetting(final DSSetting dsSetting) {
 		name.setText(dsSetting.getName());
 		port.setText(dsSetting.getPort());
-		controlServerButton.setDisable(!dsSetting.serverIsExecutable());
-		controlStudioButton.setDisable(!dsSetting.studioIsExecutable());
-		controlAllButton.setDisable(!dsSetting.serverIsExecutable() || !dsSetting.studioIsExecutable());
-		port.setDisable(!dsSetting.serverIsExecutable());
-		changePortButton.setDisable(!dsSetting.serverIsExecutable());
+		controlServerButton.setDisable(!dsSetting.isServerInstalled());
+		controlStudioButton.setDisable(!dsSetting.isStudioInstalled());
+		controlAllButton.setDisable(!dsSetting.isServerInstalled() || !dsSetting.isStudioInstalled());
+		port.setDisable(!dsSetting.isServerInstalled());
+		changePortButton.setDisable(!dsSetting.isStudioInstalled());
 		this.dsSetting = dsSetting;
 	}
 
@@ -222,7 +222,7 @@ public class DSEntryController extends BaseController {
 
 	private void stopOnExit() {
 		if (controlServerButton.isSelected()) {
-			ConcurrentUtil.run(() -> service.stopServerWithExe(dsSetting, this::onServerStopped));
+			ConcurrentUtil.run(() -> service.stopServerExe(dsSetting, this::onServerStopped));
 		}
 	}
 }

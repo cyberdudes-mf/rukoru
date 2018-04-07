@@ -22,10 +22,10 @@ import hoshisugi.rukoru.framework.util.IOUtil;
 public class DSServiceImpl extends BaseService implements DSService {
 
 	@Override
-	public void startServerWithExe(final DSSetting dsSetting, final DSLogWriter writer,
-			final Consumer<CLIState> callback) throws IOException {
-		final CLIState cliState = CLI.command(DSSetting.getServerName())
-				.directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/"))
+	public void startServerExe(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+			throws IOException {
+		final CLIState cliState = CLI.command(dsSetting.getServerExecutorName())
+				.directory(Paths.get(dsSetting.getExecutionPath()).resolve("server/bin"))
 				.successCondition(s -> s.contains("正常に起動しました。")).execute();
 		try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
 			for (String line = null; (line = br.readLine()) != null;) {
@@ -45,7 +45,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	@Override
-	public void stopServerWithExe(final DSSetting dsSetting, final Consumer<CLIState> callback)
+	public void stopServerExe(final DSSetting dsSetting, final Consumer<CLIState> callback)
 			throws InterruptedException {
 		final CLIState cliState = CLI.command("Shutdown.exe")
 				.directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/"))
@@ -55,10 +55,10 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	@Override
-	public void startStudioWithExe(final DSSetting dsSetting, final DSLogWriter writer,
-			final Consumer<CLIState> callback) throws IOException {
-		final CLIState cliState = CLI.command(DSSetting.getStudioName())
-				.directory(Paths.get(dsSetting.getExecutionPath() + "/client/bin/")).execute();
+	public void startStudioExe(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+			throws IOException {
+		final CLIState cliState = CLI.command(dsSetting.getStudioExecutorName())
+				.directory(Paths.get(dsSetting.getExecutionPath()).resolve("client/bin")).execute();
 		ConcurrentUtil.run(() -> {
 			try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
 				for (String line = null; (line = br.readLine()) != null;) {
@@ -71,8 +71,8 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	@Override
-	public void stopStudioWithExe(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
-		final Optional<WindowsProcess> process = getDataSpiderStudioProcess(dsSetting.getExecutionPath());
+	public void stopStudioExe(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
+		final Optional<WindowsProcess> process = getDataSpiderStudioProcess(dsSetting);
 		if (process.isPresent()) {
 			final CLIState state = CLI.command("taskkill").options("/pid", process.get().getProcessId(), "/t", "/f")
 					.execute();
@@ -81,7 +81,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	@Override
-	public void startServerWithService(final DSSetting dsSetting, final DSLogWriter writer,
+	public void startServerService(final DSSetting dsSetting, final DSLogWriter writer,
 			final Consumer<CLIState> callback) throws IOException {
 		if (dsSetting.getServiceName().isPresent()) {
 			final CLIState cliState = CLI.command("sc").options("start", dsSetting.getServiceName().get())
@@ -104,7 +104,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	@Override
-	public void stopServerWithService(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
+	public void stopServerService(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
 		if (dsSetting.getServiceName().isPresent()) {
 			final CLIState cliState = CLI.command("sc").options("stop", dsSetting.getServiceName().get())
 					.successCondition(s -> s.contains("STOPPED")).execute();
@@ -120,9 +120,9 @@ public class DSServiceImpl extends BaseService implements DSService {
 		}
 	}
 
-	private Optional<WindowsProcess> getDataSpiderStudioProcess(final String getExecutionPath) throws IOException {
+	private Optional<WindowsProcess> getDataSpiderStudioProcess(final DSSetting dsSetting) throws IOException {
 		final CLIState wmicState = CLI.command("WMIC")
-				.options("PROCESS", "WHERE", "\"Name LIKE '" + DSSetting.getStudioName() + "'\"", "GET",
+				.options("PROCESS", "WHERE", "\"Name LIKE '" + dsSetting.getStudioExecutorName() + "'\"", "GET",
 						"ExecutablePath,Name,ProcessId", "/FORMAT:CSV")
 				.execute();
 		try (BufferedReader reader = IOUtil.newBufferedReader(wmicState.getInputStream())) {
@@ -131,7 +131,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 					continue;
 				}
 				final WindowsProcess process = new WindowsProcess(line);
-				if (process.executablePath.startsWith(getExecutionPath)) {
+				if (process.executablePath.startsWith(dsSetting.getExecutionPath())) {
 					return Optional.of(process);
 				}
 			}

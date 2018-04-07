@@ -39,15 +39,7 @@ public class DSSetting extends DBEntity {
 	private final StringProperty executionPath = new SimpleStringProperty(this, "executionPath");
 	private final StringProperty executionType = new SimpleStringProperty(this, "executionType");
 	private final StringProperty state = new SimpleStringProperty(this, "state");
-
-	private static final String dsServerName;
-	private static final String dsStudioName;
-
-	static {
-		final Properties p = AssetUtil.loadProperties("ds.properties");
-		dsServerName = p.getProperty("ds.server");
-		dsStudioName = p.getProperty("ds.client");
-	}
+	private final Properties dsProp = AssetUtil.loadProperties("ds.properties");
 
 	public DSSetting() {
 	}
@@ -125,20 +117,28 @@ public class DSSetting extends DBEntity {
 		return Optional.ofNullable(p.getProperty("SHORT_SERVICE_NAME"));
 	}
 
-	public boolean serverIsExecutable() {
-		return Files.isExecutable(Paths.get(getExecutionPath() + "/server/bin/" + dsServerName));
+	public boolean isServerInstalled() {
+		return Files.isExecutable(Paths.get(getExecutionPath()).resolve("server/bin").resolve(getServerExecutorName()));
 	}
 
-	public boolean studioIsExecutable() {
-		return Files.isExecutable(Paths.get(getExecutionPath() + "/client/bin/" + dsStudioName));
+	public boolean isStudioInstalled() {
+		return Files.isExecutable(Paths.get(getExecutionPath()).resolve("client/bin").resolve(getStudioExecutorName()));
 	}
 
-	public static String getServerName() {
-		return dsServerName;
+	public String getServerExecutorName() {
+		if (getExecutionType().equals("BAT")) {
+			return dsProp.getProperty("ds.server.bat");
+		} else {
+			return dsProp.getProperty("ds.server.exe");
+		}
 	}
 
-	public static String getStudioName() {
-		return dsStudioName;
+	public String getStudioExecutorName() {
+		if (getExecutionType().equals("BAT")) {
+			return dsProp.getProperty("ds.client.bat");
+		} else {
+			return dsProp.getProperty("ds.client.exe");
+		}
 	}
 
 	public String getPort() {
