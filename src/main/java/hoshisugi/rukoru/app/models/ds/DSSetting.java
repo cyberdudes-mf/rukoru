@@ -23,12 +23,13 @@ public class DSSetting extends DBEntity {
 	private final StringProperty executionType = new SimpleStringProperty(this, "executionType");
 	private final StringProperty state = new SimpleStringProperty(this, "state");
 
-	private static String dsServerName;
-	private static String dsStudioName;
+	private static final String dsServerName;
+	private static final String dsStudioName;
 
 	static {
-		setServerName();
-		setStudioName();
+		final Properties p = AssetUtil.loadProperties("ds.properties");
+		dsServerName = p.getProperty("ds.server");
+		dsStudioName = p.getProperty("ds.client");
 	}
 
 	public DSSetting() {
@@ -102,16 +103,16 @@ public class DSSetting extends DBEntity {
 		return Optional.ofNullable(properties.getProperty("SHORT_SERVICE_NAME"));
 	}
 
-	private static void setServerName() {
-		dsServerName = AssetUtil.loadProperties("ds.properties").getProperty("ds.server");
+	public boolean serverIsExecutable() {
+		return Files.isExecutable(Paths.get(getExecutionPath() + "/server/bin/" + dsServerName));
+	}
+
+	public boolean studioIsExecutable() {
+		return Files.isExecutable(Paths.get(getExecutionPath() + "/client/bin/" + dsStudioName));
 	}
 
 	public static String getServerName() {
 		return dsServerName;
-	}
-
-	private static void setStudioName() {
-		dsStudioName = AssetUtil.loadProperties("ds.properties").getProperty("ds.studio");
 	}
 
 	public static String getStudioName() {

@@ -78,6 +78,14 @@ public class DSEntryController extends BaseController {
 
 	private final EventHandler<WindowEvent> stopOnExit = e -> this.stopOnExit();
 
+	public void setServerDisable(final boolean value) {
+		controlServerButton.setDisable(value);
+	}
+
+	public void setStudioDisable(final boolean value) {
+		controlStudioButton.setDisable(value);
+	}
+
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
 		openHomeButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/folder.png")));

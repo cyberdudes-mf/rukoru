@@ -33,6 +33,8 @@ public class DSContentController extends BaseController {
 				final Accordion view = loader.load();
 				final DSEntryController controller = loader.getController();
 				controller.loadSetting(dsSetting);
+				controller.setStudioDisable(!dsSetting.studioIsExecutable());
+				controller.setServerDisable(!dsSetting.serverIsExecutable());
 				layoutRoot.getChildren().add(view);
 			}
 		});
