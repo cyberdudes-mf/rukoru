@@ -1,9 +1,13 @@
 package hoshisugi.rukoru.app.services.ds;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -108,6 +112,14 @@ public class DSServiceImpl extends BaseService implements DSService {
 		}
 	}
 
+	@Override
+	public void changePort(final DSSetting setting, final String port) throws IOException {
+		final Path path = Paths.get(setting.getExecutionPath()).resolve("server/system/conf/webcontainer.properties");
+		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE)) {
+			writer.write("port=" + port);
+		}
+	}
+
 	private Optional<WindowsProcess> getDataSpiderStudioProcess(final String getExecutionPath) throws IOException {
 		final CLIState wmicState = CLI.command("WMIC")
 				.options("PROCESS", "WHERE", "\"Name LIKE '" + DSSetting.getStudioName() + "'\"", "GET",
@@ -157,4 +169,5 @@ public class DSServiceImpl extends BaseService implements DSService {
 			return processId;
 		}
 	}
+
 }

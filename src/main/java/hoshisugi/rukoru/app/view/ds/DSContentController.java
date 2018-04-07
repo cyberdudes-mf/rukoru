@@ -40,8 +40,6 @@ public class DSContentController extends BaseController {
 		final Accordion view = FXUtil.load(DSEntryController.class);
 		final DSEntryController controller = (DSEntryController) view.getUserData();
 		controller.loadSetting(dsSetting);
-		controller.setStudioDisable(!dsSetting.studioIsExecutable());
-		controller.setServerDisable(!dsSetting.serverIsExecutable());
 		return view;
 	}
 

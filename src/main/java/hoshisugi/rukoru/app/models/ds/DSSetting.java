@@ -1,12 +1,29 @@
 package hoshisugi.rukoru.app.models.ds;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Properties;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
@@ -97,10 +114,15 @@ public class DSSetting extends DBEntity {
 		return state;
 	}
 
-	public Optional<String> getServiceName() throws IOException {
-		final Properties properties = new Properties();
-		properties.load(Files.newInputStream(Paths.get(getExecutionPath() + "/Uninstall/installvariables.properties")));
-		return Optional.ofNullable(properties.getProperty("SHORT_SERVICE_NAME"));
+	public Optional<String> getServiceName() {
+		final Properties p = new Properties();
+		try (InputStream input = Files
+				.newInputStream(Paths.get(getExecutionPath() + "/Uninstall/installvariables.properties"))) {
+			p.load(input);
+		} catch (final IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		return Optional.ofNullable(p.getProperty("SHORT_SERVICE_NAME"));
 	}
 
 	public boolean serverIsExecutable() {
@@ -117,5 +139,41 @@ public class DSSetting extends DBEntity {
 
 	public static String getStudioName() {
 		return dsStudioName;
+	}
+
+	public String getPort() {
+		if (Files.exists(getPath("server/conf/dsserver.xml"))) {
+			try {
+				final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+				final DocumentBuilder db = dbf.newDocumentBuilder();
+				final Document doc = db.parse(new FileInputStream(getPath("server/conf/dsserver.xml").toFile()));
+
+				final XPathFactory factory = XPathFactory.newInstance();
+				final XPath path = factory.newXPath();
+				final XPathExpression expression = path
+						.compile("//module[@type='webcontainer']/attribute[@key='port']");
+				final Node node = (Node) expression.evaluate(doc, XPathConstants.NODE);
+				return node.getTextContent();
+			} catch (final IOException ioe) {
+				throw new UncheckedIOException(ioe);
+			} catch (final ParserConfigurationException | SAXException | XPathExpressionException e) {
+				throw new UncheckedExecutionException(e);
+			}
+
+		} else if (Files.exists(getPath("server/system/conf/webcontainer.properties"))) {
+			final Properties p = new Properties();
+			try (InputStream input = Files.newInputStream(
+					Paths.get(getExecutionPath()).resolve("server/system/conf/webcontainer.properties"))) {
+				p.load(input);
+			} catch (final IOException e) {
+				throw new UncheckedIOException(e);
+			}
+			return p.getProperty("port");
+		}
+		return null;
+	}
+
+	private Path getPath(final String path) {
+		return Paths.get(getExecutionPath()).resolve(path);
 	}
 }

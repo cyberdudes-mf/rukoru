@@ -22,4 +22,5 @@ public interface DSService {
 
 	void stopServerWithService(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
 
+	void changePort(DSSetting setting, String port) throws IOException;
 }

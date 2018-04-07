@@ -28,6 +28,7 @@ import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
@@ -71,6 +72,12 @@ public class DSEntryController extends BaseController {
 	@FXML
 	private TextArea studioLogText;
 
+	@FXML
+	private TextField port;
+
+	@FXML
+	private Button changePortButton;
+
 	@Inject
 	private DSService service;
 
@@ -80,14 +87,6 @@ public class DSEntryController extends BaseController {
 
 	public Integer getDSSettingId() {
 		return dsSetting.getId();
-	}
-
-	public void setServerDisable(final boolean value) {
-		controlServerButton.setDisable(value);
-	}
-
-	public void setStudioDisable(final boolean value) {
-		controlStudioButton.setDisable(value);
 	}
 
 	@Override
@@ -163,8 +162,22 @@ public class DSEntryController extends BaseController {
 		System.out.println("onControlAllButtonClick");
 	}
 
+	@FXML
+	private void onChangePortButtonClick(final ActionEvent event) {
+		ConcurrentUtil.run(() -> {
+			service.changePort(dsSetting, port.getText());
+			Platform.runLater(() -> FXUtil.showTooltip("ポートを変更しました。", event));
+		});
+	}
+
 	public void loadSetting(final DSSetting dsSetting) {
 		name.setText(dsSetting.getName());
+		port.setText(dsSetting.getPort());
+		controlServerButton.setDisable(!dsSetting.serverIsExecutable());
+		controlStudioButton.setDisable(!dsSetting.studioIsExecutable());
+		controlAllButton.setDisable(!dsSetting.serverIsExecutable() || !dsSetting.studioIsExecutable());
+		port.setDisable(!dsSetting.serverIsExecutable());
+		changePortButton.setDisable(!dsSetting.serverIsExecutable());
 		this.dsSetting = dsSetting;
 	}
 
