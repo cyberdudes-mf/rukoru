@@ -3,12 +3,15 @@ package hoshisugi.rukoru.app.services.ds;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 import hoshisugi.rukoru.app.models.ds.DSLogWriter;
@@ -112,9 +115,21 @@ public class DSServiceImpl extends BaseService implements DSService {
 
 	@Override
 	public void changePort(final DSSetting setting, final String port) throws IOException {
-		final Path path = Paths.get(setting.getExecutionPath()).resolve("server/system/conf/webcontainer.properties");
-		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE)) {
+		final Path serverPropPath = Paths.get(setting.getExecutionPath())
+				.resolve("server/system/conf/webcontainer.properties");
+		try (BufferedWriter writer = Files.newBufferedWriter(serverPropPath, StandardOpenOption.CREATE)) {
 			writer.write("port=" + port);
+		}
+		final Path studioPropPath = Paths.get(setting.getExecutionPath()).resolve("client/conf/boot.properties");
+		if (Files.exists(studioPropPath)) {
+			final Properties studioProp = new Properties();
+			try (InputStream input = Files.newInputStream(studioPropPath)) {
+				studioProp.load(input);
+			}
+			studioProp.setProperty("server.port", port);
+			try (OutputStream output = Files.newOutputStream(studioPropPath)) {
+				studioProp.store(output, "");
+			}
 		}
 	}
 
