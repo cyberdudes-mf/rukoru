@@ -211,8 +211,5 @@ public class DSEntryController extends BaseController {
 		if (controlServerButton.isSelected()) {
 			ConcurrentUtil.run(() -> service.stopServerWithExe(dsSetting, this::onServerStopped));
 		}
-		if (controlStudioButton.isSelected()) {
-			ConcurrentUtil.run(() -> service.stopServerWithExe(dsSetting, this::onServerStopped));
-		}
 	}
 }
