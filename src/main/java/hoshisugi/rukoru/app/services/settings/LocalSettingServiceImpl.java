@@ -187,10 +187,11 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			updateDSSettingsToDSSettings(h2, updateSettings);
 
 			for (final DSSetting setting : insertSettings) {
-				final String sequence = Integer.toString(getDSSettingsSequence(h2));
-				insertDSSettingsToDSSettings(h2, setting, sequence);
-
-				insertDSSettingsToPreferences(h2, setting, sequence);
+				final int id = getDSSettingsSequence(h2);
+				setting.setId(id);
+				final String idString = Integer.toString(id);
+				insertDSSettingsToDSSettings(h2, setting, idString);
+				insertDSSettingsToPreferences(h2, setting, idString);
 			}
 		}
 	}
