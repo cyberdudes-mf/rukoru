@@ -21,5 +21,13 @@ public interface DSService {
 
 	void stopServerService(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
 
+	void startServerBat(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
+
+	void stopServerBat(DSSetting dsSetting, Consumer<CLIState> callback) throws InterruptedException;
+
+	void startStudioBat(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
+
+	void stopStudioBat(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
+
 	void changePort(DSSetting setting, String port) throws IOException;
 }

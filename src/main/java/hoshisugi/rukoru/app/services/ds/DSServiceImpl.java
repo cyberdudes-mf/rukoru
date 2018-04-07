@@ -24,24 +24,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 	@Override
 	public void startServerExe(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
-		final CLIState cliState = CLI.command(dsSetting.getServerExecutorName())
-				.directory(Paths.get(dsSetting.getExecutionPath()).resolve("server/bin"))
-				.successCondition(s -> s.contains("正常に起動しました。")).execute();
-		try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
-			for (String line = null; (line = br.readLine()) != null;) {
-				writer.writeLine(line);
-				if (line.contains("起動に失敗しました。")) {
-					cliState.fail();
-				}
-				if (cliState.isSuccess() || cliState.isFailure()) {
-					callback.accept(cliState);
-				}
-			}
-			writer.shutDown();
-		}
-		if (cliState.isFailure()) {
-			callback.accept(cliState);
-		}
+		startServer(dsSetting, writer, callback);
 	}
 
 	@Override
@@ -57,17 +40,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 	@Override
 	public void startStudioExe(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
-		final CLIState cliState = CLI.command(dsSetting.getStudioExecutorName())
-				.directory(Paths.get(dsSetting.getExecutionPath()).resolve("client/bin")).execute();
-		ConcurrentUtil.run(() -> {
-			try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
-				for (String line = null; (line = br.readLine()) != null;) {
-					writer.writeLine(line);
-				}
-				writer.shutDown();
-			}
-		});
-		callback.accept(cliState);
+		startStudio(dsSetting, writer, callback);
 	}
 
 	@Override
@@ -113,6 +86,31 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	@Override
+	public void startServerBat(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+			throws IOException {
+		startServer(dsSetting, writer, callback);
+	}
+
+	@Override
+	public void stopServerBat(final DSSetting dsSetting, final Consumer<CLIState> callback)
+			throws InterruptedException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void startStudioBat(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+			throws IOException {
+		startStudio(dsSetting, writer, callback);
+	}
+
+	@Override
+	public void stopStudioBat(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
 	public void changePort(final DSSetting setting, final String port) throws IOException {
 		final Path path = Paths.get(setting.getExecutionPath()).resolve("server/system/conf/webcontainer.properties");
 		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE)) {
@@ -137,6 +135,43 @@ public class DSServiceImpl extends BaseService implements DSService {
 			}
 		}
 		return Optional.empty();
+	}
+
+	private void startServer(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+			throws IOException {
+		final CLIState cliState = CLI.command(dsSetting.getServerExecutorName())
+				.directory(Paths.get(dsSetting.getExecutionPath()).resolve("server/bin"))
+				.successCondition(s -> s.contains("正常に起動しました。")).execute();
+		try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
+			for (String line = null; (line = br.readLine()) != null;) {
+				writer.writeLine(line);
+				if (line.contains("起動に失敗しました。")) {
+					cliState.fail();
+				}
+				if (cliState.isSuccess() || cliState.isFailure()) {
+					callback.accept(cliState);
+				}
+			}
+			writer.shutDown();
+		}
+		if (cliState.isFailure()) {
+			callback.accept(cliState);
+		}
+	}
+
+	private void startStudio(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+			throws IOException {
+		final CLIState cliState = CLI.command(dsSetting.getStudioExecutorName())
+				.directory(Paths.get(dsSetting.getExecutionPath()).resolve("client/bin")).execute();
+		ConcurrentUtil.run(() -> {
+			try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
+				for (String line = null; (line = br.readLine()) != null;) {
+					writer.writeLine(line);
+				}
+				writer.shutDown();
+			}
+		});
+		callback.accept(cliState);
 	}
 
 	static class WindowsProcess {

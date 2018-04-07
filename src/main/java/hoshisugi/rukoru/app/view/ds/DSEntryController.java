@@ -126,15 +126,26 @@ public class DSEntryController extends BaseController {
 				case "SERVICE":
 					service.startServerService(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
 					break;
-				case "Bat":
-					// 未実装
-					break;
-				default:
+				case "BAT":
+					service.startServerBat(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
 					break;
 				}
 			});
 		} else {
-			ConcurrentUtil.run(() -> service.stopServerExe(dsSetting, this::onServerStopped));
+			ConcurrentUtil.run(() -> {
+				final String executionType = dsSetting.getExecutionType();
+				switch (executionType) {
+				case "EXE":
+					service.stopServerExe(dsSetting, this::onServerStopped);
+					break;
+				case "SERVICE":
+					service.stopServerService(dsSetting, this::onServerStopped);
+					break;
+				case "BAT":
+					service.stopServerBat(dsSetting, this::onServerStopped);
+					break;
+				}
+			});
 		}
 	}
 
@@ -150,10 +161,31 @@ public class DSEntryController extends BaseController {
 		controlStudioButton.setDisable(true);
 		if (controlStudioButton.isSelected()) {
 			studioLogText.clear();
-			ConcurrentUtil.run(
-					() -> service.startStudioExe(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted));
+			ConcurrentUtil.run(() -> {
+				final String executionType = dsSetting.getExecutionType();
+				switch (executionType) {
+				case "EXE":
+				case "SERVICE":
+					service.startStudioExe(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted);
+					break;
+				case "BAT":
+					service.startStudioBat(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted);
+					break;
+				}
+			});
 		} else {
-			ConcurrentUtil.run(() -> service.stopStudioExe(dsSetting, this::onStudioStopped));
+			ConcurrentUtil.run(() -> {
+				final String executionType = dsSetting.getExecutionType();
+				switch (executionType) {
+				case "EXE":
+				case "SERVICE":
+					service.stopStudioExe(dsSetting, this::onStudioStopped);
+					break;
+				case "BAT":
+					service.stopStudioBat(dsSetting, this::onStudioStopped);
+					break;
+				}
+			});
 		}
 	}
 
