@@ -78,6 +78,10 @@ public class DSEntryController extends BaseController {
 
 	private final EventHandler<WindowEvent> stopOnExit = e -> this.stopOnExit();
 
+	public Integer getDSSettingId() {
+		return dsSetting.getId();
+	}
+
 	public void setServerDisable(final boolean value) {
 		controlServerButton.setDisable(value);
 	}

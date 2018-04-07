@@ -12,12 +12,14 @@ import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
+import hoshisugi.rukoru.app.view.ds.DSContentController;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -37,6 +39,9 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 
 	@Inject
 	private LocalSettingService service;
+
+	@Inject
+	private DSContentController controller;
 
 	@FXML
 	private Button createButton;
@@ -111,6 +116,7 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 			service.saveDSSettings(dssettings);
 			dssettings.removeAll(dssettings.filtered(p));
 			dssettings.forEach(s -> s.setState(DSSettingState.Update));
+			Platform.runLater(() -> controller.refresh(dssettings));
 		});
 	}
 }
