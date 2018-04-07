@@ -213,7 +213,6 @@ public class DSEntryController extends BaseController {
 		controlServerButton.setDisable(!dsSetting.isServerInstalled());
 		controlStudioButton.setDisable(!dsSetting.isStudioInstalled());
 		controlStudioButton.setSelected(service.checkStudioLocked(dsSetting));
-		controlAllButton.setDisable(!dsSetting.isServerInstalled() || !dsSetting.isStudioInstalled());
 		port.setDisable(!dsSetting.isServerInstalled());
 		changePortButton.setDisable(!dsSetting.isStudioInstalled());
 		this.dsSetting = dsSetting;
