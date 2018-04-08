@@ -102,7 +102,6 @@ public class DSEntryController extends BaseController {
 				.bind(controlServerButton.selectedProperty().or(controlStudioButton.selectedProperty()));
 		controlAllButton.disableProperty()
 				.bind(controlServerButton.disabledProperty().or(controlStudioButton.disabledProperty()));
-
 	}
 
 	@FXML
@@ -208,13 +207,16 @@ public class DSEntryController extends BaseController {
 	}
 
 	public void loadSetting(final DSSetting dsSetting) {
-		name.setText(dsSetting.getName());
-		port.setText(dsSetting.getPort());
-		controlServerButton.setDisable(!dsSetting.isServerInstalled());
-		controlStudioButton.setDisable(!dsSetting.isStudioInstalled());
-		controlStudioButton.setSelected(service.checkStudioLocked(dsSetting));
-		port.setDisable(!dsSetting.isServerInstalled());
-		changePortButton.setDisable(!dsSetting.isStudioInstalled());
+		Platform.runLater(() -> {
+			name.setText(dsSetting.getName());
+			port.setText(dsSetting.getPort());
+			controlServerButton.setDisable(!dsSetting.isServerInstalled());
+			controlStudioButton.setDisable(!dsSetting.isStudioInstalled());
+			controlServerButton.setSelected(service.isServerRunning(dsSetting));
+			controlStudioButton.setSelected(service.isStudioRunning(dsSetting));
+			port.setDisable(!dsSetting.isServerInstalled());
+			changePortButton.setDisable(!dsSetting.isStudioInstalled());
+		});
 		this.dsSetting = dsSetting;
 	}
 

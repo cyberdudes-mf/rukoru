@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +22,9 @@ import hoshisugi.rukoru.framework.cli.CLI;
 import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.IOUtil;
+import jp.ambrosoli.quickrestclient.apache.service.ApacheHttpService;
+import jp.ambrosoli.quickrestclient.request.HttpRequest;
+import jp.ambrosoli.quickrestclient.response.HttpResponse;
 
 public class DSServiceImpl extends BaseService implements DSService {
 
@@ -134,7 +138,20 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	@Override
-	public boolean checkStudioLocked(final DSSetting dsSetting) {
+	public boolean isServerRunning(final DSSetting dsSetting) {
+		try {
+			final ApacheHttpService service = new ApacheHttpService();
+			final HttpRequest request = new HttpRequest(new URI("http://localhost:" + dsSetting.getPort()));
+			request.setTimeout(500);
+			final HttpResponse response = service.execute(request);
+			return response.getStatusCode() == 200 ? true : false;
+		} catch (final Exception e) {
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isStudioRunning(final DSSetting dsSetting) {
 		final Path path = Paths.get(dsSetting.getExecutionPath()).resolve("client/bin/.lock");
 		return Files.exists(path);
 	}

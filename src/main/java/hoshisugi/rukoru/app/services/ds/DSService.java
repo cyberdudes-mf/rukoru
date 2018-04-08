@@ -31,5 +31,7 @@ public interface DSService {
 
 	void changePort(DSSetting setting, String port) throws IOException;
 
-	boolean checkStudioLocked(DSSetting dsSetting);
+	boolean isServerRunning(DSSetting dsSetting);
+
+	boolean isStudioRunning(DSSetting dsSetting);
 }
