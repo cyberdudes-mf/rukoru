@@ -173,7 +173,11 @@ public class DSSetting extends DBEntity {
 		return null;
 	}
 
-	private Path getPath(final String path) {
+	public Path getPath(final String path) {
 		return Paths.get(getExecutionPath()).resolve(path);
+	}
+
+	public String getServerUrl() {
+		return "http://localhost:" + getPort();
 	}
 }

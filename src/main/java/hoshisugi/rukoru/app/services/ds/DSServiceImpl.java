@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.Properties;
@@ -22,9 +20,7 @@ import hoshisugi.rukoru.framework.cli.CLI;
 import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.IOUtil;
-import jp.ambrosoli.quickrestclient.apache.service.ApacheHttpService;
-import jp.ambrosoli.quickrestclient.request.HttpRequest;
-import jp.ambrosoli.quickrestclient.response.HttpResponse;
+import jp.ambrosoli.quickrestclient.Http;
 
 public class DSServiceImpl extends BaseService implements DSService {
 
@@ -37,26 +33,31 @@ public class DSServiceImpl extends BaseService implements DSService {
 	@Override
 	public void stopServerExe(final DSSetting dsSetting, final Consumer<CLIState> callback)
 			throws InterruptedException {
-		final CLIState cliState = CLI.command("Shutdown.exe")
-				.directory(Paths.get(dsSetting.getExecutionPath() + "/server/bin/"))
-				.successCondition(s -> s.contains("停止しました。")).execute();
-		cliState.waitFor();
-		callback.accept(cliState);
+		if (isServerRunning(dsSetting)) {
+			final CLIState cliState = CLI.command("Shutdown.exe").directory(dsSetting.getPath("server/bin/"))
+					.successCondition(s -> s.contains("停止しました。")).execute();
+			cliState.waitFor();
+			callback.accept(cliState);
+		}
 	}
 
 	@Override
 	public void startStudioExe(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
-		startStudio(dsSetting, writer, callback);
+		if (!isStudioRunning(dsSetting)) {
+			startStudio(dsSetting, writer, callback);
+		}
 	}
 
 	@Override
 	public void stopStudioExe(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
-		final Optional<WindowsProcess> process = getDataSpiderStudioProcess(dsSetting);
-		if (process.isPresent()) {
-			final CLIState state = CLI.command("taskkill").options("/pid", process.get().getProcessId(), "/t", "/f")
-					.execute();
-			callback.accept(state);
+		if (isStudioRunning(dsSetting)) {
+			final Optional<WindowsProcess> process = getDataSpiderStudioProcess(dsSetting);
+			if (process.isPresent()) {
+				final CLIState state = CLI.command("taskkill").options("/pid", process.get().getProcessId(), "/t", "/f")
+						.execute();
+				callback.accept(state);
+			}
 		}
 	}
 
@@ -119,12 +120,11 @@ public class DSServiceImpl extends BaseService implements DSService {
 
 	@Override
 	public void changePort(final DSSetting setting, final String port) throws IOException {
-		final Path serverPropPath = Paths.get(setting.getExecutionPath())
-				.resolve("server/system/conf/webcontainer.properties");
+		final Path serverPropPath = setting.getPath("server/system/conf/webcontainer.properties");
 		try (BufferedWriter writer = Files.newBufferedWriter(serverPropPath, StandardOpenOption.CREATE)) {
 			writer.write("port=" + port);
 		}
-		final Path studioPropPath = Paths.get(setting.getExecutionPath()).resolve("client/conf/boot.properties");
+		final Path studioPropPath = setting.getPath("client/conf/boot.properties");
 		if (Files.exists(studioPropPath)) {
 			final Properties studioProp = new Properties();
 			try (InputStream input = Files.newInputStream(studioPropPath)) {
@@ -140,20 +140,15 @@ public class DSServiceImpl extends BaseService implements DSService {
 	@Override
 	public boolean isServerRunning(final DSSetting dsSetting) {
 		try {
-			final ApacheHttpService service = new ApacheHttpService();
-			final HttpRequest request = new HttpRequest(new URI("http://localhost:" + dsSetting.getPort()));
-			request.setTimeout(500);
-			final HttpResponse response = service.execute(request);
-			return response.getStatusCode() == 200 ? true : false;
+			return Http.url(dsSetting.getServerUrl()).timeout(500).execute().isSuccess();
 		} catch (final Exception e) {
+			return false;
 		}
-		return false;
 	}
 
 	@Override
 	public boolean isStudioRunning(final DSSetting dsSetting) {
-		final Path path = Paths.get(dsSetting.getExecutionPath()).resolve("client/bin/.lock");
-		return Files.exists(path);
+		return Files.exists(dsSetting.getPath("client/bin/.lock"));
 	}
 
 	private Optional<WindowsProcess> getDataSpiderStudioProcess(final DSSetting dsSetting) throws IOException {
@@ -177,9 +172,11 @@ public class DSServiceImpl extends BaseService implements DSService {
 
 	private void startServer(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
+		if (isServerRunning(dsSetting)) {
+			return;
+		}
 		final CLIState cliState = CLI.command(dsSetting.getServerExecutorName())
-				.directory(Paths.get(dsSetting.getExecutionPath()).resolve("server/bin"))
-				.successCondition(s -> s.contains("正常に起動しました。")).execute();
+				.directory(dsSetting.getPath("server/bin")).successCondition(s -> s.contains("正常に起動しました。")).execute();
 		try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
 			for (String line = null; (line = br.readLine()) != null;) {
 				writer.writeLine(line);
@@ -199,8 +196,11 @@ public class DSServiceImpl extends BaseService implements DSService {
 
 	private void startStudio(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
+		if (isStudioRunning(dsSetting)) {
+			return;
+		}
 		final CLIState cliState = CLI.command(dsSetting.getStudioExecutorName())
-				.directory(Paths.get(dsSetting.getExecutionPath()).resolve("client/bin")).execute();
+				.directory(dsSetting.getPath("client/bin")).execute();
 		ConcurrentUtil.run(() -> {
 			try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
 				for (String line = null; (line = br.readLine()) != null;) {
