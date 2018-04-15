@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.services.ds;
 
+import static org.glassfish.jersey.client.ClientProperties.CONNECT_TIMEOUT;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,6 +15,14 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+
+import org.apache.http.HttpStatus;
+import org.glassfish.jersey.client.ClientConfig;
+
 import hoshisugi.rukoru.app.models.ds.DSLogWriter;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.framework.base.BaseService;
@@ -20,7 +30,6 @@ import hoshisugi.rukoru.framework.cli.CLI;
 import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.IOUtil;
-import jp.ambrosoli.quickrestclient.Http;
 
 public class DSServiceImpl extends BaseService implements DSService {
 
@@ -140,7 +149,11 @@ public class DSServiceImpl extends BaseService implements DSService {
 	@Override
 	public boolean isServerRunning(final DSSetting dsSetting) {
 		try {
-			return Http.url(dsSetting.getServerUrl()).timeout(500).execute().isSuccess();
+			final ClientConfig config = new ClientConfig().property(CONNECT_TIMEOUT, 500);
+			final Client client = ClientBuilder.newClient(config);
+			final WebTarget target = client.target(dsSetting.getServerUrl());
+			final Response response = target.request().get();
+			return response.getStatus() == HttpStatus.SC_OK;
 		} catch (final Exception e) {
 			return false;
 		}
