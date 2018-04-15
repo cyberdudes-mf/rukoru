@@ -22,7 +22,7 @@ public interface LocalSettingService {
 
 	Map<String, Preference> getPreferencesByCategory(String category) throws SQLException;
 
-	Optional<Preference> findPreferenceByCategoryAndKey(Preferences preferences) throws SQLException;
+	Optional<Preference> findPreference(Preferences preference) throws SQLException;
 
 	void savePreferences(Collection<Preference> preferences) throws SQLException;
 }

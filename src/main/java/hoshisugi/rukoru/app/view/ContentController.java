@@ -40,8 +40,6 @@ import javafx.scene.layout.Region;
 
 public class ContentController extends BaseController {
 
-	private static final String DEFAULT_IMAGE_URL = "https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg";
-
 	private final Map<Class<? extends BaseController>, Parent> contents = new HashMap<>();
 
 	@FXML
@@ -111,11 +109,11 @@ public class ContentController extends BaseController {
 
 	private String getImageUrl() {
 		try {
-			final Optional<Preference> preference = service.findPreferenceByCategoryAndKey(ImageUrl);
+			final Optional<Preference> preference = service.findPreference(ImageUrl);
 			return preference.map(Preference::getValue).filter(v -> !Strings.isNullOrEmpty(v))
-					.orElse(DEFAULT_IMAGE_URL);
+					.orElse(ImageUrl.defaultValue());
 		} catch (final Exception e) {
-			return DEFAULT_IMAGE_URL;
+			return ImageUrl.defaultValue();
 		}
 	}
 

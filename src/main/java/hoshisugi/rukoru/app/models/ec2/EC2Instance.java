@@ -1,24 +1,19 @@
 package hoshisugi.rukoru.app.models.ec2;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Tag;
 
+import hoshisugi.rukoru.framework.util.DateTimeUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class EC2Instance implements Serializable {
-
-	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
 	private final StringProperty instanceId = new SimpleStringProperty(this, "instanceId");
 	private final StringProperty name = new SimpleStringProperty(this, "name");
@@ -42,7 +37,7 @@ public class EC2Instance implements Serializable {
 		setAutoStop(Boolean.parseBoolean(tags.get("AutoStop")));
 		setInstanceType(instance.getInstanceType());
 		setPublicIpAddress(instance.getPublicIpAddress());
-		setLaunchTime(formatter.format(toDateTime(instance.getLaunchTime())));
+		setLaunchTime(DateTimeUtil.toString(instance.getLaunchTime()));
 		setState(instance.getState().getName());
 	}
 
@@ -132,10 +127,6 @@ public class EC2Instance implements Serializable {
 
 	private Map<String, String> createTagMap(final Instance instance) {
 		return instance.getTags().stream().collect(Collectors.toMap(Tag::getKey, Tag::getValue));
-	}
-
-	private LocalDateTime toDateTime(final Date launchTime) {
-		return LocalDateTime.ofInstant(launchTime.toInstant(), ZoneId.systemDefault());
 	}
 
 }

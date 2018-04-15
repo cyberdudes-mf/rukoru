@@ -3,7 +3,8 @@ package hoshisugi.rukoru.app.models.ec2;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import com.amazonaws.services.ec2.model.Image;
@@ -31,7 +32,7 @@ public class MachineImage implements Serializable {
 		setImageId(image.getImageId());
 		setName(image.getName());
 		setState(image.getState());
-		setCreationDate(formatter.format(LocalDateTime.parse(image.getCreationDate(), ISO_DATE_TIME)));
+		setCreationDate(toDefaultZonedDateTime(image.getCreationDate()).format(formatter));
 	}
 
 	public String getImageId() {
@@ -82,4 +83,8 @@ public class MachineImage implements Serializable {
 		return creationDate;
 	}
 
+	private ZonedDateTime toDefaultZonedDateTime(final String isoDateTime) {
+		final ZonedDateTime utc = ZonedDateTime.parse(isoDateTime, ISO_DATE_TIME);
+		return utc.withZoneSameInstant(ZoneId.systemDefault());
+	}
 }

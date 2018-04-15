@@ -27,7 +27,7 @@ public class Main extends Application {
 			scene.getStylesheets().add(Assets.APPLICATION_CSS);
 			primaryStage.setScene(scene);
 			primaryStage.setTitle(FXUtil.getTitle(controllerClass));
-			primaryStage.getIcons().add(AssetUtil.getImage("icon.png"));
+			primaryStage.getIcons().add(AssetUtil.getImage("32x32/icon.png"));
 			primaryStage.show();
 		} catch (final Exception e) {
 			e.printStackTrace();

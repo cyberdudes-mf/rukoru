@@ -1,13 +1,9 @@
 package hoshisugi.rukoru.app.view.repositorydb;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
@@ -32,7 +28,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -151,13 +146,6 @@ public class RepositoryDBContentController extends BaseController {
 		final RepositoryDB db = (RepositoryDB) button.getUserData();
 		content.putString(db.getName());
 		Clipboard.getSystemClipboard().setContent(content);
-		final Tooltip tooltip = new Tooltip("クリップボードにコピーしました。");
-		tooltip.setAutoHide(true);
-		tooltip.show(FXUtil.getStage(event));
-		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.schedule(() -> {
-			Platform.runLater(() -> tooltip.hide());
-			scheduler.shutdown();
-		}, 1000, MILLISECONDS);
+		FXUtil.showTooltip("クリップボードにコピーしました。", event);
 	}
 }

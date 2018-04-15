@@ -2,6 +2,8 @@ package hoshisugi.rukoru.app.models.s3;
 
 import static javafx.beans.binding.DoubleExpression.doubleExpression;
 
+import java.util.concurrent.CountDownLatch;
+
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -29,6 +31,8 @@ public class AsyncResult {
 	private Throwable thrown;
 
 	private Status status = Status.Ready;
+
+	private final CountDownLatch latch = new CountDownLatch(1);
 
 	public void addBytes(final int bytes) {
 		this.bytes.set(this.bytes.get() + bytes);
@@ -79,6 +83,9 @@ public class AsyncResult {
 
 	public void setStatus(final Status status) {
 		this.status = status;
+		if (status == Status.Done) {
+			latch.countDown();
+		}
 	}
 
 	public boolean checkResult() {
@@ -86,5 +93,9 @@ public class AsyncResult {
 			Platform.runLater(() -> DialogUtil.showErrorDialog(getThrown()));
 		}
 		return thrown == null;
+	}
+
+	public void waitFor() throws InterruptedException {
+		latch.await();
 	}
 }

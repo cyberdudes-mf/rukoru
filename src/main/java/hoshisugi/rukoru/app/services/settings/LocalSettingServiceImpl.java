@@ -144,13 +144,12 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	@Override
-	public Optional<Preference> findPreferenceByCategoryAndKey(final Preferences preferences) throws SQLException {
+	public Optional<Preference> findPreference(final Preferences preference) throws SQLException {
 		try (H2Database h2 = new H2Database()) {
 			if (!h2.exists("PREFERENCES")) {
 				return Optional.empty();
 			}
-			return h2.find(
-					from("preferences").where($("category", preferences.category()), $("key", preferences.key())),
+			return h2.find(from("preferences").where($("category", preference.category()), $("key", preference.key())),
 					Preference::new);
 		}
 	}
