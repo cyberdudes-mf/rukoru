@@ -47,8 +47,20 @@ public class AssetUtil {
 	}
 
 	public static String loadSQL(final String fileName) {
+		return loadFile("sql", fileName);
+	}
+
+	public static String loadJS(final String fileName) {
+		return loadFile("js", fileName);
+	}
+
+	public static String loadJS(final String fileName, final Object... params) {
+		return String.format(loadJS(fileName), params);
+	}
+
+	private static String loadFile(final String directory, final String fileName) {
 		try {
-			return new String(Files.readAllBytes(getPath("sql", fileName)), UTF_8.toString());
+			return new String(Files.readAllBytes(getPath(directory, fileName)), UTF_8.toString());
 		} catch (final IOException e) {
 			throw new UncheckedIOException(e);
 		}

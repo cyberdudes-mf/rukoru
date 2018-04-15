@@ -156,8 +156,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			if (!h2.exists("PREFERENCES")) {
 				return Optional.empty();
 			}
-			return h2.find(
-					from("preferences").where($("category", preference.getCategory()), $("key", preference.getKey())),
+			return h2.find(from("preferences").where($("category", preference.category()), $("key", preference.key())),
 					Preference::new);
 		}
 	}
@@ -222,8 +221,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		final int nextKey = h2
 				.find(SelectBuilder.query("select MAX(key) from preferences where category='DSSetting'"), this::getInt)
 				.get() + 1;
-		final Preference p = new Preference("DSSetting", Integer.toString(nextKey));
-		p.setValue(sequence);
+		final Preference p = new Preference("DSSetting", Integer.toString(nextKey), sequence);
 		savePreferences(Arrays.asList(p));
 	}
 

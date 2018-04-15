@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
+import hoshisugi.rukoru.app.enums.Preferences;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -16,9 +17,15 @@ public class Preference extends DBEntity {
 
 	private final StringProperty value = new SimpleStringProperty(this, "value");
 
-	public Preference(final String category, final String key) {
+	public Preference(final String category, final String key, final String value) {
 		setCategory(category);
 		setKey(key);
+		setValue(value);
+	}
+
+	public Preference(final Preferences preferences) {
+		setCategory(preferences.category());
+		setKey(preferences.key());
 	}
 
 	public Preference(final ResultSet rs) {
