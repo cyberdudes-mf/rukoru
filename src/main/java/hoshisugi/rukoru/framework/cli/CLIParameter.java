@@ -3,6 +3,7 @@ package hoshisugi.rukoru.framework.cli;
 import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 class CLIParameter {
@@ -14,6 +15,7 @@ class CLIParameter {
 	private TimeUnit timeoutUnit;
 	private Predicate<String> successCondition;
 	private Predicate<String> failureCondition;
+	private Consumer<CLIState> callback;
 
 	CLIParameter(final String command) {
 		this.command = command;
@@ -37,14 +39,6 @@ class CLIParameter {
 
 	Collection<String> getOptions() {
 		return options;
-	}
-
-	Predicate<String> getSuccessPredicate() {
-		return successCondition;
-	}
-
-	Predicate<String> getFailurePredicate() {
-		return failureCondition;
 	}
 
 	File getDirectory() {
@@ -74,6 +68,22 @@ class CLIParameter {
 
 	public void setTimeoutUnit(final TimeUnit timeoutUnit) {
 		this.timeoutUnit = timeoutUnit;
+	}
+
+	public Predicate<String> getSuccessCondition() {
+		return successCondition;
+	}
+
+	public Predicate<String> getFailureCondition() {
+		return failureCondition;
+	}
+
+	public Consumer<CLIState> getCallback() {
+		return callback;
+	}
+
+	public void setCallback(final Consumer<CLIState> callback) {
+		this.callback = callback;
 	}
 
 }

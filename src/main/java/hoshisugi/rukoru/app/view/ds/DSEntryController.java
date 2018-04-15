@@ -220,43 +220,39 @@ public class DSEntryController extends BaseController {
 		this.dsSetting = dsSetting;
 	}
 
-	private void onServerStarted(final CLIState cliState) {
+	private void onServerStarted(final CLIState state) {
 		if (controlServerButton.isDisable()) {
 			Platform.runLater(() -> controlServerButton.setDisable(false));
 		}
-		if (cliState.isSuccess()) {
+		if (state != null && state.isSuccess()) {
 			FXUtil.getPrimaryStage().setOnCloseRequest(stopOnExit);
 		}
-		if (cliState.isFailure()) {
-			Platform.runLater(() -> controlServerButton.setSelected(false));
-		}
+		final boolean succeeded = state == null || state.isSuccess();
+		Platform.runLater(() -> controlServerButton.setSelected(succeeded));
 	}
 
-	private void onServerStopped(final CLIState cliState) {
+	private void onServerStopped(final CLIState state) {
 		if (controlServerButton.isDisable()) {
 			Platform.runLater(() -> controlServerButton.setDisable(false));
 		}
-		if (cliState.isFailure()) {
-			Platform.runLater(() -> controlServerButton.setSelected(true));
-		}
+		final boolean selected = state != null && !state.isSuccess();
+		Platform.runLater(() -> controlServerButton.setSelected(selected));
 	}
 
-	private void onStudioStarted(final CLIState cliState) {
+	private void onStudioStarted(final CLIState state) {
 		if (controlStudioButton.isDisable()) {
 			Platform.runLater(() -> controlStudioButton.setDisable(false));
 		}
-		if (cliState.isFailure()) {
-			Platform.runLater(() -> controlStudioButton.setSelected(false));
-		}
+		final boolean selected = state == null || !state.isSuccess();
+		Platform.runLater(() -> controlStudioButton.setSelected(selected));
 	}
 
-	private void onStudioStopped(final CLIState cliState) {
+	private void onStudioStopped(final CLIState state) {
 		if (controlStudioButton.isDisable()) {
 			Platform.runLater(() -> controlStudioButton.setDisable(false));
 		}
-		if (cliState.isFailure()) {
-			Platform.runLater(() -> controlStudioButton.setSelected(true));
-		}
+		final boolean selected = state != null && !state.isSuccess();
+		Platform.runLater(() -> controlStudioButton.setSelected(selected));
 	}
 
 	private void stopOnExit() {

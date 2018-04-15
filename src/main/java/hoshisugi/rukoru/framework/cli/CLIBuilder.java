@@ -3,6 +3,7 @@ package hoshisugi.rukoru.framework.cli;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class CLIBuilder {
@@ -40,6 +41,11 @@ public class CLIBuilder {
 
 	public CLIBuilder failureCondition(final Predicate<String> condition) {
 		parameter.setFailureCondition(condition);
+		return this;
+	}
+
+	public CLIBuilder callback(final Consumer<CLIState> callback) {
+		parameter.setCallback(callback);
 		return this;
 	}
 

@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,64 +41,62 @@ public class DSServiceImpl extends BaseService implements DSService {
 	@Override
 	public void stopServerExe(final DSSetting dsSetting, final Consumer<CLIState> callback)
 			throws InterruptedException {
-		if (isServerRunning(dsSetting)) {
-			final CLIState cliState = CLI.command("Shutdown.exe").directory(dsSetting.getPath("server/bin/"))
-					.successCondition(s -> s.contains("停止しました。")).execute();
-			cliState.waitFor();
-			callback.accept(cliState);
+		if (!isServerRunning(dsSetting)) {
+			callback.accept(null);
+			return;
 		}
+		CLI.command("Shutdown.exe").directory(dsSetting.getPath("server/bin/"))
+				.successCondition(s -> s.contains("停止しました。")).callback(callback).execute();
 	}
 
 	@Override
 	public void startStudioExe(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
-		if (!isStudioRunning(dsSetting)) {
-			startStudio(dsSetting, writer, callback);
-		}
+		startStudio(dsSetting, writer, callback);
 	}
 
 	@Override
 	public void stopStudioExe(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
-		if (isStudioRunning(dsSetting)) {
-			final Optional<WindowsProcess> process = getDataSpiderStudioProcess(dsSetting);
-			if (process.isPresent()) {
-				final CLIState state = CLI.command("taskkill").options("/pid", process.get().getProcessId(), "/t", "/f")
-						.execute();
-				callback.accept(state);
-			}
+		if (!isStudioRunning(dsSetting)) {
+			callback.accept(null);
+			return;
+		}
+		final Optional<WindowsProcess> process = getDataSpiderStudioProcess(dsSetting);
+		if (process.isPresent()) {
+			CLI.command("taskkill").options("/pid", process.get().getProcessId(), "/t").callback(callback).execute();
+		} else {
+			callback.accept(null);
 		}
 	}
 
 	@Override
 	public void startServerService(final DSSetting dsSetting, final DSLogWriter writer,
 			final Consumer<CLIState> callback) throws IOException {
-		if (dsSetting.getServiceName().isPresent()) {
-			final CLIState cliState = CLI.command("sc").options("start", dsSetting.getServiceName().get())
-					.successCondition(s -> s.contains("RUNNING")).execute();
-			try (BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
-				for (String line = null; (line = br.readLine()) != null;) {
-					writer.writeLine(line);
-				}
-				callback.accept(cliState);
-			} finally {
-				writer.shutDown();
-			}
-		} else {
-			final CLIState cliState = new CLIState(null);
-			cliState.fail();
-			callback.accept(cliState);
+		if (!dsSetting.getServiceName().isPresent()) {
 			writer.writeLine("サービスは登録されていません。");
+			writer.shutDown();
+			callback.accept(null);
+			return;
 		}
-		writer.shutDown();
+		final CLIState cliState = CLI.command("sc").options("start", dsSetting.getServiceName().get())
+				.successCondition(s -> s.contains("RUNNING")).callback(callback).execute();
+		try (BufferedReader br = IOUtil.newBufferedReader(cliState.getInputStream())) {
+			for (String line = null; (line = br.readLine()) != null;) {
+				writer.writeLine(line);
+			}
+		} finally {
+			writer.shutDown();
+		}
 	}
 
 	@Override
 	public void stopServerService(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
-		if (dsSetting.getServiceName().isPresent()) {
-			final CLIState cliState = CLI.command("sc").options("stop", dsSetting.getServiceName().get())
-					.successCondition(s -> s.contains("STOPPED")).execute();
-			callback.accept(cliState);
+		if (!dsSetting.getServiceName().isPresent()) {
+			callback.accept(null);
+			return;
 		}
+		CLI.command("sc").options("stop", dsSetting.getServiceName().get()).successCondition(s -> s.contains("STOPPED"))
+				.callback(callback).execute();
 	}
 
 	@Override
@@ -186,36 +183,34 @@ public class DSServiceImpl extends BaseService implements DSService {
 	private void startServer(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
 		if (isServerRunning(dsSetting)) {
+			writer.writeLine("Server はすでに起動しています。");
+			writer.shutDown();
+			callback.accept(null);
 			return;
 		}
 		final CLIState cliState = CLI.command(dsSetting.getServerExecutorName())
-				.directory(dsSetting.getPath("server/bin")).successCondition(s -> s.contains("正常に起動しました。")).execute();
-		try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
+				.directory(dsSetting.getPath("server/bin")).successCondition(s -> s.contains("正常に起動しました。"))
+				.failureCondition(s -> s.contains("起動に失敗しました。")).callback(callback).execute();
+		try (final BufferedReader br = IOUtil.newBufferedReader(cliState.getInputStream())) {
 			for (String line = null; (line = br.readLine()) != null;) {
 				writer.writeLine(line);
-				if (line.contains("起動に失敗しました。")) {
-					cliState.fail();
-				}
-				if (cliState.isSuccess() || cliState.isFailure()) {
-					callback.accept(cliState);
-				}
 			}
 			writer.shutDown();
-		}
-		if (cliState.isFailure()) {
-			callback.accept(cliState);
 		}
 	}
 
 	private void startStudio(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
 		if (isStudioRunning(dsSetting)) {
+			writer.writeLine("Studio はすでに起動しています。");
+			writer.shutDown();
+			callback.accept(null);
 			return;
 		}
 		final CLIState cliState = CLI.command(dsSetting.getStudioExecutorName())
-				.directory(dsSetting.getPath("client/bin")).execute();
+				.directory(dsSetting.getPath("client/bin")).callback(callback).execute();
 		ConcurrentUtil.run(() -> {
-			try (final BufferedReader br = new BufferedReader(new InputStreamReader(cliState.getInputStream()))) {
+			try (final BufferedReader br = IOUtil.newBufferedReader(cliState.getInputStream())) {
 				for (String line = null; (line = br.readLine()) != null;) {
 					writer.writeLine(line);
 				}
