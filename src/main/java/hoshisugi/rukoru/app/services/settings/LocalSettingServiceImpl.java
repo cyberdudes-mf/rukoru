@@ -149,8 +149,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			if (!h2.exists("PREFERENCES")) {
 				return Optional.empty();
 			}
-			return h2.find(
-					from("preferences").where($("category", preference.getCategory()), $("key", preference.getKey())),
+			return h2.find(from("preferences").where($("category", preference.category()), $("key", preference.key())),
 					Preference::new);
 		}
 	}

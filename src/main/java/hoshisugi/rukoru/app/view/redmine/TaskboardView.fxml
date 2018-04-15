@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.redmine.TaskboardController">
+   <children>
+      <HBox alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+         <children>
+            <Button fx:id="addUserStoryButton" mnemonicParsing="false" onAction="#onAddUserStoryButtonClick" />
+            <ComboBox fx:id="project" prefWidth="150.0" promptText="プロジェクト" />
+            <ComboBox fx:id="sprint" prefWidth="150.0" promptText="スプリント" />
+            <CheckBox fx:id="showClosedSprintCheckBox" mnemonicParsing="false" onAction="#onShowClosedSprintCheckBoxChanged" selected="true" text="完了したスプリントを表示" />
+         </children>
+      </HBox>
+      <VBox fx:id="content" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+   </children>
+</VBox>

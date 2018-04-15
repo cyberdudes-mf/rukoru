@@ -12,6 +12,7 @@ import com.google.inject.Inject;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
+import hoshisugi.rukoru.app.view.redmine.TaskboardController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.framework.base.BaseController;
@@ -52,6 +53,9 @@ public class ToolBarController extends BaseController {
 	private ToggleButton s3Button;
 
 	@FXML
+	private ToggleButton taskboardButton;
+
+	@FXML
 	private ToggleGroup toolBar;
 
 	@Inject
@@ -68,6 +72,7 @@ public class ToolBarController extends BaseController {
 		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/EC2.png")));
 		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DB.png")));
 		s3Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/S3.png")));
+		taskboardButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/Redmine.png")));
 		toolBar.selectedToggleProperty().addListener(this::toolBarSelectionChanged);
 	}
 
@@ -120,6 +125,11 @@ public class ToolBarController extends BaseController {
 	@FXML
 	private void onRepositoryDBButtonCLick(final ActionEvent event) {
 		contentController.showContent(RepositoryDBContentController.class);
+	}
+
+	@FXML
+	private void onTaskboardButtonClick(final ActionEvent event) {
+		contentController.showContent(TaskboardController.class);
 	}
 
 	private void toolBarSelectionChanged(final ObservableValue<? extends Toggle> observable, final Toggle oldValue,
