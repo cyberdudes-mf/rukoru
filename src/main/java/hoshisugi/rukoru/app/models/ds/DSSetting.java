@@ -31,13 +31,15 @@ import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.models.settings.DBEntity;
 import hoshisugi.rukoru.framework.util.AssetUtil;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class DSSetting extends DBEntity {
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 	private final StringProperty executionPath = new SimpleStringProperty(this, "executionPath");
-	private final StringProperty executionType = new SimpleStringProperty(this, "executionType");
+	private final ObjectProperty<ExecutionType> executionType = new SimpleObjectProperty<>(this, "executionType");
 	private final StringProperty state = new SimpleStringProperty(this, "state");
 	private final Properties dsProp = AssetUtil.loadProperties("ds.properties");
 
@@ -74,11 +76,11 @@ public class DSSetting extends DBEntity {
 		this.executionPath.set(dsHome);
 	}
 
-	public String getExecutionType() {
+	public ExecutionType getExecutionType() {
 		return executionType.get();
 	}
 
-	public void setExecutionType(final String executionType) {
+	public void setExecutionType(final ExecutionType executionType) {
 		this.executionType.set(executionType);
 	}
 
@@ -98,7 +100,7 @@ public class DSSetting extends DBEntity {
 		return executionPath;
 	}
 
-	public StringProperty executionTypeProperty() {
+	public ObjectProperty<ExecutionType> executionTypeProperty() {
 		return executionType;
 	}
 

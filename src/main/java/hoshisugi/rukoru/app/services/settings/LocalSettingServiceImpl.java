@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.enums.Preferences;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Credential;
@@ -204,7 +203,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		for (final DSSetting setting : updateSettings) {
 			h2.update(table("ds_settings")
 					.set($("name", setting.getName()), $("executionpath", setting.getExecutionPath()),
-							$("executiontype", ExecutionType.toId(setting.getExecutionType())))
+							$("executiontype", setting.getExecutionType().getId()))
 					.where($("id", setting.getId()), $("updated_at", setting.getUpdatedAt())));
 		}
 	}
@@ -213,7 +212,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			throws SQLException {
 		h2.insert(into("ds_settings").values($("id", sequence), $("name", setting.getName()),
 				$("executionpath", setting.getExecutionPath()),
-				$("executiontype", ExecutionType.toId(setting.getExecutionType()))));
+				$("executiontype", setting.getExecutionType().getId())));
 	}
 
 	private void insertDSSettingsToPreferences(final H2Database h2, final DSSetting setting, final String sequence)

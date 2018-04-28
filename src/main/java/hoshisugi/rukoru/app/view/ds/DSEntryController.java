@@ -9,6 +9,7 @@ import java.util.ResourceBundle;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.ds.DSLogWriter;
+import hoshisugi.rukoru.app.models.ds.DSManager;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.services.ds.DSService;
 import hoshisugi.rukoru.framework.base.BaseController;
@@ -18,6 +19,7 @@ import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -100,8 +102,13 @@ public class DSEntryController extends BaseController {
 				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
 		controlAllButton.selectedProperty()
 				.bind(controlServerButton.selectedProperty().or(controlStudioButton.selectedProperty()));
-		controlAllButton.disableProperty()
-				.bind(controlServerButton.disabledProperty().or(controlStudioButton.disabledProperty()));
+		{
+			final BooleanBinding selected = controlServerButton.selectedProperty()
+					.isNotEqualTo(controlStudioButton.selectedProperty());
+			final BooleanBinding disabled = controlServerButton.disableProperty()
+					.or(controlStudioButton.disableProperty());
+			controlAllButton.disableProperty().bind(selected.or(disabled));
+		}
 	}
 
 	@FXML
@@ -119,37 +126,12 @@ public class DSEntryController extends BaseController {
 			selectionModel.select(serverConsole);
 		}
 		controlServerButton.setDisable(true);
+		final DSManager manager = DSManager.getManager(dsSetting.getExecutionType());
 		if (controlServerButton.isSelected()) {
 			serverLogText.clear();
-			ConcurrentUtil.run(() -> {
-				final String executionType = dsSetting.getExecutionType();
-				switch (executionType) {
-				case "EXE":
-					service.startServerExe(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
-					break;
-				case "SERVICE":
-					service.startServerService(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
-					break;
-				case "BAT":
-					service.startServerBat(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
-					break;
-				}
-			});
+			manager.startServer(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
 		} else {
-			ConcurrentUtil.run(() -> {
-				final String executionType = dsSetting.getExecutionType();
-				switch (executionType) {
-				case "EXE":
-					service.stopServerExe(dsSetting, this::onServerStopped);
-					break;
-				case "SERVICE":
-					service.stopServerService(dsSetting, this::onServerStopped);
-					break;
-				case "BAT":
-					service.stopServerBat(dsSetting, this::onServerStopped);
-					break;
-				}
-			});
+			manager.stopServer(dsSetting, this::onServerStopped);
 		}
 	}
 
@@ -163,33 +145,12 @@ public class DSEntryController extends BaseController {
 			selectionModel.select(studioConsole);
 		}
 		controlStudioButton.setDisable(true);
+		final DSManager manager = DSManager.getManager(dsSetting.getExecutionType());
 		if (controlStudioButton.isSelected()) {
 			studioLogText.clear();
-			ConcurrentUtil.run(() -> {
-				final String executionType = dsSetting.getExecutionType();
-				switch (executionType) {
-				case "EXE":
-				case "SERVICE":
-					service.startStudioExe(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted);
-					break;
-				case "BAT":
-					service.startStudioBat(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted);
-					break;
-				}
-			});
+			manager.startStudio(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted);
 		} else {
-			ConcurrentUtil.run(() -> {
-				final String executionType = dsSetting.getExecutionType();
-				switch (executionType) {
-				case "EXE":
-				case "SERVICE":
-					service.stopStudioExe(dsSetting, this::onStudioStopped);
-					break;
-				case "BAT":
-					service.stopStudioBat(dsSetting, this::onStudioStopped);
-					break;
-				}
-			});
+			manager.stopStudio(dsSetting, this::onStudioStopped);
 		}
 	}
 

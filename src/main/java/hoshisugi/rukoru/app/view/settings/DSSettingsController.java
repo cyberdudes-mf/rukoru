@@ -72,7 +72,7 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
 		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
 		nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-		executionTypeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(ExecutionType.toArray()));
+		executionTypeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(ExecutionType.getDisplayNames()));
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableView.setItems(items);
 		loadSettings();

@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.view.settings;
 
+import static hoshisugi.rukoru.app.enums.ExecutionType.SERVICE;
+
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -43,7 +45,7 @@ public class EntryDSController extends BaseController {
 		executionType.getItems().addAll(ExecutionType.values());
 		executionType.setCellFactory(PropertyListCell.forListView(ExecutionType::toString));
 		executionType.setButtonCell(executionType.getCellFactory().call(null));
-		executionType.getSelectionModel().select(ExecutionType.Service);
+		executionType.getSelectionModel().select(SERVICE);
 		directoryChooserButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/folder.png")));
 		okButton.disableProperty().bind(name.textProperty().isEmpty().or(executionPath.textProperty().isEmpty()));
 	}
@@ -61,7 +63,7 @@ public class EntryDSController extends BaseController {
 			final DSSetting setting = new DSSetting();
 			setting.setName(name.getText());
 			setting.setExecutionPath(executionPath.getText());
-			setting.setExecutionType(executionType.getSelectionModel().getSelectedItem().toString());
+			setting.setExecutionType(executionType.getSelectionModel().getSelectedItem());
 			setting.setState(DSSettingState.Insert);
 			consumer.accept(setting);
 			FXUtil.getStage(e).close();
