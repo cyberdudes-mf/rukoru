@@ -10,6 +10,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -39,8 +41,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	@Override
-	public void stopServerExe(final DSSetting dsSetting, final Consumer<CLIState> callback)
-			throws InterruptedException {
+	public void stopServerExe(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
 		if (!isServerRunning(dsSetting)) {
 			callback.accept(null);
 			return;
@@ -61,9 +62,9 @@ public class DSServiceImpl extends BaseService implements DSService {
 			callback.accept(null);
 			return;
 		}
-		final Optional<WindowsProcess> process = getDataSpiderStudioProcess(dsSetting);
+		final Optional<WindowsProcess> process = getStudioExeProcess(dsSetting);
 		if (process.isPresent()) {
-			CLI.command("taskkill").options("/pid", process.get().getProcessId(), "/t").callback(callback).execute();
+			CLI.command("taskkill").options("/pid", process.get().getPid(), "/t").callback(callback).execute();
 		} else {
 			callback.accept(null);
 		}
@@ -106,10 +107,17 @@ public class DSServiceImpl extends BaseService implements DSService {
 	}
 
 	@Override
-	public void stopServerBat(final DSSetting dsSetting, final Consumer<CLIState> callback)
-			throws InterruptedException {
-		// TODO Auto-generated method stub
-
+	public void stopServerBat(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
+		if (!isServerRunning(dsSetting)) {
+			callback.accept(null);
+			return;
+		}
+		final Optional<Netstat> netstat = getServerBatProcess(dsSetting);
+		if (netstat.isPresent()) {
+			CLI.command("taskkill").options("/pid", netstat.get().getPid(), "/f").callback(callback).execute();
+		} else {
+			callback.accept(null);
+		}
 	}
 
 	@Override
@@ -120,8 +128,16 @@ public class DSServiceImpl extends BaseService implements DSService {
 
 	@Override
 	public void stopStudioBat(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
-		// TODO Auto-generated method stub
-
+		if (!isStudioRunning(dsSetting)) {
+			callback.accept(null);
+			return;
+		}
+		final Optional<String> pid = getStudioBatProcess(dsSetting);
+		if (pid.isPresent()) {
+			CLI.command("taskkill").options("/pid", pid.get(), "/t").callback(callback).execute();
+		} else {
+			callback.accept(null);
+		}
 	}
 
 	@Override
@@ -161,7 +177,47 @@ public class DSServiceImpl extends BaseService implements DSService {
 		return Files.exists(dsSetting.getPath("client/bin/.lock"));
 	}
 
-	private Optional<WindowsProcess> getDataSpiderStudioProcess(final DSSetting dsSetting) throws IOException {
+	private Optional<Netstat> getServerBatProcess(final DSSetting dsSetting) throws IOException {
+		final CLIState netstatState = CLI.command("netstat")
+				.options("-aon", "|", "find", String.format("\"0.0.0.0:%s\"", dsSetting.getPort())).execute();
+		try (BufferedReader reader = IOUtil.newBufferedReader(netstatState.getInputStream())) {
+			for (String line = null; (line = reader.readLine()) != null;) {
+				if (line.isEmpty()) {
+					continue;
+				}
+				return Optional.of(new Netstat(line));
+			}
+		}
+		return Optional.empty();
+	}
+
+	private Optional<String> getStudioBatProcess(final DSSetting dsSetting) throws IOException {
+		final CLIState jps = CLI.command("jps").options("-v", "|", "find", "\"DataSpiderStudioMain\"").execute();
+		final List<String> pids = new ArrayList<>();
+		try (BufferedReader reader = IOUtil.newBufferedReader(jps.getInputStream())) {
+			for (String line = null; (line = reader.readLine()) != null;) {
+				if (line.isEmpty()) {
+					continue;
+				}
+				final String pid = line.split(" ")[0];
+				pids.add(pid);
+			}
+		}
+
+		for (final String pid : pids) {
+			final CLIState jinfo = CLI.command("jinfo").options(pid, "|", "find", "\"user.dir\"").execute();
+			try (BufferedReader reader = IOUtil.newBufferedReader(jinfo.getInputStream())) {
+				for (String line = null; (line = reader.readLine()) != null;) {
+					if (line.contains(dsSetting.getExecutionPath())) {
+						return Optional.of(pid);
+					}
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
+	private Optional<WindowsProcess> getStudioExeProcess(final DSSetting dsSetting) throws IOException {
 		final CLIState wmicState = CLI.command("WMIC")
 				.options("PROCESS", "WHERE", "\"Name LIKE '" + dsSetting.getStudioExecutorName() + "'\"", "GET",
 						"ExecutablePath,Name,ProcessId", "/FORMAT:CSV")
@@ -224,14 +280,14 @@ public class DSServiceImpl extends BaseService implements DSService {
 		private final String node;
 		private final String executablePath;
 		private final String name;
-		private final String processId;
+		private final String pid;
 
 		public WindowsProcess(final String line) {
 			final String[] cols = line.split(",");
 			node = cols[0];
 			executablePath = cols[1];
 			name = cols[2];
-			processId = cols[3];
+			pid = cols[3];
 		}
 
 		public String getNode() {
@@ -246,9 +302,46 @@ public class DSServiceImpl extends BaseService implements DSService {
 			return name;
 		}
 
-		public String getProcessId() {
-			return processId;
+		public String getPid() {
+			return pid;
 		}
 	}
 
+	static class Netstat {
+		private final String protocol;
+		private final String localAddress;
+		private final String foreignAddress;
+		private final String state;
+		private final String pid;
+
+		public Netstat(final String line) {
+			final String[] cols = line.trim().split("\\s+");
+			protocol = cols[0];
+			localAddress = cols[1];
+			foreignAddress = cols[2];
+			state = cols[3];
+			pid = cols[4];
+		}
+
+		public String getProtocol() {
+			return protocol;
+		}
+
+		public String getLocalAddress() {
+			return localAddress;
+		}
+
+		public String getForeignAddress() {
+			return foreignAddress;
+		}
+
+		public String getState() {
+			return state;
+		}
+
+		public String getPid() {
+			return pid;
+		}
+
+	}
 }

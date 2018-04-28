@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.models.ds;
 
+import static hoshisugi.rukoru.app.enums.ExecutionType.BAT;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -128,7 +130,7 @@ public class DSSetting extends DBEntity {
 	}
 
 	public String getServerExecutorName() {
-		if (getExecutionType().equals("BAT")) {
+		if (getExecutionType() == BAT) {
 			return dsProp.getProperty("ds.server.bat");
 		} else {
 			return dsProp.getProperty("ds.server.exe");
@@ -136,7 +138,7 @@ public class DSSetting extends DBEntity {
 	}
 
 	public String getStudioExecutorName() {
-		if (getExecutionType().equals("BAT")) {
+		if (getExecutionType() == BAT) {
 			return dsProp.getProperty("ds.client.bat");
 		} else {
 			return dsProp.getProperty("ds.client.exe");

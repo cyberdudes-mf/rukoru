@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
 
+import hoshisugi.rukoru.app.models.ds.DSEntry;
 import hoshisugi.rukoru.app.models.ds.DSLogWriter;
 import hoshisugi.rukoru.app.models.ds.DSManager;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
@@ -20,6 +21,7 @@ import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -36,7 +38,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.stage.WindowEvent;
 
-public class DSEntryController extends BaseController {
+public class DSEntryController extends BaseController implements DSEntry {
 
 	@FXML
 	private Accordion accordion;
@@ -100,8 +102,8 @@ public class DSEntryController extends BaseController {
 				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
 		controlAllButton.graphicProperty().bind(when(controlAllButton.selectedProperty().not())
 				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
-		controlAllButton.selectedProperty()
-				.bind(controlServerButton.selectedProperty().or(controlStudioButton.selectedProperty()));
+		controlServerButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
+		controlStudioButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
 		{
 			final BooleanBinding selected = controlServerButton.selectedProperty()
 					.isNotEqualTo(controlStudioButton.selectedProperty());
@@ -118,45 +120,32 @@ public class DSEntryController extends BaseController {
 
 	@FXML
 	private void onControlServerButtonClick(final ActionEvent event) {
-		if (accordion.getExpandedPane() == null) {
-			accordion.setExpandedPane(titledPane);
-		}
-		final SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
-		if (selectionModel.getSelectedItem() != serverConsole) {
-			selectionModel.select(serverConsole);
-		}
-		controlServerButton.setDisable(true);
-		final DSManager manager = DSManager.getManager(dsSetting.getExecutionType());
+		final DSManager manager = DSManager.getManager(this);
 		if (controlServerButton.isSelected()) {
-			serverLogText.clear();
-			manager.startServer(dsSetting, new DSLogWriter(serverLogText), this::onServerStarted);
+			manager.startServer();
 		} else {
-			manager.stopServer(dsSetting, this::onServerStopped);
+			manager.stopServer();
 		}
 	}
 
 	@FXML
 	private void onControlStudioButtonClick(final ActionEvent event) {
-		if (accordion.getExpandedPane() == null) {
-			accordion.setExpandedPane(titledPane);
-		}
-		final SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
-		if (selectionModel.getSelectedItem() != studioConsole) {
-			selectionModel.select(studioConsole);
-		}
-		controlStudioButton.setDisable(true);
-		final DSManager manager = DSManager.getManager(dsSetting.getExecutionType());
+		final DSManager manager = DSManager.getManager(this);
 		if (controlStudioButton.isSelected()) {
-			studioLogText.clear();
-			manager.startStudio(dsSetting, new DSLogWriter(studioLogText), this::onStudioStarted);
+			manager.startStudio();
 		} else {
-			manager.stopStudio(dsSetting, this::onStudioStopped);
+			manager.stopStudio();
 		}
 	}
 
 	@FXML
 	private void onControlAllButtonClick(final ActionEvent event) {
-		System.out.println("onControlAllButtonClick");
+		final DSManager manager = DSManager.getManager(this);
+		if (controlAllButton.isSelected()) {
+			manager.startBoth();
+		} else {
+			manager.stopBoth();
+		}
 	}
 
 	@FXML
@@ -181,7 +170,7 @@ public class DSEntryController extends BaseController {
 		this.dsSetting = dsSetting;
 	}
 
-	private void onServerStarted(final CLIState state) {
+	public void onServerStarted(final CLIState state) {
 		if (controlServerButton.isDisable()) {
 			Platform.runLater(() -> controlServerButton.setDisable(false));
 		}
@@ -192,7 +181,7 @@ public class DSEntryController extends BaseController {
 		Platform.runLater(() -> controlServerButton.setSelected(succeeded));
 	}
 
-	private void onServerStopped(final CLIState state) {
+	public void onServerStopped(final CLIState state) {
 		if (controlServerButton.isDisable()) {
 			Platform.runLater(() -> controlServerButton.setDisable(false));
 		}
@@ -200,7 +189,7 @@ public class DSEntryController extends BaseController {
 		Platform.runLater(() -> controlServerButton.setSelected(selected));
 	}
 
-	private void onStudioStarted(final CLIState state) {
+	public void onStudioStarted(final CLIState state) {
 		if (controlStudioButton.isDisable()) {
 			Platform.runLater(() -> controlStudioButton.setDisable(false));
 		}
@@ -208,7 +197,7 @@ public class DSEntryController extends BaseController {
 		Platform.runLater(() -> controlStudioButton.setSelected(selected));
 	}
 
-	private void onStudioStopped(final CLIState state) {
+	public void onStudioStopped(final CLIState state) {
 		if (controlStudioButton.isDisable()) {
 			Platform.runLater(() -> controlStudioButton.setDisable(false));
 		}
@@ -216,9 +205,75 @@ public class DSEntryController extends BaseController {
 		Platform.runLater(() -> controlStudioButton.setSelected(selected));
 	}
 
-	private void stopOnExit() {
+	private void onSelectedPropertyCahnged(final ObservableValue<? extends Boolean> observable, final Boolean oldValue,
+			final Boolean newValue) {
+		controlAllButton.setSelected(controlServerButton.isSelected() || controlStudioButton.isSelected());
+	}
+
+	@Override
+	public void stopOnExit() {
 		if (controlServerButton.isSelected()) {
 			ConcurrentUtil.run(() -> service.stopServerExe(dsSetting, this::onServerStopped));
 		}
 	}
+
+	@Override
+	public DSSetting getDsSetting() {
+		return dsSetting;
+	}
+
+	@Override
+	public DSLogWriter getServerLogWriter() {
+		if (accordion.getExpandedPane() == null) {
+			accordion.setExpandedPane(titledPane);
+		}
+		final SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
+		if (selectionModel.getSelectedItem() != serverConsole) {
+			selectionModel.select(serverConsole);
+		}
+		return new DSLogWriter(serverLogText);
+	}
+
+	@Override
+	public DSLogWriter getStudioLogWriter() {
+		if (accordion.getExpandedPane() == null) {
+			accordion.setExpandedPane(titledPane);
+		}
+		final SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
+		if (selectionModel.getSelectedItem() != studioConsole) {
+			selectionModel.select(studioConsole);
+		}
+		return new DSLogWriter(studioLogText);
+	}
+
+	@Override
+	public void setServerButtonDisable(final boolean disable) {
+		controlServerButton.setDisable(disable);
+	}
+
+	@Override
+	public void setStudioButtonDisable(final boolean disable) {
+		controlStudioButton.setDisable(disable);
+	}
+
+	@Override
+	public void setServerButtonSelected(final boolean disable) {
+		controlServerButton.setSelected(disable);
+	}
+
+	@Override
+	public void setStudioButtonSelected(final boolean disable) {
+		controlStudioButton.setSelected(disable);
+	}
+
+	@Override
+	public boolean isServerButtonSelected() {
+		return controlServerButton.isSelected();
+	}
+
+	@Override
+	public boolean isStudioButtonSelected() {
+		return controlStudioButton.isSelected();
+	}
+
 }

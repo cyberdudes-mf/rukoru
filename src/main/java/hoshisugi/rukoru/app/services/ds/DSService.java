@@ -11,7 +11,7 @@ public interface DSService {
 
 	void startServerExe(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
 
-	void stopServerExe(DSSetting dsSetting, Consumer<CLIState> callback) throws InterruptedException;
+	void stopServerExe(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
 
 	void startStudioExe(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
 
@@ -23,7 +23,7 @@ public interface DSService {
 
 	void startServerBat(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
 
-	void stopServerBat(DSSetting dsSetting, Consumer<CLIState> callback) throws InterruptedException;
+	void stopServerBat(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
 
 	void startStudioBat(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
 

@@ -4,26 +4,72 @@ import java.util.function.Consumer;
 
 import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
+import javafx.application.Platform;
 
 public class DSBatManager extends DSManagerBase {
 
-	@Override
-	public void startServer(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback) {
-		ConcurrentUtil.run(() -> service.startServerBat(dsSetting, writer, callback));
+	public DSBatManager(final DSEntry entry) {
+		super(entry);
 	}
 
 	@Override
-	public void stopServer(final DSSetting dsSetting, final Consumer<CLIState> callback) {
-		ConcurrentUtil.run(() -> service.stopServerBat(dsSetting, callback));
+	public void startServer() {
+		startServer(super::onServerStarted);
 	}
 
 	@Override
-	public void startStudio(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback) {
-		ConcurrentUtil.run(() -> service.startStudioBat(dsSetting, writer, callback));
+	public void stopServer() {
+		entry.setServerButtonDisable(true);
+		final DSSetting dsSetting = entry.getDsSetting();
+		ConcurrentUtil.run(() -> service.stopServerBat(dsSetting, super::onServerStopped));
 	}
 
 	@Override
-	public void stopStudio(final DSSetting dsSetting, final Consumer<CLIState> callback) {
+	public void startStudio() {
+		entry.setStudioButtonDisable(true);
+		if (!entry.isStudioButtonSelected()) {
+			entry.setStudioButtonSelected(true);
+		}
+		final DSSetting dsSetting = entry.getDsSetting();
+		final DSLogWriter logWriter = entry.getStudioLogWriter();
+		ConcurrentUtil.run(() -> service.startStudioBat(dsSetting, logWriter, super::onStudioStarted));
+	}
+
+	@Override
+	public void stopStudio() {
+		stopStudio(super::onStudioStarted);
+	}
+
+	@Override
+	public void startBoth() {
+		startServer(state -> {
+			Platform.runLater(() -> {
+				super.onServerStarted(state);
+				startStudio();
+			});
+		});
+	}
+
+	@Override
+	public void stopBoth() {
+		stopStudio(cliState -> {
+			Platform.runLater(() -> {
+				super.onStudioStopped(cliState);
+				stopServer();
+			});
+		});
+	}
+
+	public void startServer(final Consumer<CLIState> callback) {
+		entry.setServerButtonDisable(true);
+		final DSSetting dsSetting = entry.getDsSetting();
+		final DSLogWriter logWriter = entry.getServerLogWriter();
+		ConcurrentUtil.run(() -> service.startServerBat(dsSetting, logWriter, callback));
+	}
+
+	public void stopStudio(final Consumer<CLIState> callback) {
+		entry.setStudioButtonDisable(true);
+		final DSSetting dsSetting = entry.getDsSetting();
 		ConcurrentUtil.run(() -> service.stopStudioBat(dsSetting, callback));
 	}
 

@@ -17,6 +17,7 @@ public class DSLogWriter {
 
 	public DSLogWriter(final TextArea textArea) {
 		this.textArea = textArea;
+		textArea.clear();
 	}
 
 	public void writeLine(final String text) {
