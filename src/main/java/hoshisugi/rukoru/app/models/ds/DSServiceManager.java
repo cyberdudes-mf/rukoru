@@ -35,12 +35,14 @@ public class DSServiceManager extends DSManagerBase {
 
 	@Override
 	public void onServerStarted(final CLIState state) {
-		for (int i = 0; i < 60; i++) {
+		if (state.isFailure()) {
+			super.onServerStarted(state);
+		}
+		while (true) {
 			if (service.isServerRunning(entry.getDsSetting())) {
 				super.onServerStarted(state);
-				break;
+				return;
 			}
 		}
-		super.onServerStarted(null);
 	}
 }
