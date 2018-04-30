@@ -24,6 +24,14 @@ public class ConcurrentUtil {
 		}
 	}
 
+	public static void sleepSilently(final int millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (final InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@FunctionalInterface
 	public static interface AsyncTask {
 		void run() throws Exception;

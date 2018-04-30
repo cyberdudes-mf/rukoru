@@ -33,4 +33,14 @@ public class DSServiceManager extends DSManagerBase {
 		service.stopStudioExe(dsSetting, callback);
 	}
 
+	@Override
+	public void onServerStarted(final CLIState state) {
+		for (int i = 0; i < 60; i++) {
+			if (service.isServerRunning(entry.getDsSetting())) {
+				super.onServerStarted(state);
+				break;
+			}
+		}
+		super.onServerStarted(null);
+	}
 }

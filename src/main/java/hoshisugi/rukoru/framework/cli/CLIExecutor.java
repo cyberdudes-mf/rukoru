@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.framework.cli;
 
+import static hoshisugi.rukoru.framework.cli.CLIState.SUCCESS;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -107,7 +109,16 @@ class CLIExecutor {
 						updateState();
 					}
 				}
-				postCall();
+				synchronized (state) {
+					if (latch.getCount() > 0) {
+						latch.countDown();
+						if (state.getExitValue() == SUCCESS) {
+							state.succeed();
+						} else {
+							state.fail();
+						}
+					}
+				}
 			}
 			return null;
 		}
@@ -116,8 +127,6 @@ class CLIExecutor {
 
 		abstract void updateState();
 
-		void postCall() {
-		}
 	}
 
 	static class SuccessMonitor extends CLIExecutor.FinishedMonitor {
@@ -136,14 +145,6 @@ class CLIExecutor {
 		@Override
 		void updateState() {
 			state.succeed();
-		}
-
-		@Override
-		void postCall() {
-			if (latch.getCount() > 0) {
-				latch.countDown();
-				updateState();
-			}
 		}
 
 	}

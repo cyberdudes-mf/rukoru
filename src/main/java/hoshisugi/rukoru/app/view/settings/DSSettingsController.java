@@ -59,7 +59,7 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 	private TableColumn<DSSetting, String> executionPathColumn;
 
 	@FXML
-	private TableColumn<DSSetting, String> executionTypeColumn;
+	private TableColumn<DSSetting, ExecutionType> executionTypeColumn;
 
 	private final ObservableList<DSSetting> dssettings = FXCollections.observableArrayList();
 
@@ -72,7 +72,7 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
 		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
 		nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-		executionTypeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(ExecutionType.getDisplayNames()));
+		executionTypeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(ExecutionType.values()));
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableView.setItems(items);
 		loadSettings();

@@ -80,7 +80,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 			return;
 		}
 		final CLIState cliState = CLI.command("sc").options("start", dsSetting.getServiceName().get())
-				.successCondition(s -> s.contains("RUNNING")).callback(callback).execute();
+				.callback(callback).execute();
 		try (BufferedReader br = IOUtil.newBufferedReader(cliState.getInputStream())) {
 			for (String line = null; (line = br.readLine()) != null;) {
 				writer.writeLine(line);

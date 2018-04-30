@@ -25,8 +25,4 @@ public enum ExecutionType {
 	public static ExecutionType of(final String id) {
 		return Stream.of(values()).filter(t -> t.getId().equals(id)).findFirst().get();
 	}
-
-	public static String[] getDisplayNames() {
-		return Stream.of(values()).map(ExecutionType::toString).toArray(String[]::new);
-	}
 }
