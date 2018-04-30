@@ -20,6 +20,9 @@ public class DSBatManager extends DSManagerBase {
 	@Override
 	public void stopServer() {
 		entry.setServerButtonDisable(true);
+		if (entry.isServerButtonSelected()) {
+			entry.setServerButtonSelected(false);
+		}
 		final DSSetting dsSetting = entry.getDsSetting();
 		ConcurrentUtil.run(() -> service.stopServerBat(dsSetting, super::onServerStopped));
 	}
@@ -52,9 +55,9 @@ public class DSBatManager extends DSManagerBase {
 
 	@Override
 	public void stopBoth() {
-		stopStudio(cliState -> {
+		stopStudio(state -> {
 			Platform.runLater(() -> {
-				super.onStudioStopped(cliState);
+				super.onStudioStopped(state);
 				stopServer();
 			});
 		});
@@ -62,6 +65,9 @@ public class DSBatManager extends DSManagerBase {
 
 	public void startServer(final Consumer<CLIState> callback) {
 		entry.setServerButtonDisable(true);
+		if (!entry.isServerButtonSelected()) {
+			entry.setServerButtonSelected(true);
+		}
 		final DSSetting dsSetting = entry.getDsSetting();
 		final DSLogWriter logWriter = entry.getServerLogWriter();
 		ConcurrentUtil.run(() -> service.startServerBat(dsSetting, logWriter, callback));
@@ -69,6 +75,9 @@ public class DSBatManager extends DSManagerBase {
 
 	public void stopStudio(final Consumer<CLIState> callback) {
 		entry.setStudioButtonDisable(true);
+		if (entry.isStudioButtonSelected()) {
+			entry.setStudioButtonSelected(false);
+		}
 		final DSSetting dsSetting = entry.getDsSetting();
 		ConcurrentUtil.run(() -> service.stopStudioBat(dsSetting, callback));
 	}
