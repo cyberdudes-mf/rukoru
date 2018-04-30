@@ -52,12 +52,7 @@ public abstract class DSManagerBase implements DSManager {
 
 	@Override
 	public void startBoth() {
-		startServer(state -> {
-			Platform.runLater(() -> {
-				onServerStarted(state);
-				startStudio();
-			});
-		});
+		startServer(state -> Platform.runLater(() -> onServerStarted(state, this::startStudio)));
 	}
 
 	@Override
@@ -100,18 +95,61 @@ public abstract class DSManagerBase implements DSManager {
 	public abstract void stopStudio(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
 
 	protected void onServerStarted(final CLIState state) {
-		Platform.runLater(() -> entry.setServerButtonDisable(false));
-		if (state != null && state.isSuccess()) {
-			// FXUtil.getPrimaryStage().setOnCloseRequest(stopOnExit);
+		onServerStarted(state, null);
+	}
+
+	protected void onServerStarted(final CLIState state, final Runnable andThen) {
+		if (state == null || state.isFailure()) {
+			Platform.runLater(() -> {
+				entry.setServerButtonDisable(false);
+				entry.setServerButtonSelected(false);
+			});
 		}
-		final boolean succeeded = state == null || state.isSuccess();
-		Platform.runLater(() -> entry.setServerButtonSelected(succeeded));
+		ConcurrentUtil.run(() -> {
+			while (true) {
+				if (!service.isServerRunning(entry.getDsSetting())) {
+					ConcurrentUtil.sleepSilently(1000);
+					continue;
+				}
+				Platform.runLater(() -> {
+					entry.setServerButtonDisable(false);
+					entry.setServerButtonSelected(state.isSuccess());
+					if (andThen != null) {
+						andThen.run();
+					}
+				});
+				break;
+			}
+		});
 	}
 
 	protected void onServerStopped(final CLIState state) {
-		Platform.runLater(() -> entry.setServerButtonDisable(false));
-		final boolean selected = state != null && !state.isSuccess();
-		Platform.runLater(() -> entry.setServerButtonSelected(selected));
+		onServerStopped(state, null);
+	}
+
+	protected void onServerStopped(final CLIState state, final Runnable andThen) {
+		if (state == null || state.isFailure()) {
+			Platform.runLater(() -> {
+				entry.setServerButtonDisable(false);
+				entry.setServerButtonSelected(true);
+			});
+		}
+		ConcurrentUtil.run(() -> {
+			while (true) {
+				if (service.isServerRunning(entry.getDsSetting())) {
+					ConcurrentUtil.sleepSilently(1000);
+					continue;
+				}
+				Platform.runLater(() -> {
+					entry.setServerButtonDisable(false);
+					entry.setServerButtonSelected(!state.isSuccess());
+					if (andThen != null) {
+						andThen.run();
+					}
+				});
+				break;
+			}
+		});
 	}
 
 	protected void onStudioStarted(final CLIState state) {
