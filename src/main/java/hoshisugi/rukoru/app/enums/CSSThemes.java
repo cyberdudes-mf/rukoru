@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 
 public enum CSSThemes {
-	MODENA("modena"), CONSOLE("console");
+	MODENA("Modena"), CONSOLE("Console");
 
 	private String value;
 
@@ -30,5 +30,9 @@ public enum CSSThemes {
 
 	public static CSSThemes of(final String value) {
 		return index.get(value);
+	}
+
+	public static String[] toAllay() {
+		return Stream.of(values()).map(s -> s.toString()).toArray(String[]::new);
 	}
 }
