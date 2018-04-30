@@ -273,6 +273,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 				writer.shutDown();
 			}
 		});
+		cliState.succeed();
 		callback.accept(cliState);
 	}
 

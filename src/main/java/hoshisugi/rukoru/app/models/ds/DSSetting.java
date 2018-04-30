@@ -184,4 +184,12 @@ public class DSSetting extends DBEntity {
 	public String getServerUrl() {
 		return "http://localhost:" + getPort();
 	}
+
+	public String getServerId() {
+		return String.format("server(%s)", getId());
+	}
+
+	public String getStudioId() {
+		return String.format("studio(%s)", getId());
+	}
 }

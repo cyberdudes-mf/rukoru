@@ -7,6 +7,7 @@ import hoshisugi.rukoru.app.services.ds.DSService;
 import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.inject.Injector;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
+import hoshisugi.rukoru.framework.util.ShutdownHandler;
 import javafx.application.Platform;
 
 public abstract class DSManagerBase implements DSManager {
@@ -105,15 +106,20 @@ public abstract class DSManagerBase implements DSManager {
 				entry.setServerButtonSelected(false);
 			});
 		}
+		final DSSetting setting = entry.getDsSetting();
 		ConcurrentUtil.run(() -> {
 			while (true) {
-				if (!service.isServerRunning(entry.getDsSetting())) {
+				if (!service.isServerRunning(setting)) {
 					ConcurrentUtil.sleepSilently(1000);
 					continue;
 				}
 				Platform.runLater(() -> {
 					entry.setServerButtonDisable(false);
-					entry.setServerButtonSelected(state.isSuccess());
+					final boolean success = state.isSuccess();
+					entry.setServerButtonSelected(success);
+					if (success) {
+						ShutdownHandler.addHandler(setting.getServerId(), e -> stopServer());
+					}
 					if (andThen != null) {
 						andThen.run();
 					}
@@ -124,27 +130,25 @@ public abstract class DSManagerBase implements DSManager {
 	}
 
 	protected void onServerStopped(final CLIState state) {
-		onServerStopped(state, null);
-	}
-
-	protected void onServerStopped(final CLIState state, final Runnable andThen) {
 		if (state == null || state.isFailure()) {
 			Platform.runLater(() -> {
 				entry.setServerButtonDisable(false);
 				entry.setServerButtonSelected(true);
 			});
 		}
+		final DSSetting setting = entry.getDsSetting();
 		ConcurrentUtil.run(() -> {
 			while (true) {
-				if (service.isServerRunning(entry.getDsSetting())) {
+				if (service.isServerRunning(setting)) {
 					ConcurrentUtil.sleepSilently(1000);
 					continue;
 				}
 				Platform.runLater(() -> {
 					entry.setServerButtonDisable(false);
-					entry.setServerButtonSelected(!state.isSuccess());
-					if (andThen != null) {
-						andThen.run();
+					final boolean success = state.isSuccess();
+					entry.setServerButtonSelected(!success);
+					if (success) {
+						ShutdownHandler.removeHandler(setting.getServerId());
 					}
 				});
 				break;
@@ -153,14 +157,25 @@ public abstract class DSManagerBase implements DSManager {
 	}
 
 	protected void onStudioStarted(final CLIState state) {
-		Platform.runLater(() -> entry.setStudioButtonDisable(false));
-		final boolean selected = state == null || !state.isSuccess();
-		Platform.runLater(() -> entry.setStudioButtonSelected(selected));
+		Platform.runLater(() -> {
+			entry.setStudioButtonDisable(false);
+			final boolean success = state != null && state.isSuccess();
+			entry.setStudioButtonSelected(success);
+			if (success) {
+				ShutdownHandler.addHandler(entry.getDsSetting().getStudioId(), e -> stopStudio());
+			}
+		});
 	}
 
 	protected void onStudioStopped(final CLIState state) {
-		Platform.runLater(() -> entry.setStudioButtonDisable(false));
-		final boolean selected = state != null && !state.isSuccess();
-		Platform.runLater(() -> entry.setStudioButtonSelected(selected));
+		Platform.runLater(() -> {
+			entry.setStudioButtonDisable(false);
+			final boolean success = state == null || state.isSuccess();
+			entry.setStudioButtonSelected(!success);
+			if (success) {
+				ShutdownHandler.removeHandler(entry.getDsSetting().getStudioId());
+			}
+		});
 	}
+
 }
