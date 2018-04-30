@@ -113,11 +113,6 @@ public class TaskboardController extends BaseController {
 		sprint.setButtonCell(sprint.getCellFactory().call(null));
 		sprint.getSelectionModel().selectedItemProperty().addListener(onSprintSelected);
 
-		ConcurrentUtil.run(() -> {
-			final Projects projects = redmineService.listProjects(new ProjectsRequest());
-			project.getItems().setAll(projects.getProjects());
-			selectProject();
-		});
 		Platform.runLater(() -> {
 			createWebView();
 			load();
@@ -245,6 +240,11 @@ public class TaskboardController extends BaseController {
 			final Map<String, Preference> preferences = settingService
 					.getPreferencesByCategory(RedmineLoginId.category());
 			if (!preferences.isEmpty()) {
+				ConcurrentUtil.run(() -> {
+					final Projects projects = redmineService.listProjects(new ProjectsRequest());
+					project.getItems().setAll(projects.getProjects());
+					selectProject();
+				});
 				this.preferences.putAll(preferences.values().stream()
 						.collect(Collectors.toMap(Preference::getKey, Preference::getValue)));
 				selectProject();
