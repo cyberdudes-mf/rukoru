@@ -55,6 +55,9 @@ public class PreferencesController extends BaseController {
 
 	@FXML
 	private void onCancelButtonClick(final ActionEvent event) {
+		if (content != null) {
+			content.cancel();
+		}
 		FXUtil.getStage(event).close();
 	}
 

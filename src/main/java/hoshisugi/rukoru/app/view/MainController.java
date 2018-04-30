@@ -3,12 +3,16 @@ package hoshisugi.rukoru.app.view;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import com.google.inject.Inject;
+
+import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.settings.CredentialSettingController;
 import hoshisugi.rukoru.app.view.settings.PreferencesController;
 import hoshisugi.rukoru.app.view.settings.RepositoryDBSettingController;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.BrowserUtil;
+import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -21,8 +25,12 @@ public class MainController extends BaseController {
 	@FXML
 	private MenuBar menuBar;
 
+	@Inject
+	private LocalSettingService service;
+
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
+		ConcurrentUtil.run(() -> service.setStyleSheet());
 	}
 
 	@FXML

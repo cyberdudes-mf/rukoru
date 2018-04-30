@@ -22,6 +22,9 @@ import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.database.builder.Column;
 import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
 import hoshisugi.rukoru.framework.database.builder.InsertBuilder;
+import hoshisugi.rukoru.framework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.FXUtil;
+import javafx.collections.ObservableList;
 
 public class LocalSettingServiceImpl extends BaseService implements LocalSettingService {
 
@@ -154,4 +157,18 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		}
 	}
 
+	@Override
+	public void setStyleSheet() throws SQLException {
+		final String value = getPreferencesByCategory("CSS").get("CSSTheme").getValue();
+		final ObservableList<String> stylesheets = FXUtil.getPrimaryStage().getScene().getStylesheets();
+		stylesheets.clear();
+		stylesheets.add(AssetUtil.getURL("css", value + ".css").toExternalForm());
+	}
+
+	@Override
+	public void changeStyleSheet(final String css) throws SQLException {
+		final ObservableList<String> stylesheets = FXUtil.getPrimaryStage().getScene().getStylesheets();
+		stylesheets.clear();
+		stylesheets.add(AssetUtil.getURL("css", css + ".css").toExternalForm());
+	}
 }

@@ -25,4 +25,8 @@ public interface LocalSettingService {
 	Optional<Preference> findPreference(Preferences preference) throws SQLException;
 
 	void savePreferences(Collection<Preference> preferences) throws SQLException;
+
+	void setStyleSheet() throws SQLException;
+
+	void changeStyleSheet(String css) throws SQLException;
 }

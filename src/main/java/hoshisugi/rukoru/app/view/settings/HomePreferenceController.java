@@ -62,4 +62,8 @@ public class HomePreferenceController extends BaseController implements Preferen
 			contentController.refreshTopImage();
 		});
 	}
+
+	@Override
+	public void cancel() {
+	}
 }

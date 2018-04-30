@@ -34,6 +34,9 @@ public class CSSSettingController extends BaseController implements PreferenceCo
 	public void initialize(final URL arg0, final ResourceBundle arg1) {
 		cssThemes.getItems().addAll(CSSThemes.toAllay());
 		loadPreferences();
+		cssThemes.getSelectionModel().selectedItemProperty().addListener((obserbableValue, oldValue, newValue) -> {
+			ConcurrentUtil.run(() -> service.changeStyleSheet(newValue));
+		});
 	}
 
 	private void loadPreferences() {
@@ -61,4 +64,8 @@ public class CSSSettingController extends BaseController implements PreferenceCo
 		ConcurrentUtil.run(() -> service.savePreferences(preferences.values()));
 	}
 
+	@Override
+	public void cancel() {
+		ConcurrentUtil.run(() -> service.setStyleSheet());
+	}
 }

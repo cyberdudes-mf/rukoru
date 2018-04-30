@@ -162,4 +162,8 @@ public class RedminePreferenceController extends BaseController implements Prefe
 			});
 		}
 	}
+
+	@Override
+	public void cancel() {
+	}
 }
