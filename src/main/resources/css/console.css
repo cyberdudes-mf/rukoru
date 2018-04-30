@@ -1,0 +1,232 @@
+
+/*メニュー バー*/
+.menu-bar{
+	-fx-background-color:black ;
+	-fx-padding: 0.0 30.0 0.0 30.0;
+	-fx-border-width: 0.0 0.0 1.0 0.0;
+	-fx-border-color: white;
+	-fx-border-style: segments(20,3);
+}
+
+.menu-bar .menu .label{
+	-fx-text-fill: white;
+	-fx-font-size: 16;
+}
+
+.menu-bar .menu:hover{
+	-fx-background-color: white;
+}
+
+.menu-bar .menu:hover .label{
+	-fx-text-fill: black;
+}
+
+.menu-bar .menu:showing{
+	-fx-background-color: white;
+}
+
+.menu-bar .menu:showing .label{
+	-fx-text-fill: black;
+}
+
+.menu-bar .menu .menu-item .label{
+	-fx-text-fill: white;
+	-fx-font-size: 16;
+}
+
+.menu-bar .menu .menu-item:focused{
+	-fx-text-fill: black;
+	-fx-background-color: white;
+}
+
+.menu-bar .menu .menu-item:focused .label{
+	-fx-text-fill: black;
+}
+
+.menu-bar .menu .context-menu{
+	-fx-background-color: black ;
+	-fx-border-color: white;
+	-fx-border-width: 1;
+}
+
+/*メイン画面 */
+BorderPane{
+	-fx-background-color: black; 
+}
+
+/*メニューボタン */
+VBox >.button,
+VBox >.toggle-button{
+	-fx-text-fill: white;
+	-fx-background-color: black;
+	-fx-background-radius: 0;
+	-fx-border-color: white;
+	-fx-border-radius: 0;
+	-fx-border-width: 1;
+}
+
+VBox >.button:hover,
+VBox >.toggle-button:hover,
+VBox >.toggle-button:selected{
+	-fx-background-color: white;
+	-fx-text-fill: black;
+}
+
+
+/*DS管理画面------------------------------------------------*/
+/*---------------------------------------------------------*/
+/*---------------------------------------------------------*/
+/*---------------------------------------------------------*/
+AnchorPane >.scroll-pane{
+	-fx-border-width: 0;
+}
+
+AnchorPane >.scroll-pane >.viewport{
+	-fx-background-color: black;
+}
+
+AnchorPane >.scroll-pane >.scroll-bar:vertical .track{
+	-fx-background-color: black;
+}
+
+AnchorPane >.scroll-pane >.scroll-bar:vertical .thumb{
+	-fx-background-color: white;
+	-fx-background-radius: 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0;
+}
+
+.accordion >.titled-pane{
+	-fx-animated: false;
+	-fx-border-color: white;
+	-fx-border-width: 0 0 1 0;
+}
+
+.accordion >.titled-pane >.content{
+	-fx-border-width: 0;
+}
+
+.accordion >.titled-pane >.title{
+	-fx-background-color: black;
+	-fx-border-color: white;
+	-fx-border-width: 0 1 0 0;
+}
+
+.accordion >.titled-pane >.title .label{
+	-fx-font-size: 14;
+	-fx-text-fill: white;
+}
+
+.accordion >.titled-pane >.title .text-field{
+	-fx-background-color: white;
+	-fx-background-radius: 0;
+	-fx-border-radius: 0;
+}
+
+.accordion >.titled-pane >.title .text-field:focused{
+	-fx-border-color: white;
+	-fx-border-width: 1;
+}
+
+.accordion >.titled-pane >.title .button,
+.accordion >.titled-pane >.title .toggle-button{
+	-fx-text-fill: white;
+	-fx-background-color: black;
+	-fx-background-radius: 0;
+	-fx-border-color: white;
+	-fx-border-radius: 0;
+	-fx-border-width: 1;
+}
+
+.accordion >.titled-pane > .title .button:hover,
+.accordion >.titled-pane > .title .button:focused,
+.accordion >.titled-pane > .title .toggle-button:hover,
+.accordion >.titled-pane > .title .toggle-button:selected{
+	-fx-text-fill: black;
+	-fx-background-color: white;
+}
+
+.accordion >.titled-pane .tab-pane .tab{
+	-fx-border-color: white;
+}
+
+.accordion >.titled-pane .tab-pane .tab-label{
+	-fx-text-fill: white;
+}
+
+.accordion >.titled-pane .tab-pane .tab:hover,
+.accordion >.titled-pane .tab-pane .tab:selected{
+	-fx-background-color: white;
+}
+
+.accordion >.titled-pane .tab-pane .tab:hover .tab-label,
+.accordion >.titled-pane .tab-pane .tab:selected .tab-label{
+	-fx-text-fill:black;
+	-fx-background-color: white;
+}
+
+.accordion >.titled-pane .tab-pane .tab-header-background{
+	-fx-border-color: white;
+	-fx-border-width: 1 1 0 0;
+}
+
+.accordion >.titled-pane .tab-pane .tab,.tab-header-background{
+	-fx-background-color: black;
+	-fx-background-radius: 0;
+	-fx-border-radius: 0;
+}
+
+.accordion .titled-pane .tab-pane * .text-area{
+	-fx-text-fill: white;
+}
+
+.accordion .titled-pane .tab-pane * .text-area .content{
+	-fx-background-color: black;
+	-fx-background-radius: 0;
+	-fx-border-color: white;
+	-fx-border-radius: 0;
+	-fx-border-width: 0 1 0 0;
+} 
+
+.accordion .titled-pane .tab-pane * .text-area .scroll-pane .scroll-bar:vertical .track{
+	-fx-background-color: black;
+}
+
+.accordion .titled-pane .tab-pane * .text-area .scroll-pane .scroll-bar:vertical .thumb{
+	-fx-background-color: white;
+	-fx-background-radius: 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0;
+}
+
+/*EC2管理画面-----------------------------------------------*/
+/*---------------------------------------------------------*/
+/*---------------------------------------------------------*/
+/*---------------------------------------------------------*/
+
+AnchorPane >VBox{
+	-fx-border-color: white;
+	-fx-border-width: 1;
+}
+
+AnchorPane >VBox >.tab-pane .tab{
+	-fx-background-color: black;
+	-fx-background-radius: 0;
+	-fx-border-color: white;
+	-fx-border-radius: 0;
+	-fx-border-width: 1;
+}
+
+AnchorPane >VBox >.tab-pane .tab-label{
+	-fx-text-fill: white;
+}
+
+AnchorPane >VBox >.tab-pane .tab:hover,
+AnchorPane >VBox >.tab-pane .tab:selected{
+	-fx-background-color: white;
+}
+
+AnchorPane >VBox >.tab-pane .tab:hover .tab-label,
+AnchorPane >VBox >.tab-pane .tab:selected .tab-label{
+	-fx-text-fill: black;
+}

@@ -5,7 +5,6 @@ import hoshisugi.rukoru.app.view.MainController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.inject.Injector;
 import hoshisugi.rukoru.framework.util.AssetUtil;
-import hoshisugi.rukoru.framework.util.Assets;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -24,7 +23,6 @@ public class Main extends Application {
 			final Class<? extends BaseController> controllerClass = MainController.class;
 			final Parent root = (BorderPane) FXMLLoader.load(FXUtil.getURL(controllerClass));
 			final Scene scene = new Scene(root, 1080, 600);
-			scene.getStylesheets().add(Assets.APPLICATION_CSS);
 			primaryStage.setScene(scene);
 			primaryStage.setTitle(FXUtil.getTitle(controllerClass));
 			primaryStage.getIcons().add(AssetUtil.getImage("32x32/icon.png"));
