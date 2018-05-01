@@ -15,7 +15,6 @@ import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.services.ds.DSService;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.cli.CLI;
-import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
@@ -23,7 +22,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
@@ -36,7 +34,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
-import javafx.stage.WindowEvent;
 
 public class DSEntryController extends BaseController implements DSEntry {
 
@@ -86,8 +83,6 @@ public class DSEntryController extends BaseController implements DSEntry {
 	private DSService service;
 
 	private DSSetting dsSetting;
-
-	private final EventHandler<WindowEvent> stopOnExit = e -> this.stopOnExit();
 
 	public Integer getDSSettingId() {
 		return dsSetting.getId();
@@ -170,51 +165,9 @@ public class DSEntryController extends BaseController implements DSEntry {
 		this.dsSetting = dsSetting;
 	}
 
-	public void onServerStarted(final CLIState state) {
-		if (controlServerButton.isDisable()) {
-			Platform.runLater(() -> controlServerButton.setDisable(false));
-		}
-		if (state != null && state.isSuccess()) {
-			FXUtil.getPrimaryStage().setOnCloseRequest(stopOnExit);
-		}
-		final boolean succeeded = state == null || state.isSuccess();
-		Platform.runLater(() -> controlServerButton.setSelected(succeeded));
-	}
-
-	public void onServerStopped(final CLIState state) {
-		if (controlServerButton.isDisable()) {
-			Platform.runLater(() -> controlServerButton.setDisable(false));
-		}
-		final boolean selected = state != null && !state.isSuccess();
-		Platform.runLater(() -> controlServerButton.setSelected(selected));
-	}
-
-	public void onStudioStarted(final CLIState state) {
-		if (controlStudioButton.isDisable()) {
-			Platform.runLater(() -> controlStudioButton.setDisable(false));
-		}
-		final boolean selected = state == null || !state.isSuccess();
-		Platform.runLater(() -> controlStudioButton.setSelected(selected));
-	}
-
-	public void onStudioStopped(final CLIState state) {
-		if (controlStudioButton.isDisable()) {
-			Platform.runLater(() -> controlStudioButton.setDisable(false));
-		}
-		final boolean selected = state != null && !state.isSuccess();
-		Platform.runLater(() -> controlStudioButton.setSelected(selected));
-	}
-
 	private void onSelectedPropertyCahnged(final ObservableValue<? extends Boolean> observable, final Boolean oldValue,
 			final Boolean newValue) {
 		controlAllButton.setSelected(controlServerButton.isSelected() || controlStudioButton.isSelected());
-	}
-
-	@Override
-	public void stopOnExit() {
-		if (controlServerButton.isSelected()) {
-			ConcurrentUtil.run(() -> service.stopServerExe(dsSetting, this::onServerStopped));
-		}
 	}
 
 	@Override

@@ -19,6 +19,4 @@ public interface DSEntry {
 	boolean isServerButtonSelected();
 
 	boolean isStudioButtonSelected();
-
-	void stopOnExit();
 }

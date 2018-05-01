@@ -223,12 +223,13 @@ public class DSServiceImpl extends BaseService implements DSService {
 						"ExecutablePath,Name,ProcessId", "/FORMAT:CSV")
 				.execute();
 		try (BufferedReader reader = IOUtil.newBufferedReader(wmicState.getInputStream())) {
+			final Path studioExePath = dsSetting.getPath("client/bin").resolve(dsSetting.getStudioExecutorName());
 			for (String line = null; (line = reader.readLine()) != null;) {
 				if (line.isEmpty()) {
 					continue;
 				}
 				final WindowsProcess process = new WindowsProcess(line);
-				if (process.executablePath.startsWith(dsSetting.getExecutionPath())) {
+				if (process.executablePath.equals(studioExePath.toString())) {
 					return Optional.of(process);
 				}
 			}
@@ -273,7 +274,6 @@ public class DSServiceImpl extends BaseService implements DSService {
 				writer.shutDown();
 			}
 		});
-		cliState.succeed();
 		callback.accept(cliState);
 	}
 

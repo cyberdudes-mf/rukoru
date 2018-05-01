@@ -3,17 +3,14 @@ package hoshisugi.rukoru.app.models.ds;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import hoshisugi.rukoru.framework.util.FXUtil;
-import javafx.event.EventHandler;
+import hoshisugi.rukoru.framework.util.ShutdownHandler;
 import javafx.scene.control.TextArea;
-import javafx.stage.WindowEvent;
 
 public class DSLogWriter {
 
 	private final StringBuilder builder = new StringBuilder();
 	private final TextArea textArea;
 	private Timer timer;
-	private final EventHandler<WindowEvent> onClose = e -> this.shutDown();
 
 	public DSLogWriter(final TextArea textArea) {
 		this.textArea = textArea;
@@ -34,12 +31,13 @@ public class DSLogWriter {
 
 			timer = new Timer();
 			timer.schedule(task, 0L, 50);
-			FXUtil.getPrimaryStage().setOnCloseRequest(onClose);
+			ShutdownHandler.addHandler(toString(), e -> this.shutDown());
 		}
 		builder.append(text).append(System.lineSeparator());
 	}
 
 	public void shutDown() {
+		ShutdownHandler.removeHandler(toString());
 		if (timer != null) {
 			timer.cancel();
 		}

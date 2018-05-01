@@ -32,14 +32,14 @@ public class CLIState implements AutoCloseable {
 		return failure;
 	}
 
-	public void succeed() {
+	void succeed() {
 		this.success = true;
 		if (callback != null) {
 			callback.accept(this);
 		}
 	}
 
-	public void fail() {
+	void fail() {
 		this.failure = true;
 		if (callback != null) {
 			callback.accept(this);

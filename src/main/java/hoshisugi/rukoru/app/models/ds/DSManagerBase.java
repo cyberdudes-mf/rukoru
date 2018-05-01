@@ -105,6 +105,7 @@ public abstract class DSManagerBase implements DSManager {
 				entry.setServerButtonDisable(false);
 				entry.setServerButtonSelected(false);
 			});
+			return;
 		}
 		final DSSetting setting = entry.getDsSetting();
 		ConcurrentUtil.run(() -> {
@@ -135,6 +136,7 @@ public abstract class DSManagerBase implements DSManager {
 				entry.setServerButtonDisable(false);
 				entry.setServerButtonSelected(true);
 			});
+			return;
 		}
 		final DSSetting setting = entry.getDsSetting();
 		ConcurrentUtil.run(() -> {
@@ -159,7 +161,7 @@ public abstract class DSManagerBase implements DSManager {
 	protected void onStudioStarted(final CLIState state) {
 		Platform.runLater(() -> {
 			entry.setStudioButtonDisable(false);
-			final boolean success = state != null && state.isSuccess();
+			final boolean success = state != null && state.isRunning();
 			entry.setStudioButtonSelected(success);
 			if (success) {
 				ShutdownHandler.addHandler(entry.getDsSetting().getStudioId(), e -> stopStudio());

@@ -1,7 +1,9 @@
 package hoshisugi.rukoru.framework.util;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
@@ -19,7 +21,9 @@ public class ShutdownHandler implements EventHandler<WindowEvent> {
 
 	@Override
 	public void handle(final WindowEvent event) {
-		for (final EventHandler<WindowEvent> handler : handlers.values()) {
+		// ConcurrentModificationException 回避のため、List に詰め替える
+		final List<EventHandler<WindowEvent>> h = handlers.values().stream().collect(Collectors.toList());
+		for (final EventHandler<WindowEvent> handler : h) {
 			try {
 				handler.handle(event);
 			} catch (final Exception e) {
