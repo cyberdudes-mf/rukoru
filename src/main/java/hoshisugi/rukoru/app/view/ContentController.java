@@ -103,9 +103,11 @@ public class ContentController extends BaseController {
 					.subtract(right.orElse(defaultValue));
 			topImage.fitWidthProperty().bind(fitWidth);
 			final ToolBarController toolBar = Injector.getInstance(ToolBarController.class);
-			if (!toolBar.isSelected()) {
-				Platform.runLater(() -> layoutRoot.getChildren().add(topImage));
-			}
+			Platform.runLater(() -> {
+				if (!toolBar.isSelected()) {
+					layoutRoot.getChildren().add(topImage);
+				}
+			});
 		});
 	}
 
