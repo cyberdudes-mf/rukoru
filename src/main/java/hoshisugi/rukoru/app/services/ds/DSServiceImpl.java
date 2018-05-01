@@ -113,11 +113,15 @@ public class DSServiceImpl extends BaseService implements DSService {
 			callback.accept(null);
 			return;
 		}
-		final Optional<Netstat> netstat = getServerBatProcess(dsSetting);
-		if (netstat.isPresent()) {
-			CLI.command("taskkill").options("/pid", netstat.get().getPid(), "/f").callback(callback).execute();
+		if (Files.exists(dsSetting.getPath("server/bin/shutdownserver.bat"))) {
+			CLI.command("shutdownserver.bat").directory(dsSetting.getPath("server/bin")).callback(callback).execute();
 		} else {
-			callback.accept(null);
+			final Optional<Netstat> netstat = getServerBatProcess(dsSetting);
+			if (netstat.isPresent()) {
+				CLI.command("taskkill").options("/pid", netstat.get().getPid(), "/f").callback(callback).execute();
+			} else {
+				callback.accept(null);
+			}
 		}
 	}
 
