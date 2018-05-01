@@ -1,8 +1,12 @@
 package hoshisugi.rukoru.app.models.ds;
 
+import static hoshisugi.rukoru.app.enums.StudioMode.Desktop;
+import static java.lang.String.format;
+
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import hoshisugi.rukoru.app.enums.StudioMode;
 import hoshisugi.rukoru.app.services.ds.DSService;
 import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.inject.Injector;
@@ -43,7 +47,7 @@ public abstract class DSManagerBase implements DSManager {
 		}
 		final DSSetting dsSetting = entry.getDsSetting();
 		final DSLogWriter logWriter = entry.getStudioLogWriter();
-		ConcurrentUtil.run(() -> startStudio(dsSetting, logWriter, this::onStudioStarted));
+		ConcurrentUtil.run(() -> startStudioForXxx(dsSetting, logWriter));
 	}
 
 	@Override
@@ -76,13 +80,34 @@ public abstract class DSManagerBase implements DSManager {
 		ConcurrentUtil.run(() -> startServer(dsSetting, logWriter, callback));
 	}
 
+	private void startStudioForXxx(final DSSetting dsSetting, final DSLogWriter logWriter) throws IOException {
+		switch (dsSetting.getStudioMode()) {
+		case Desktop:
+			startStudioForDesktop(dsSetting, logWriter, this::onStudioStarted);
+			break;
+		case Silverlight:
+			startStudioForWeb(dsSetting, logWriter, this::onStudioStarted);
+			break;
+		case WPF:
+			startStudioWPF(dsSetting, logWriter, this::onStudioStarted);
+			break;
+		}
+	}
+
 	public void stopStudio(final Consumer<CLIState> callback) {
 		entry.setStudioButtonDisable(true);
 		if (entry.isStudioButtonSelected()) {
 			entry.setStudioButtonSelected(false);
 		}
 		final DSSetting dsSetting = entry.getDsSetting();
-		ConcurrentUtil.run(() -> stopStudio(dsSetting, callback));
+		ConcurrentUtil.run(() -> {
+			final StudioMode studioMode = dsSetting.getStudioMode();
+			if (studioMode == Desktop) {
+				stopStudioForDesktop(dsSetting, callback);
+			} else {
+				throw new IllegalStateException(format("Studio %s の停止には対応していません。", studioMode));
+			}
+		});
 	}
 
 	public abstract void startServer(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback)
@@ -90,10 +115,20 @@ public abstract class DSManagerBase implements DSManager {
 
 	public abstract void stopServer(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
 
-	public abstract void startStudio(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback)
+	public abstract void startStudioForDesktop(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback)
 			throws IOException;
 
-	public abstract void stopStudio(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
+	public abstract void stopStudioForDesktop(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
+
+	public void startStudioForWeb(final DSSetting dsSetting, final DSLogWriter writer,
+			final Consumer<CLIState> callback) {
+		service.startStudioForWeb(dsSetting, writer, callback);
+	}
+
+	public void startStudioWPF(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+			throws IOException {
+		service.startStudioWPF(dsSetting, writer, callback);
+	}
 
 	protected void onServerStarted(final CLIState state) {
 		onServerStarted(state, null);

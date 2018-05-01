@@ -29,6 +29,10 @@ public interface DSService {
 
 	void stopStudioBat(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
 
+	void startStudioForWeb(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback);
+
+	void startStudioWPF(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback) throws IOException;
+
 	void changePort(DSSetting setting, String port) throws IOException;
 
 	boolean isServerRunning(DSSetting dsSetting);

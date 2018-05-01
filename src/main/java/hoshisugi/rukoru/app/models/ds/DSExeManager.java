@@ -23,13 +23,13 @@ public class DSExeManager extends DSManagerBase {
 	}
 
 	@Override
-	public void startStudio(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
-			throws IOException {
+	public void startStudioForDesktop(final DSSetting dsSetting, final DSLogWriter writer,
+			final Consumer<CLIState> callback) throws IOException {
 		service.startStudioExe(dsSetting, writer, callback);
 	}
 
 	@Override
-	public void stopStudio(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
+	public void stopStudioForDesktop(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
 		service.stopStudioExe(dsSetting, callback);
 	}
 

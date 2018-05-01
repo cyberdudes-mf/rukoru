@@ -29,6 +29,7 @@ import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.cli.CLI;
 import hoshisugi.rukoru.framework.cli.CLIState;
+import hoshisugi.rukoru.framework.util.BrowserUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.IOUtil;
 
@@ -138,6 +139,28 @@ public class DSServiceImpl extends BaseService implements DSService {
 		} else {
 			callback.accept(null);
 		}
+	}
+
+	@Override
+	public void startStudioForWeb(final DSSetting dsSetting, final DSLogWriter writer,
+			final Consumer<CLIState> callback) {
+		BrowserUtil.browse(dsSetting.getStudioForWebUrl());
+		callback.accept(null);
+	}
+
+	@Override
+	public void startStudioWPF(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+			throws IOException {
+		final CLIState state = CLI.command("C:\\Program Files (x86)\\Internet Explorer\\iexplore.exe")
+				.options(dsSetting.getWPFUrl()).callback(callback).execute();
+		ConcurrentUtil.run(() -> {
+			try (final BufferedReader br = IOUtil.newBufferedReader(state.getInputStream())) {
+				for (String line = null; (line = br.readLine()) != null;) {
+					writer.writeLine(line);
+				}
+				writer.shutDown();
+			}
+		});
 	}
 
 	@Override
@@ -345,4 +368,5 @@ public class DSServiceImpl extends BaseService implements DSService {
 		}
 
 	}
+
 }

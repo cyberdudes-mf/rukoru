@@ -141,7 +141,17 @@ public class DSSetting extends DBEntity {
 	}
 
 	public boolean isStudioInstalled() {
-		return Files.isExecutable(Paths.get(getExecutionPath()).resolve("client/bin").resolve(getStudioExecutorName()));
+		switch (getStudioMode()) {
+		case Desktop:
+			return Files.isExecutable(getPath("client/bin").resolve(getStudioExecutorName()));
+		case Silverlight:
+			return Files.exists(getPath(
+					"server/system/kernel/modules/webcontainer/META-INF/catalina/webapps/RelayServer/WebStudio.xap"));
+		case WPF:
+			return Files.exists(getPath(
+					"server/system/kernel/modules/webcontainer/META-INF/catalina/webapps/RelayServer/publish/Studio.application"));
+		}
+		return false;
 	}
 
 	public String getServerExecutorName() {
@@ -198,6 +208,14 @@ public class DSSetting extends DBEntity {
 
 	public String getServerUrl() {
 		return "http://localhost:" + getPort();
+	}
+
+	public String getStudioForWebUrl() {
+		return getServerUrl() + "/WebStudio/";
+	}
+
+	public String getWPFUrl() {
+		return getStudioForWebUrl() + "publish/Studio.application";
 	}
 
 	public String getServerId() {
