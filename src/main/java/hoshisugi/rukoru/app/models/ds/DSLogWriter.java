@@ -4,10 +4,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import hoshisugi.rukoru.framework.util.ShutdownHandler;
+import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 
 public class DSLogWriter {
 
+	private static final int BUFFERE_SIZE = 80000;
 	private final StringBuilder builder = new StringBuilder();
 	private final TextArea textArea;
 	private Timer timer;
@@ -23,8 +25,18 @@ public class DSLogWriter {
 				@Override
 				public void run() {
 					if (builder.length() > 0) {
-						textArea.appendText(builder.toString());
-						builder.setLength(0);
+						Platform.runLater(() -> {
+							final int tLength = textArea.getLength();
+							final int length = tLength + builder.length();
+							if (length > BUFFERE_SIZE) {
+								final int end = length - BUFFERE_SIZE;
+								if (tLength > end) {
+									textArea.deleteText(0, end);
+								}
+							}
+							textArea.appendText(builder.toString());
+							builder.setLength(0);
+						});
 					}
 				}
 			};
@@ -42,7 +54,7 @@ public class DSLogWriter {
 			timer.cancel();
 		}
 		if (builder.length() > 0) {
-			textArea.appendText(builder.toString());
+			Platform.runLater(() -> textArea.appendText(builder.toString()));
 		}
 	}
 }
