@@ -203,7 +203,8 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		for (final DSSetting setting : updateSettings) {
 			h2.update(table("ds_settings")
 					.set($("name", setting.getName()), $("executionpath", setting.getExecutionPath()),
-							$("executiontype", setting.getExecutionType().getId()))
+							$("executiontype", setting.getExecutionType().getId()),
+							$("studiomode", setting.getStudioMode().getId()))
 					.where($("id", setting.getId()), $("updated_at", setting.getUpdatedAt())));
 		}
 	}
@@ -211,8 +212,8 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	private void insertDSSettingsToDSSettings(final H2Database h2, final DSSetting setting, final String sequence)
 			throws SQLException {
 		h2.insert(into("ds_settings").values($("id", sequence), $("name", setting.getName()),
-				$("executionpath", setting.getExecutionPath()),
-				$("executiontype", setting.getExecutionType().getId())));
+				$("executionpath", setting.getExecutionPath()), $("executiontype", setting.getExecutionType().getId()),
+				$("studiomode", setting.getStudioMode().getId())));
 	}
 
 	private void insertDSSettingsToPreferences(final H2Database h2, final DSSetting setting, final String sequence)

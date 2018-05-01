@@ -31,6 +31,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
+import hoshisugi.rukoru.app.enums.StudioMode;
 import hoshisugi.rukoru.app.models.settings.DBEntity;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import javafx.beans.property.ObjectProperty;
@@ -42,6 +43,7 @@ public class DSSetting extends DBEntity {
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 	private final StringProperty executionPath = new SimpleStringProperty(this, "executionPath");
 	private final ObjectProperty<ExecutionType> executionType = new SimpleObjectProperty<>(this, "executionType");
+	private final ObjectProperty<StudioMode> studioMode = new SimpleObjectProperty<>(this, "studioMode");
 	private final StringProperty state = new SimpleStringProperty(this, "state");
 	private final Properties dsProp = AssetUtil.loadProperties("ds.properties");
 
@@ -54,6 +56,7 @@ public class DSSetting extends DBEntity {
 			setName(rs.getString("name"));
 			setExecutionPath(rs.getString("executionPath"));
 			setExecutionType(ExecutionType.of(rs.getString("executiontype")));
+			setStudioMode(StudioMode.of(rs.getString("studiomode")));
 			setCreatedAt(rs.getTimestamp("created_at"));
 			setUpdatedAt(rs.getTimestamp("updated_at"));
 			setState(DSSettingState.Update);
@@ -86,6 +89,14 @@ public class DSSetting extends DBEntity {
 		this.executionType.set(executionType);
 	}
 
+	public StudioMode getStudioMode() {
+		return studioMode.get();
+	}
+
+	public void setStudioMode(final StudioMode studioMode) {
+		this.studioMode.set(studioMode);
+	}
+
 	public String getState() {
 		return state.get();
 	}
@@ -104,6 +115,10 @@ public class DSSetting extends DBEntity {
 
 	public ObjectProperty<ExecutionType> executionTypeProperty() {
 		return executionType;
+	}
+
+	public ObjectProperty<StudioMode> studioModeProperty() {
+		return studioMode;
 	}
 
 	public StringProperty stateProperty() {

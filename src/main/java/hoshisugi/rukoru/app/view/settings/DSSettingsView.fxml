@@ -8,44 +8,37 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-	nodeOrientation="RIGHT_TO_LEFT" xmlns="http://javafx.com/javafx/8.0.121"
-	xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.settings.DSSettingsController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="RIGHT_TO_LEFT" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.settings.DSSettingsController">
 	<children>
-		<ButtonBar buttonMinWidth="24.0" prefHeight="40.0"
-			prefWidth="200.0">
+		<ButtonBar buttonMinWidth="24.0" prefHeight="40.0" prefWidth="200.0">
 			<buttons>
-				<Button fx:id="deleteButton" contentDisplay="RIGHT"
-					mnemonicParsing="false" onAction="#onDeleteButtonClick" />
-				<Button fx:id="createButton" contentDisplay="RIGHT"
-					mnemonicParsing="false" onAction="#onEntryButtonClick" />
+				<Button fx:id="deleteButton" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#onDeleteButtonClick" />
+				<Button fx:id="createButton" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#onEntryButtonClick" />
 			</buttons>
 			<padding>
 				<Insets right="10.0" />
 			</padding>
 		</ButtonBar>
-		<TableView fx:id="tableView" editable="true" maxHeight="1.7976931348623157E308"
-			maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT"
-			VBox.vgrow="ALWAYS">
+		<TableView fx:id="tableView" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
 			<columns>
-				<TableColumn fx:id="nameColumn" editable="true"
-					maxWidth="1.7976931348623157E308" minWidth="200.0" prefWidth="200.0"
-					text="名前">
+				<TableColumn fx:id="nameColumn" editable="true" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefWidth="170.0" text="名前">
 					<cellValueFactory>
 						<PropertyValueFactory property="name" />
 					</cellValueFactory>
 				</TableColumn>
-				<TableColumn fx:id="executionPathColumn" editable="false"
-					maxWidth="1.7976931348623157E308" minWidth="240.0" prefWidth="240.0"
-					text="インストールディレクトリ">
+				<TableColumn fx:id="executionPathColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefWidth="200.0" text="インストールディレクトリ">
 					<cellValueFactory>
 						<PropertyValueFactory property="executionPath" />
 					</cellValueFactory>
 				</TableColumn>
-				<TableColumn fx:id="executionTypeColumn" editable="true" maxWidth="1.7976931348623157E308"
-					minWidth="80.0" resizable="false" text="起動方法">
+				<TableColumn fx:id="executionTypeColumn" editable="true" maxWidth="1.7976931348623157E308" minWidth="-1.0" resizable="false" text="起動方法">
 					<cellValueFactory>
 						<PropertyValueFactory property="executionType" />
+					</cellValueFactory>
+				</TableColumn>
+            	<TableColumn fx:id="studioModeColumn" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefWidth="120.0" text="Studio">
+					<cellValueFactory>
+						<PropertyValueFactory property="studioMode" />
 					</cellValueFactory>
 				</TableColumn>
 			</columns>
@@ -53,11 +46,9 @@
 				<Insets left="10.0" right="10.0" />
 			</VBox.margin>
 		</TableView>
-		<ButtonBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0"
-			prefWidth="200.0">
+		<ButtonBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="200.0">
 			<buttons>
-				<Button mnemonicParsing="false" onAction="#onApplyButtonClick"
-					text="Apply" />
+				<Button mnemonicParsing="false" onAction="#onApplyButtonClick" text="Apply" />
 			</buttons>
 			<padding>
 				<Insets right="10.0" />

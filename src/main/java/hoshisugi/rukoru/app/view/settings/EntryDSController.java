@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
+import hoshisugi.rukoru.app.enums.StudioMode;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
@@ -35,6 +36,9 @@ public class EntryDSController extends BaseController {
 	private ComboBox<ExecutionType> executionType;
 
 	@FXML
+	private ComboBox<StudioMode> studioMode;
+
+	@FXML
 	private Button directoryChooserButton;
 
 	@FXML
@@ -44,8 +48,10 @@ public class EntryDSController extends BaseController {
 	public void initialize(final URL url, final ResourceBundle resource) {
 		executionType.getItems().addAll(ExecutionType.values());
 		executionType.setCellFactory(PropertyListCell.forListView(ExecutionType::toString));
-		executionType.setButtonCell(executionType.getCellFactory().call(null));
 		executionType.getSelectionModel().select(SERVICE);
+		studioMode.getItems().addAll(StudioMode.values());
+		studioMode.setCellFactory(PropertyListCell.forListView(StudioMode::toString));
+		studioMode.getSelectionModel().select(StudioMode.Desktop);
 		directoryChooserButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/folder.png")));
 		okButton.disableProperty().bind(name.textProperty().isEmpty().or(executionPath.textProperty().isEmpty()));
 	}
@@ -64,6 +70,7 @@ public class EntryDSController extends BaseController {
 			setting.setName(name.getText());
 			setting.setExecutionPath(executionPath.getText());
 			setting.setExecutionType(executionType.getSelectionModel().getSelectedItem());
+			setting.setStudioMode(studioMode.getSelectionModel().getSelectedItem());
 			setting.setState(DSSettingState.Insert);
 			consumer.accept(setting);
 			FXUtil.getStage(e).close();

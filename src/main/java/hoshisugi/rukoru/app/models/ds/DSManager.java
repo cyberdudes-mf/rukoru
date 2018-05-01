@@ -15,7 +15,7 @@ public interface DSManager {
 			manager = new DSBatManager(entry);
 			break;
 		default:
-			throw new IllegalStateException("何できどうすればいいか分かりません。。。");
+			throw new IllegalStateException("何で起動すればいいか分かりません。。。");
 		}
 		return manager;
 	}

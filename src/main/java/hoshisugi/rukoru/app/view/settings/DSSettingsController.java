@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.DSSettingState;
 import hoshisugi.rukoru.app.enums.ExecutionType;
+import hoshisugi.rukoru.app.enums.StudioMode;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ds.DSContentController;
@@ -61,6 +62,9 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 	@FXML
 	private TableColumn<DSSetting, ExecutionType> executionTypeColumn;
 
+	@FXML
+	private TableColumn<DSSetting, StudioMode> studioModeColumn;
+
 	private final ObservableList<DSSetting> dssettings = FXCollections.observableArrayList();
 
 	private final FilteredList<DSSetting> items = new FilteredList<>(dssettings,
@@ -73,6 +77,7 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
 		nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		executionTypeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(ExecutionType.values()));
+		studioModeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(StudioMode.values()));
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableView.setItems(items);
 		loadSettings();
