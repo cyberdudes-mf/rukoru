@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 import javafx.scene.image.Image;
 
@@ -43,6 +44,10 @@ public class AssetUtil {
 
 	public static Image getImage(final String img) {
 		return new Image(getAssetPath(img));
+	}
+
+	public static String[] getStyleSheets(final String[] styleSheets) {
+		return Stream.of(styleSheets).map(styleSheet -> getURL("css", styleSheet + ".css").toExternalForm()).toArray(String[]::new);
 	}
 
 	public static String loadSQL(final String fileName) {

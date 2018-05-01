@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
+import hoshisugi.rukoru.app.enums.CSSThemes;
 import hoshisugi.rukoru.app.enums.Preferences;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.Preference;
@@ -28,5 +29,5 @@ public interface LocalSettingService {
 
 	void setStyleSheet() throws SQLException;
 
-	void changeStyleSheet(String css) throws SQLException;
+	void changeStyleSheet(CSSThemes theme);
 }

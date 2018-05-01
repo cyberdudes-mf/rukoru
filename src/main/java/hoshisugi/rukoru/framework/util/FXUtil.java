@@ -15,6 +15,7 @@ import com.google.common.base.Strings;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -130,5 +131,11 @@ public class FXUtil {
 			Platform.runLater(() -> tooltip.hide());
 			scheduler.shutdown();
 		}, 1000, MILLISECONDS);
+	}
+
+	public static void setStyleSheets(final String[] styleSheets) {
+		final ObservableList<String> sheets = primaryStage.getScene().getStylesheets();
+		sheets.clear();
+		sheets.addAll(styleSheets);
 	}
 }

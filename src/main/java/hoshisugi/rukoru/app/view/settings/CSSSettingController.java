@@ -23,18 +23,16 @@ import javafx.scene.control.ComboBox;
 public class CSSSettingController extends BaseController implements PreferenceContent {
 
 	@FXML
-	private ComboBox<String> cssThemes;
+	private ComboBox<CSSThemes> cssThemes;
 
 	@Inject
 	private LocalSettingService service;
-
-	private String defaultCSS;
 
 	private final Map<String, Preference> preferences = new HashMap<>();
 
 	@Override
 	public void initialize(final URL arg0, final ResourceBundle arg1) {
-		cssThemes.getItems().addAll(CSSThemes.toAllay());
+		cssThemes.getItems().addAll(CSSThemes.values());
 		loadPreferences();
 	}
 
@@ -43,17 +41,15 @@ public class CSSSettingController extends BaseController implements PreferenceCo
 			preferences.putAll(service.getPreferencesByCategory("CSS"));
 			if (preferences.size() == 0) {
 				preferences.put(CSSTheme.key(), new Preference(CSSTheme));
-				cssThemes.getSelectionModel().select("Modena");
+				preferences.get(CSSTheme.key()).setValue("Modena");
 			}
 			Platform.runLater(() -> {
-				cssThemes.getSelectionModel().select(preferences.get(CSSTheme.key()).getValue());
-				preferences.get(CSSTheme.key()).valueProperty()
-						.bind(cssThemes.getSelectionModel().selectedItemProperty());
 				cssThemes.getSelectionModel().selectedItemProperty()
-						.addListener((obserbableValue, oldValue, newValue) -> {
-							ConcurrentUtil.run(() -> service.changeStyleSheet(newValue));
+						.addListener((observableValue, oldValue, newValue) -> {
+							service.changeStyleSheet(newValue);
+							preferences.get(CSSTheme.key()).setValue(newValue.toString());
 						});
-				defaultCSS = cssThemes.getSelectionModel().getSelectedItem();
+				cssThemes.getSelectionModel().select(CSSThemes.of(preferences.get(CSSTheme.key()).getValue()));
 			});
 		});
 	}
@@ -66,7 +62,6 @@ public class CSSSettingController extends BaseController implements PreferenceCo
 	@Override
 	public void apply() {
 		ConcurrentUtil.run(() -> {
-			defaultCSS = cssThemes.getSelectionModel().getSelectedItem();
 			service.savePreferences(preferences.values());
 		});
 	}
@@ -74,9 +69,7 @@ public class CSSSettingController extends BaseController implements PreferenceCo
 	@Override
 	public void cancel() {
 		ConcurrentUtil.run(() -> {
-			if (defaultCSS != cssThemes.getSelectionModel().getSelectedItem()) {
-				service.setStyleSheet();
-			}
+			service.setStyleSheet();
 		});
 	}
 }

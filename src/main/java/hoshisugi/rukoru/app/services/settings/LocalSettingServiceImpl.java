@@ -1,5 +1,6 @@
 package hoshisugi.rukoru.app.services.settings;
 
+import static hoshisugi.rukoru.app.enums.Preferences.CSSTheme;
 import static hoshisugi.rukoru.framework.database.builder.Column.$;
 import static hoshisugi.rukoru.framework.database.builder.InsertBuilder.into;
 import static hoshisugi.rukoru.framework.database.builder.SelectBuilder.from;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import hoshisugi.rukoru.app.enums.CSSThemes;
 import hoshisugi.rukoru.app.enums.Preferences;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.Preference;
@@ -24,7 +26,6 @@ import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
 import hoshisugi.rukoru.framework.database.builder.InsertBuilder;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
-import javafx.collections.ObservableList;
 
 public class LocalSettingServiceImpl extends BaseService implements LocalSettingService {
 
@@ -159,16 +160,15 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 
 	@Override
 	public void setStyleSheet() throws SQLException {
-		final String value = getPreferencesByCategory("CSS").get("CSSTheme").getValue();
-		final ObservableList<String> stylesheets = FXUtil.getPrimaryStage().getScene().getStylesheets();
-		stylesheets.clear();
-		stylesheets.add(AssetUtil.getURL("css", value + ".css").toExternalForm());
+		final Map<String, Preference> preference = getPreferencesByCategory("CSS");
+		if (!preference.isEmpty()) {
+			FXUtil.setStyleSheets(
+					AssetUtil.getStyleSheets(CSSThemes.of(preference.get(CSSTheme.key()).getValue()).getValues()));
+		}
 	}
 
 	@Override
-	public void changeStyleSheet(final String css) throws SQLException {
-		final ObservableList<String> stylesheets = FXUtil.getPrimaryStage().getScene().getStylesheets();
-		stylesheets.clear();
-		stylesheets.add(AssetUtil.getURL("css", css + ".css").toExternalForm());
+	public void changeStyleSheet(final CSSThemes theme) {
+		FXUtil.setStyleSheets(AssetUtil.getStyleSheets(CSSThemes.of(theme.toString()).getValues()));
 	}
 }

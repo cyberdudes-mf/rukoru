@@ -5,34 +5,32 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import hoshisugi.rukoru.framework.util.AssetUtil;
-
 public enum CSSThemes {
-	MODENA("Modena"), CONSOLE("Console");
+	MODENA("Modena"), CONSOLE("Console", "Common");
 
-	private String value;
+	private String displayName;
 
-	private CSSThemes(final String value) {
-		this.value = value;
+	private String[] values;
+
+	private CSSThemes(final String... values) {
+		this.displayName = values[0];
+		this.values = values;
 	}
 
 	private static final Map<String, CSSThemes> index = Stream.of(values())
 			.collect(Collectors.toMap(CSSThemes::toString, Function.identity()));
 
+	public String[] getValues() {
+		return values;
+	}
+
 	@Override
 	public String toString() {
-		return value;
+		return displayName;
 	}
 
-	public String getCSS() {
-		return AssetUtil.getURL("css", value + ".css").toExternalForm();
+	public static CSSThemes of(final String displayName) {
+		return index.get(displayName);
 	}
 
-	public static CSSThemes of(final String value) {
-		return index.get(value);
-	}
-
-	public static String[] toAllay() {
-		return Stream.of(values()).map(s -> s.toString()).toArray(String[]::new);
-	}
 }
