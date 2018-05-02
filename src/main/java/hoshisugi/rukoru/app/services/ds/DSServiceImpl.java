@@ -9,12 +9,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -28,6 +32,7 @@ import hoshisugi.rukoru.app.models.ds.DSLogWriter;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.cli.CLI;
+import hoshisugi.rukoru.framework.cli.CLIBuilder;
 import hoshisugi.rukoru.framework.cli.CLIState;
 import hoshisugi.rukoru.framework.util.BrowserUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
@@ -232,7 +237,10 @@ public class DSServiceImpl extends BaseService implements DSService {
 		}
 
 		for (final String pid : pids) {
-			final CLIState jinfo = CLI.command("jinfo").options(pid, "|", "find", "\"user.dir\"").execute();
+			final Optional<Path> binPath = getJavaBinPath(dsSetting);
+			final CLIBuilder command = CLI.command("jinfo.exe");
+			binPath.ifPresent(command::directory);
+			final CLIState jinfo = command.options(pid, "|", "find", "\"user.dir\"").execute();
 			try (BufferedReader reader = IOUtil.newBufferedReader(jinfo.getInputStream())) {
 				for (String line = null; (line = reader.readLine()) != null;) {
 					if (line.contains(dsSetting.getExecutionPath())) {
@@ -302,6 +310,20 @@ public class DSServiceImpl extends BaseService implements DSService {
 			}
 		});
 		callback.accept(cliState);
+	}
+
+	private Optional<Path> getJavaBinPath(final DSSetting setting) {
+		final Path setenv = setting.getPath("client/bin/setenv.bat");
+		try (final Stream<String> lines = Files.lines(setenv)) {
+			final Pattern pattern = Pattern.compile(".*JAVA_HOME=(.*)");
+			final Optional<String> javaHome = lines.map(pattern::matcher).filter(Matcher::matches).map(m -> m.group(1))
+					.findFirst();
+			if (javaHome.isPresent()) {
+				return Optional.of(Paths.get(javaHome.get()).resolve("bin"));
+			}
+		} catch (final Exception e) {
+		}
+		return Optional.empty();
 	}
 
 	static class WindowsProcess {
