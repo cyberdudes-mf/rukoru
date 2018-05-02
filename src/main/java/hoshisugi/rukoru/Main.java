@@ -7,6 +7,7 @@ import hoshisugi.rukoru.framework.inject.Injector;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.Assets;
 import hoshisugi.rukoru.framework.util.FXUtil;
+import hoshisugi.rukoru.framework.util.ShutdownHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,6 +22,7 @@ public class Main extends Application {
 		try {
 			FXUtil.setPrimaryStage(primaryStage);
 			Injector.init(new RukoruModuleConfigurator());
+			ShutdownHandler.init();
 			final Class<? extends BaseController> controllerClass = MainController.class;
 			final Parent root = (BorderPane) FXMLLoader.load(FXUtil.getURL(controllerClass));
 			final Scene scene = new Scene(root, 1080, 600);

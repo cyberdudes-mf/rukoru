@@ -5,6 +5,7 @@ import static com.amazonaws.services.s3.model.CannedAccessControlList.PublicRead
 import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Doing;
 import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Done;
 import static hoshisugi.rukoru.app.models.s3.S3Item.DELIMITER;
+import static hoshisugi.rukoru.framework.util.ShutdownHandler.isShuttingDown;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.READ;
 
@@ -312,12 +313,15 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 
 	private void listObjects(final AmazonS3 client, final ListObjectsRequest request,
 			final Consumer<ObjectListing> consumer) {
+		if (isShuttingDown()) {
+			return;
+		}
 		ObjectListing result = null;
 		do {
 			result = client.listObjects(request);
 			consumer.accept(result);
 			request.setMarker(result.getNextMarker());
-		} while (result.isTruncated());
+		} while (!isShuttingDown() && result.isTruncated());
 	}
 
 	class MonitorInputStream extends FilterInputStream {

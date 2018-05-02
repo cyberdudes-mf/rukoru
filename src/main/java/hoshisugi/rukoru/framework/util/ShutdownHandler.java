@@ -6,14 +6,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javafx.event.EventHandler;
+import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class ShutdownHandler implements EventHandler<WindowEvent> {
 
 	private static final Map<String, EventHandler<WindowEvent>> handlers = new LinkedHashMap<>();
 
-	static {
-		FXUtil.getPrimaryStage().setOnCloseRequest(new ShutdownHandler());
+	private static boolean shuttingDown;
+
+	public static void init() {
+		final Stage ps = FXUtil.getPrimaryStage();
+		if (ps.getOnCloseRequest() != null) {
+			throw new IllegalStateException("onCloseRequest に ShutdownHandler 以外のハンドラが登録されています。");
+		}
+		ps.setOnCloseRequest(new ShutdownHandler());
 	}
 
 	private ShutdownHandler() {
@@ -21,6 +28,7 @@ public class ShutdownHandler implements EventHandler<WindowEvent> {
 
 	@Override
 	public void handle(final WindowEvent event) {
+		shuttingDown = true;
 		// ConcurrentModificationException 回避のため、List に詰め替える
 		final List<EventHandler<WindowEvent>> h = handlers.values().stream().collect(Collectors.toList());
 		for (final EventHandler<WindowEvent> handler : h) {
@@ -38,5 +46,9 @@ public class ShutdownHandler implements EventHandler<WindowEvent> {
 
 	public static void removeHandler(final String key) {
 		handlers.remove(key);
+	}
+
+	public static boolean isShuttingDown() {
+		return shuttingDown;
 	}
 }
