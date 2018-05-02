@@ -73,7 +73,7 @@ public class ToolBarController extends BaseController {
 		mcButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/AWS.png")));
 		testPortalButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DS.png")));
 		mageButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/WPF.png")));
-		dsButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DS.png")));
+		dsButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DS2.png")));
 		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/EC2.png")));
 		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DB.png")));
 		s3Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/S3.png")));
