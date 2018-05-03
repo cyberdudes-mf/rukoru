@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.enums;
 
+import java.util.stream.Stream;
+
 public enum ExecutionType {
 	SERVICE("1"), EXE("2"), BAT("3");
 
@@ -11,5 +13,9 @@ public enum ExecutionType {
 
 	public String getId() {
 		return id;
+	}
+
+	public static ExecutionType of(final String id) {
+		return Stream.of(values()).filter(e -> e.getId().equals(id)).findFirst().orElse(null);
 	}
 }
