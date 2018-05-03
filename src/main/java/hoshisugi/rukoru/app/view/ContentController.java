@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
+import hoshisugi.rukoru.app.view.ds.DSContentController;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.redmine.TaskboardController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
@@ -54,6 +55,7 @@ public class ContentController extends BaseController {
 	public void initialize(final URL url, final ResourceBundle resource) {
 		showTopImage();
 		ConcurrentUtil.run(() -> {
+			loadContent(DSContentController.class);
 			loadContent(EC2ContentController.class);
 			loadContent(RepositoryDBContentController.class);
 			loadContent(S3ExplorerController.class);
@@ -101,9 +103,11 @@ public class ContentController extends BaseController {
 					.subtract(right.orElse(defaultValue));
 			topImage.fitWidthProperty().bind(fitWidth);
 			final ToolBarController toolBar = Injector.getInstance(ToolBarController.class);
-			if (!toolBar.isSelected()) {
-				Platform.runLater(() -> layoutRoot.getChildren().add(topImage));
-			}
+			Platform.runLater(() -> {
+				if (!toolBar.isSelected()) {
+					layoutRoot.getChildren().add(topImage);
+				}
+			});
 		});
 	}
 

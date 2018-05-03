@@ -67,6 +67,7 @@ public class PreferencesController extends BaseController {
 
 	private void addTreeItems(final TreeItem<String> root) {
 		registerContent(root, HomePreferenceController.class);
+		registerContent(root, DSSettingsController.class);
 		registerContent(root, RedminePreferenceController.class);
 	}
 

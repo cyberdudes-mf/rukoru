@@ -11,11 +11,12 @@
       <Button fx:id="mcButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onMCButtonClick" text="マネコン" />
       <Button fx:id="testPortalButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onTestPortalButtonClick" text="テストポータル" />
       <Button fx:id="mageButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onMageButtonClick" text="Clear Cache" />
-      <ToggleButton fx:id="ec2Button" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onEC2ButtonClick" text="EC2">
+      <ToggleButton fx:id="dsButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onDSButtonClick" text="DataSpider">
          <toggleGroup>
             <ToggleGroup fx:id="toolBar" />
          </toggleGroup>
       </ToggleButton>
+      <ToggleButton fx:id="ec2Button" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onEC2ButtonClick" text="EC2" toggleGroup="$toolBar" />
       <ToggleButton fx:id="repositoryDBButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onRepositoryDBButtonCLick" text="リポジトリDB" toggleGroup="$toolBar" />
       <ToggleButton fx:id="s3Button" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onS3ButtonCLick" text="S3" toggleGroup="$toolBar" />
       <ToggleButton fx:id="taskboardButton" alignment="TOP_LEFT" graphicTextGap="10.0" minWidth="130.0" mnemonicParsing="false" onAction="#onTaskboardButtonClick" text="タスクボード" toggleGroup="$toolBar" />

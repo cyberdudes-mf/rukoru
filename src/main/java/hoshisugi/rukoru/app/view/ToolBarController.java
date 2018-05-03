@@ -11,6 +11,7 @@ import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
+import hoshisugi.rukoru.app.view.ds.DSContentController;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.redmine.TaskboardController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
@@ -44,6 +45,9 @@ public class ToolBarController extends BaseController {
 	private Button mageButton;
 
 	@FXML
+	private ToggleButton dsButton;
+
+	@FXML
 	private ToggleButton ec2Button;
 
 	@FXML
@@ -69,6 +73,7 @@ public class ToolBarController extends BaseController {
 		mcButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/AWS.png")));
 		testPortalButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DS.png")));
 		mageButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/WPF.png")));
+		dsButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DS2.png")));
 		ec2Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/EC2.png")));
 		repositoryDBButton.setGraphic(new ImageView(AssetUtil.getImage("32x32/DB.png")));
 		s3Button.setGraphic(new ImageView(AssetUtil.getImage("32x32/S3.png")));
@@ -110,6 +115,11 @@ public class ToolBarController extends BaseController {
 				}
 			}
 		});
+	}
+
+	@FXML
+	private void onDSButtonClick(final ActionEvent event) {
+		contentController.showContent(DSContentController.class);
 	}
 
 	@FXML

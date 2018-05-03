@@ -1,0 +1,1 @@
+select ds_settings_id_seq.nextval

@@ -5,7 +5,10 @@ import static hoshisugi.rukoru.framework.database.builder.InsertBuilder.into;
 import static hoshisugi.rukoru.framework.database.builder.SelectBuilder.from;
 import static hoshisugi.rukoru.framework.database.builder.UpdateBuilder.table;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -15,13 +18,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import hoshisugi.rukoru.app.enums.Preferences;
+import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.database.builder.Column;
 import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
+import hoshisugi.rukoru.framework.database.builder.DeleteBuilder;
 import hoshisugi.rukoru.framework.database.builder.InsertBuilder;
+import hoshisugi.rukoru.framework.database.builder.SelectBuilder;
 
 public class LocalSettingServiceImpl extends BaseService implements LocalSettingService {
 
@@ -154,4 +160,92 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		}
 	}
 
+	@Override
+	public void saveDSSettings(final List<DSSetting> settings) throws SQLException {
+		try (final H2Database h2 = new H2Database()) {
+			if (!h2.exists("PREFERENCES")) {
+				h2.create(CreateBuilder.table("PREFERENCES"));
+			}
+			if (!h2.exists("DS_SETTINGS")) {
+				h2.create(CreateBuilder.table("ds_settings_sequence"));
+				h2.create(CreateBuilder.table("ds_settings"));
+			}
+
+			final List<DSSetting> insertSettings = settings.stream().filter(t -> t.getState().equals("Insert"))
+					.collect(Collectors.toList());
+
+			final List<DSSetting> updateSettings = settings.stream().filter(t -> t.getState().equals("Update"))
+					.collect(Collectors.toList());
+
+			final List<DSSetting> deleteSettings = settings.stream().filter(t -> t.getState().equals("Delete"))
+					.collect(Collectors.toList());
+
+			deleteDSSettings(h2, deleteSettings);
+
+			updateDSSettingsToDSSettings(h2, updateSettings);
+
+			for (final DSSetting setting : insertSettings) {
+				final int id = getDSSettingsSequence(h2);
+				setting.setId(id);
+				final String idString = Integer.toString(id);
+				insertDSSettingsToDSSettings(h2, setting, idString);
+				insertDSSettingsToPreferences(h2, setting, idString);
+			}
+		}
+	}
+
+	@Override
+	public List<DSSetting> loadDSSettings() throws SQLException {
+		try (final H2Database h2 = new H2Database()) {
+			if (!h2.exists("DS_SETTINGS") || !h2.exists("PREFERENCES")) {
+				return new ArrayList<>();
+			}
+			return h2.select(from("ds_settings"), DSSetting::new);
+		}
+	}
+	private int getDSSettingsSequence(final H2Database h2) throws SQLException {
+		return h2.find(from("ds_settings_sequence"), this::getInt).get() + 1;
+	}
+
+	private void updateDSSettingsToDSSettings(final H2Database h2, final List<DSSetting> updateSettings)
+			throws SQLException {
+		for (final DSSetting setting : updateSettings) {
+			h2.update(table("ds_settings")
+					.set($("name", setting.getName()), $("executionpath", setting.getExecutionPath()),
+							$("executiontype", setting.getExecutionType().getId()),
+							$("studiomode", setting.getStudioMode().getId()))
+					.where($("id", setting.getId()), $("updated_at", setting.getUpdatedAt())));
+		}
+	}
+
+	private void insertDSSettingsToDSSettings(final H2Database h2, final DSSetting setting, final String sequence)
+			throws SQLException {
+		h2.insert(into("ds_settings").values($("id", sequence), $("name", setting.getName()),
+				$("executionpath", setting.getExecutionPath()), $("executiontype", setting.getExecutionType().getId()),
+				$("studiomode", setting.getStudioMode().getId())));
+	}
+
+	private void insertDSSettingsToPreferences(final H2Database h2, final DSSetting setting, final String sequence)
+			throws SQLException {
+		final int nextKey = h2
+				.find(SelectBuilder.query("select MAX(key) from preferences where category='DSSetting'"), this::getInt)
+				.get() + 1;
+		final Preference p = new Preference("DSSetting", Integer.toString(nextKey), sequence);
+		savePreferences(Arrays.asList(p));
+	}
+
+	private void deleteDSSettings(final H2Database h2, final List<DSSetting> deleteSettings) throws SQLException {
+		for (final DSSetting setting : deleteSettings) {
+			h2.delete(DeleteBuilder.from("ds_settings").where($("id", setting.getId() != null ? setting.getId() : 0)));
+			h2.delete(DeleteBuilder.from("preferences").where($("category", "DSSetting"), $("value", setting.getId())));
+		}
+	}
+
+	private int getInt(final ResultSet rs) {
+		try {
+			return rs.getInt(1);
+		} catch (final SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

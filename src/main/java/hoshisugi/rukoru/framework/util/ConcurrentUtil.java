@@ -1,5 +1,6 @@
 package hoshisugi.rukoru.framework.util;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,6 +22,22 @@ public class ConcurrentUtil {
 			});
 		} finally {
 			executor.shutdown();
+		}
+	}
+
+	public static void sleepSilently(final int millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (final InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void awaitSilently(final CountDownLatch latch) {
+		try {
+			latch.await();
+		} catch (final InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

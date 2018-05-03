@@ -19,6 +19,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import hoshisugi.rukoru.framework.database.Database;
 import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
+import hoshisugi.rukoru.framework.database.builder.DeleteBuilder;
 import hoshisugi.rukoru.framework.database.builder.InsertBuilder;
 import hoshisugi.rukoru.framework.database.builder.SelectBuilder;
 import hoshisugi.rukoru.framework.database.builder.UpdateBuilder;
@@ -73,6 +74,10 @@ class H2Database implements AutoCloseable {
 
 	public int update(final UpdateBuilder builder) throws SQLException {
 		return database.update(conn, builder);
+	}
+
+	public int delete(final DeleteBuilder builder) throws SQLException {
+		return database.delete(conn, builder);
 	}
 
 	public boolean exists(final String tableName) throws SQLException {

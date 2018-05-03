@@ -2,6 +2,8 @@ package hoshisugi.rukoru.app.inject;
 
 import com.google.inject.Singleton;
 
+import hoshisugi.rukoru.app.services.ds.DSService;
+import hoshisugi.rukoru.app.services.ds.DSServiceImpl;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.services.ec2.EC2ServiceImpl;
 import hoshisugi.rukoru.app.services.rds.RDSService;
@@ -17,6 +19,7 @@ import hoshisugi.rukoru.app.services.settings.LocalSettingServiceImpl;
 import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.app.view.MainController;
 import hoshisugi.rukoru.app.view.ToolBarController;
+import hoshisugi.rukoru.app.view.ds.DSContentController;
 import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.ec2.ImageTabController;
 import hoshisugi.rukoru.app.view.ec2.InstanceTabController;
@@ -26,6 +29,7 @@ import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerMenuController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTableController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTreeController;
+import hoshisugi.rukoru.app.view.settings.DSSettingsController;
 import hoshisugi.rukoru.framework.inject.ModuleConfigurator;
 
 public class RukoruModuleConfigurator extends ModuleConfigurator {
@@ -40,6 +44,7 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(MainController.class);
 		provide(ContentController.class);
 		provide(ToolBarController.class);
+		provide(DSContentController.class);
 		provide(EC2ContentController.class);
 		provide(RepositoryDBContentController.class);
 		provide(S3ExplorerController.class);
@@ -58,5 +63,6 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		bind(S3Service.class).toProvider(() -> new S3ServiceImpl()).in(Singleton.class);
 		bind(RepositoryDBService.class).toProvider(() -> new RepositoryDBServiceImpl()).in(Singleton.class);
 		bind(RedmineService.class).toProvider(() -> new RedmineServiceImpl()).in(Singleton.class);
+		bind(DSService.class).toProvider(() -> new DSServiceImpl()).in(Singleton.class);
 	}
 }

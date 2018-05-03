@@ -131,4 +131,16 @@ public class FXUtil {
 			scheduler.shutdown();
 		}, 1000, MILLISECONDS);
 	}
+
+	public static <T extends Node> T load(final Class<? extends BaseController> controllerClass) {
+		try {
+			final FXMLLoader loader = new FXMLLoader(FXUtil.getURL(controllerClass));
+			final T view = loader.load();
+			final BaseController controller = loader.getController();
+			view.setUserData(controller);
+			return view;
+		} catch (final IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package hoshisugi.rukoru.app.services.ec2;
 
 import static com.amazonaws.regions.Regions.AP_NORTHEAST_1;
+import static hoshisugi.rukoru.framework.util.ConcurrentUtil.sleepSilently;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -160,7 +161,7 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 					return target;
 				}).filter(EC2Service::noNeedMonitoring).forEach(done -> instanceIdMap.remove(done.getInstanceId()));
 			});
-			sleep(5000);
+			sleepSilently(5000);
 		}
 	}
 
@@ -179,20 +180,13 @@ public class EC2ServiceImpl extends BaseService implements EC2Service {
 					return target;
 				}).filter(EC2Service::noNeedMonitoring).forEach(done -> imageIdMap.remove(done.getImageId()));
 			});
-			sleep(5000);
+			sleepSilently(5000);
 		}
 	}
 
 	private AmazonEC2 createClient() {
 		final AWSCredentialsProvider provider = Credential.get().createCredentialsProvider();
 		return AmazonEC2ClientBuilder.standard().withCredentials(provider).withRegion(AP_NORTHEAST_1).build();
-	}
-
-	private void sleep(final int millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (final InterruptedException e) {
-		}
 	}
 
 	private RunInstancesRequest createRunInstanceRequest(final CreateInstanceRequest createInstanceRequest) {

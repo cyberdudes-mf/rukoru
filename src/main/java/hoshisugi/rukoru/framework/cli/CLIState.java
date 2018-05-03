@@ -2,19 +2,22 @@ package hoshisugi.rukoru.framework.cli;
 
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class CLIState implements AutoCloseable {
 
 	public static final int SUCCESS = 0;
 
 	private final Process process;
-	private final InputStream inputStream;
-	private final InputStream errorStream;
+	private InputStream inputStream;
+	private InputStream errorStream;
+	private final Consumer<CLIState> callback;
+	private boolean success;
+	private boolean failure;
 
-	public CLIState(final Process process, final InputStream inputStream, final InputStream errorStream) {
+	CLIState(final Process process, final Consumer<CLIState> callback) {
 		this.process = process;
-		this.inputStream = inputStream;
-		this.errorStream = errorStream;
+		this.callback = callback;
 	}
 
 	public boolean isRunning() {
@@ -22,11 +25,25 @@ public class CLIState implements AutoCloseable {
 	}
 
 	public boolean isSuccess() {
-		return process.exitValue() == SUCCESS;
+		return success;
 	}
 
 	public boolean isFailure() {
-		return process.exitValue() != SUCCESS;
+		return failure;
+	}
+
+	void succeed() {
+		this.success = true;
+		if (callback != null) {
+			callback.accept(this);
+		}
+	}
+
+	void fail() {
+		this.failure = true;
+		if (callback != null) {
+			callback.accept(this);
+		}
 	}
 
 	public InputStream getInputStream() {
@@ -35,6 +52,18 @@ public class CLIState implements AutoCloseable {
 
 	public InputStream getErrorStream() {
 		return errorStream;
+	}
+
+	void setInputStream(final InputStream inputStream) {
+		this.inputStream = inputStream;
+	}
+
+	void setErrorStream(final InputStream errorStream) {
+		this.errorStream = errorStream;
+	}
+
+	Process getProcess() {
+		return process;
 	}
 
 	public int waitFor() throws InterruptedException {
@@ -46,7 +75,11 @@ public class CLIState implements AutoCloseable {
 	}
 
 	public void destroy() {
-		process.destroy();
+		process.destroyForcibly();
+	}
+
+	public int getExitValue() {
+		return process.exitValue();
 	}
 
 	@Override

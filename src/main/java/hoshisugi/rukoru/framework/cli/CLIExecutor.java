@@ -1,17 +1,18 @@
 package hoshisugi.rukoru.framework.cli;
 
+import static hoshisugi.rukoru.framework.cli.CLIState.SUCCESS;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +22,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
+
+import hoshisugi.rukoru.framework.util.ConcurrentUtil;
+import hoshisugi.rukoru.framework.util.IOUtil;
 
 class CLIExecutor {
 
@@ -33,20 +37,26 @@ class CLIExecutor {
 
 	private static CLIState runProcess(final ProcessBuilder builder, final CLIParameter parameter) {
 		ExecutorService executor = null;
+		CLIState cliState = null;
 		try {
-			final CountDownLatch latch = new CountDownLatch(1);
 			final Process process = builder.start();
+			cliState = new CLIState(process, parameter.getCallback());
+			final CountDownLatch latch = new CountDownLatch(1);
+			final SuccessMonitor successMonitor = new SuccessMonitor(cliState, latch, parameter.getSuccessCondition());
+			final FailMonitor failureMonitor = new FailMonitor(cliState, latch, parameter.getFailureCondition());
+			final TimeoutMonitor timeoutMonitor = new TimeoutMonitor(parameter.getTimeout(), parameter.getTimeoutUnit(),
+					latch, cliState::fail);
 			executor = Executors.newFixedThreadPool(3);
-			final FinishedMonitor successMonitor = new FinishedMonitor(process.getInputStream(),
-					parameter.getSuccessPredicate(), latch);
-			final FinishedMonitor failureMonitor = new FinishedMonitor(process.getErrorStream(),
-					parameter.getFailurePredicate(), latch);
 			final List<Future<Void>> futures = Arrays.asList(executor.submit(successMonitor),
-					executor.submit(failureMonitor),
-					executor.submit(new TimeoutMonitor(parameter.getTimeout(), parameter.getTimeoutUnit(), latch)));
-			latch.await();
-			futures.forEach(f -> f.cancel(true));
-			return new CLIState(process, successMonitor.getInput(), successMonitor.getInput());
+					executor.submit(failureMonitor), executor.submit(timeoutMonitor));
+			ConcurrentUtil.run(() -> {
+				try {
+					latch.await();
+				} finally {
+					futures.forEach(f -> f.cancel(true));
+				}
+			});
+			return cliState;
 		} catch (final Exception e) {
 			throw new CLIException(String.format("コマンド[%s]の実行に失敗しました。", parameter.getCommand()), e);
 		} finally {
@@ -72,43 +82,89 @@ class CLIExecutor {
 		}
 	}
 
-	static class FinishedMonitor implements Callable<Void> {
+	static abstract class FinishedMonitor implements Callable<Void> {
 
-		private final InputStream stream;
-		private final Predicate<String> predicate;
-		private final CountDownLatch latch;
-		private final PipedOutputStream output;
-		private final PipedInputStream input;
+		protected final CLIState state;
+		protected final CountDownLatch latch;
+		protected final PipedOutputStream output;
+		protected final Predicate<String> condition;
 
-		public FinishedMonitor(final InputStream stream, final Predicate<String> predicate, final CountDownLatch latch)
+		public FinishedMonitor(final CLIState state, final CountDownLatch latch, final Predicate<String> condition)
 				throws IOException {
-			this.stream = stream;
-			this.predicate = predicate;
+			this.state = state;
 			this.latch = latch;
+			this.condition = condition;
 			this.output = new PipedOutputStream();
-			this.input = new PipedInputStream(output);
-		}
-
-		public InputStream getInput() {
-			return input;
 		}
 
 		@Override
 		public Void call() throws Exception {
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "MS932"));
-			final Optional<Predicate<String>> optional = Optional.ofNullable(predicate);
+			final BufferedReader reader = IOUtil.newBufferedReader(getInputStream(), Charset.forName("MS932"));
 			try (PrintWriter writer = new PrintWriter(output)) {
-				String line;
-				while ((line = reader.readLine()) != null) {
+				for (String line = null; (line = reader.readLine()) != null;) {
 					writer.println(line);
 					writer.flush();
-					if (optional.isPresent() && optional.get().test(line)) {
+					if (condition != null && condition.test(line)) {
 						latch.countDown();
+						updateState();
 					}
 				}
-				latch.countDown();
+				synchronized (state) {
+					if (latch.getCount() > 0) {
+						latch.countDown();
+						if (state.getExitValue() == SUCCESS) {
+							state.succeed();
+						} else {
+							state.fail();
+						}
+					}
+				}
 			}
 			return null;
+		}
+
+		abstract InputStream getInputStream();
+
+		abstract void updateState();
+
+	}
+
+	static class SuccessMonitor extends CLIExecutor.FinishedMonitor {
+
+		public SuccessMonitor(final CLIState state, final CountDownLatch latch, final Predicate<String> condition)
+				throws IOException {
+			super(state, latch, condition);
+			state.setInputStream(new PipedInputStream(output));
+		}
+
+		@Override
+		InputStream getInputStream() {
+			return state.getProcess().getInputStream();
+		}
+
+		@Override
+		void updateState() {
+			state.succeed();
+		}
+
+	}
+
+	static class FailMonitor extends CLIExecutor.FinishedMonitor {
+
+		public FailMonitor(final CLIState state, final CountDownLatch latch, final Predicate<String> condition)
+				throws IOException {
+			super(state, latch, condition);
+			state.setErrorStream(new PipedInputStream(output));
+		}
+
+		@Override
+		InputStream getInputStream() {
+			return state.getProcess().getErrorStream();
+		}
+
+		@Override
+		void updateState() {
+			state.fail();
 		}
 
 	}
@@ -118,11 +174,14 @@ class CLIExecutor {
 		private final long timeout;
 		private final TimeUnit timeoutUnit;
 		private final CountDownLatch latch;
+		private final Runnable callback;
 
-		public TimeoutMonitor(final long timeout, final TimeUnit timeoutUnit, final CountDownLatch latch) {
+		public TimeoutMonitor(final long timeout, final TimeUnit timeoutUnit, final CountDownLatch latch,
+				final Runnable callback) {
 			this.timeout = timeout;
 			this.timeoutUnit = timeoutUnit;
 			this.latch = latch;
+			this.callback = callback;
 		}
 
 		@Override
@@ -130,6 +189,7 @@ class CLIExecutor {
 			if (timeoutUnit != null) {
 				timeoutUnit.sleep(timeout);
 				latch.countDown();
+				callback.run();
 			}
 			return null;
 		}

@@ -1,10 +1,11 @@
 package hoshisugi.rukoru.app.enums;
 
 public enum Preferences {
-	ImageUrl("Home", "imageUrl",
-			"https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg"), RedmineLoginId("Redmine",
-					"loginId", null), RedminePassword("Redmine", "password", null), RedmineDefaultProject("Redmine",
-							"defaultProject", null), RedmineDefaultVersion("Redmine", "defaultVersion", null),;
+	ImageUrl("Home", "imageUrl", "https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/top.jpg"),
+	RedmineLoginId("Redmine", "loginId", null),
+	RedminePassword("Redmine", "password", null),
+	RedmineDefaultProject("Redmine", "defaultProject", null),
+	RedmineDefaultVersion("Redmine", "defaultVersion", null),;
 
 	private final String category;
 	private final String key;

@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Properties;
 
 import javafx.scene.image.Image;
 
@@ -60,6 +61,16 @@ public class AssetUtil {
 	private static String loadFile(final String directory, final String fileName) {
 		try {
 			return new String(Files.readAllBytes(getPath(directory, fileName)), UTF_8.toString());
+		} catch (final IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	public static Properties loadProperties(final String fileName) {
+		try {
+			final Properties p = new Properties();
+			p.load(Files.newInputStream(getPath("properties", fileName)));
+			return p;
 		} catch (final IOException e) {
 			throw new UncheckedIOException(e);
 		}

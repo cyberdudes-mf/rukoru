@@ -17,6 +17,12 @@ public class Preference extends DBEntity {
 
 	private final StringProperty value = new SimpleStringProperty(this, "value");
 
+	public Preference(final String category, final String key, final String value) {
+		setCategory(category);
+		setKey(key);
+		setValue(value);
+	}
+
 	public Preference(final Preferences preferences) {
 		setCategory(preferences.category());
 		setKey(preferences.key());
