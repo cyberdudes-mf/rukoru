@@ -29,7 +29,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-import hoshisugi.rukoru.app.enums.DSSettingState;
+import hoshisugi.rukoru.app.enums.DSSettingOperation;
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.enums.StudioMode;
 import hoshisugi.rukoru.app.models.settings.DBEntity;
@@ -55,11 +55,11 @@ public class DSSetting extends DBEntity {
 			setId(rs.getInt("id"));
 			setName(rs.getString("name"));
 			setExecutionPath(rs.getString("executionPath"));
-			setExecutionType(ExecutionType.of(rs.getString("executiontype")));
+			setExecutionType(ExecutionType.valueOf(rs.getString("executiontype")));
 			setStudioMode(StudioMode.of(rs.getString("studiomode")));
 			setCreatedAt(rs.getTimestamp("created_at"));
 			setUpdatedAt(rs.getTimestamp("updated_at"));
-			setState(DSSettingState.Update);
+			setState(DSSettingOperation.Update);
 		} catch (final SQLException e) {
 			throw new UncheckedExecutionException(e);
 		}
@@ -101,7 +101,7 @@ public class DSSetting extends DBEntity {
 		return state.get();
 	}
 
-	public void setState(final DSSettingState state) {
+	public void setState(final DSSettingOperation state) {
 		this.state.set(state.toString());
 	}
 

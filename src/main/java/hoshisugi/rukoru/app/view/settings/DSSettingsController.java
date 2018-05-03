@@ -8,7 +8,7 @@ import java.util.function.UnaryOperator;
 
 import com.google.inject.Inject;
 
-import hoshisugi.rukoru.app.enums.DSSettingState;
+import hoshisugi.rukoru.app.enums.DSSettingOperation;
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.enums.StudioMode;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
@@ -105,7 +105,7 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		if (!result.map(type -> type == ButtonType.OK).orElse(false)) {
 			return;
 		}
-		selectedItems.forEach(s -> s.setState(DSSettingState.Delete));
+		selectedItems.forEach(s -> s.setState(DSSettingOperation.Delete));
 		dssettings.replaceAll(UnaryOperator.identity());
 	}
 
@@ -120,7 +120,7 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		ConcurrentUtil.run(() -> {
 			service.saveDSSettings(dssettings);
 			dssettings.removeAll(dssettings.filtered(p));
-			dssettings.forEach(s -> s.setState(DSSettingState.Update));
+			dssettings.forEach(s -> s.setState(DSSettingOperation.Update));
 			Platform.runLater(() -> controller.refresh(dssettings));
 		});
 	}

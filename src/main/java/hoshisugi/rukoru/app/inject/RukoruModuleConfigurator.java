@@ -54,7 +54,6 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(S3ExplorerTreeController.class);
 		provide(S3ExplorerTableController.class);
 		provide(TaskboardController.class);
-		provide(DSSettingsController.class);
 	}
 
 	private void configureServices() {

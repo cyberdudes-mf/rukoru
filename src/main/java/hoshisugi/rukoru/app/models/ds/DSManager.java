@@ -3,21 +3,15 @@ package hoshisugi.rukoru.app.models.ds;
 public interface DSManager {
 
 	static DSManager getManager(final DSEntry entry) {
-		DSManager manager;
 		switch (entry.getDsSetting().getExecutionType()) {
 		case SERVICE:
-			manager = new DSServiceManager(entry);
-			break;
+			return new DSServiceManager(entry);
 		case EXE:
-			manager = new DSExeManager(entry);
-			break;
+			return new DSExeManager(entry);
 		case BAT:
-			manager = new DSBatManager(entry);
-			break;
-		default:
-			throw new IllegalStateException("何で起動すればいいか分かりません。。。");
+			return new DSBatManager(entry);
 		}
-		return manager;
+		throw new IllegalStateException("起動方法が指定されていません。");
 	}
 
 	void startServer();

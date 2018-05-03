@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
-import hoshisugi.rukoru.app.enums.DSSettingState;
+import hoshisugi.rukoru.app.enums.DSSettingOperation;
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.enums.StudioMode;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
@@ -71,7 +71,7 @@ public class EntryDSController extends BaseController {
 			setting.setExecutionPath(executionPath.getText());
 			setting.setExecutionType(executionType.getSelectionModel().getSelectedItem());
 			setting.setStudioMode(studioMode.getSelectionModel().getSelectedItem());
-			setting.setState(DSSettingState.Insert);
+			setting.setState(DSSettingOperation.Insert);
 			consumer.accept(setting);
 			FXUtil.getStage(e).close();
 		});

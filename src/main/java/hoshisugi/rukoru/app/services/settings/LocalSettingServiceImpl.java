@@ -194,6 +194,15 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 		}
 	}
 
+	@Override
+	public List<DSSetting> loadDSSettings() throws SQLException {
+		try (final H2Database h2 = new H2Database()) {
+			if (!h2.exists("DS_SETTINGS") || !h2.exists("PREFERENCES")) {
+				return new ArrayList<>();
+			}
+			return h2.select(from("ds_settings"), DSSetting::new);
+		}
+	}
 	private int getDSSettingsSequence(final H2Database h2) throws SQLException {
 		return h2.find(from("ds_settings_sequence"), this::getInt).get() + 1;
 	}
@@ -237,16 +246,6 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			return rs.getInt(1);
 		} catch (final SQLException e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public List<DSSetting> loadDSSettings() throws SQLException {
-		try (final H2Database h2 = new H2Database()) {
-			if (!h2.exists("DS_SETTINGS") || !h2.exists("PREFERENCES")) {
-				return new ArrayList<>();
-			}
-			return h2.select(from("ds_settings"), DSSetting::new);
 		}
 	}
 }

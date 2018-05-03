@@ -7,29 +7,29 @@ import hoshisugi.rukoru.framework.cli.CLIState;
 
 public class DSServiceManager extends DSManagerBase {
 
-	public DSServiceManager(final DSEntry entry) {
+	DSServiceManager(final DSEntry entry) {
 		super(entry);
 	}
 
 	@Override
-	public void startServer(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+	void startServer(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
 		service.startServerService(dsSetting, writer, callback);
 	}
 
 	@Override
-	public void stopServer(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
+	void stopServer(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
 		service.stopServerService(dsSetting, callback);
 	}
 
 	@Override
-	public void startStudioForDesktop(final DSSetting dsSetting, final DSLogWriter writer,
+	void startStudioForDesktop(final DSSetting dsSetting, final DSLogWriter writer,
 			final Consumer<CLIState> callback) throws IOException {
 		service.startStudioExe(dsSetting, writer, callback);
 	}
 
 	@Override
-	public void stopStudioForDesktop(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
+	void stopStudioForDesktop(final DSSetting dsSetting, final Consumer<CLIState> callback) throws IOException {
 		service.stopStudioExe(dsSetting, callback);
 	}
 

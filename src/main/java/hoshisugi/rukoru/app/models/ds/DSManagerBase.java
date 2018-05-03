@@ -14,12 +14,12 @@ import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.ShutdownHandler;
 import javafx.application.Platform;
 
-public abstract class DSManagerBase implements DSManager {
+abstract class DSManagerBase implements DSManager {
 
 	protected final DSService service;
 	protected final DSEntry entry;
 
-	public DSManagerBase(final DSEntry entry) {
+	DSManagerBase(final DSEntry entry) {
 		this.entry = entry;
 		service = Injector.getInstance(DSService.class);
 	}
@@ -70,7 +70,17 @@ public abstract class DSManagerBase implements DSManager {
 		});
 	}
 
-	public void startServer(final Consumer<CLIState> callback) {
+	abstract void startServer(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback)
+			throws IOException;
+
+	abstract void stopServer(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
+
+	abstract void startStudioForDesktop(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback)
+			throws IOException;
+
+	abstract void stopStudioForDesktop(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
+
+	void startServer(final Consumer<CLIState> callback) {
 		entry.setServerButtonDisable(true);
 		if (!entry.isServerButtonSelected()) {
 			entry.setServerButtonSelected(true);
@@ -80,7 +90,7 @@ public abstract class DSManagerBase implements DSManager {
 		ConcurrentUtil.run(() -> startServer(dsSetting, logWriter, callback));
 	}
 
-	private void startStudioForXxx(final DSSetting dsSetting, final DSLogWriter logWriter) throws IOException {
+	void startStudioForXxx(final DSSetting dsSetting, final DSLogWriter logWriter) throws IOException {
 		switch (dsSetting.getStudioMode()) {
 		case Desktop:
 			startStudioForDesktop(dsSetting, logWriter, this::onStudioStarted);
@@ -94,7 +104,7 @@ public abstract class DSManagerBase implements DSManager {
 		}
 	}
 
-	public void stopStudio(final Consumer<CLIState> callback) {
+	void stopStudio(final Consumer<CLIState> callback) {
 		entry.setStudioButtonDisable(true);
 		if (entry.isStudioButtonSelected()) {
 			entry.setStudioButtonSelected(false);
@@ -110,31 +120,21 @@ public abstract class DSManagerBase implements DSManager {
 		});
 	}
 
-	public abstract void startServer(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback)
-			throws IOException;
-
-	public abstract void stopServer(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
-
-	public abstract void startStudioForDesktop(DSSetting dsSetting, DSLogWriter writer, Consumer<CLIState> callback)
-			throws IOException;
-
-	public abstract void stopStudioForDesktop(DSSetting dsSetting, Consumer<CLIState> callback) throws IOException;
-
-	public void startStudioForWeb(final DSSetting dsSetting, final DSLogWriter writer,
+	void startStudioForWeb(final DSSetting dsSetting, final DSLogWriter writer,
 			final Consumer<CLIState> callback) {
 		service.startStudioForWeb(dsSetting, writer, callback);
 	}
 
-	public void startStudioWPF(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
+	void startStudioWPF(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
 			throws IOException {
 		service.startStudioWPF(dsSetting, writer, callback);
 	}
 
-	protected void onServerStarted(final CLIState state) {
+	void onServerStarted(final CLIState state) {
 		onServerStarted(state, null);
 	}
 
-	protected void onServerStarted(final CLIState state, final Runnable andThen) {
+	void onServerStarted(final CLIState state, final Runnable andThen) {
 		if (state == null || state.isFailure()) {
 			Platform.runLater(() -> {
 				entry.setServerButtonDisable(false);
@@ -165,7 +165,7 @@ public abstract class DSManagerBase implements DSManager {
 		});
 	}
 
-	protected void onServerStopped(final CLIState state) {
+	void onServerStopped(final CLIState state) {
 		if (state == null || state.isFailure()) {
 			Platform.runLater(() -> {
 				entry.setServerButtonDisable(false);
@@ -193,7 +193,7 @@ public abstract class DSManagerBase implements DSManager {
 		});
 	}
 
-	protected void onStudioStarted(final CLIState state) {
+	void onStudioStarted(final CLIState state) {
 		Platform.runLater(() -> {
 			entry.setStudioButtonDisable(false);
 			final boolean success = state != null && state.isRunning();
@@ -204,7 +204,7 @@ public abstract class DSManagerBase implements DSManager {
 		});
 	}
 
-	protected void onStudioStopped(final CLIState state) {
+	void onStudioStopped(final CLIState state) {
 		Platform.runLater(() -> {
 			entry.setStudioButtonDisable(false);
 			final boolean success = state == null || state.isSuccess();
