@@ -241,6 +241,14 @@ public class DSServiceImpl extends BaseService implements DSService {
 			final CLIBuilder command = CLI.command("jinfo.exe");
 			binPath.ifPresent(command::directory);
 			final CLIState jinfo = command.options(pid, "|", "find", "\"user.dir\"").execute();
+
+			// 異なる Java バージョンの Studio for Desktop を同時に起動していると、
+			// 旧バージョンの Studio の jinfo から新バージョンの Studio のプロセスにアタッチできず、
+			// 標準エラー出力にバッファが溜まり続けてブロックされてしまう。
+			// このままだとスレッドを終了できない(アプリケーションを落としてもゾンビプロセスになる)ため、
+			// 標準エラー出力を nul デバイスにリダイレクトしてブロッキングされないようにする
+			IOUtil.redirectAsync(jinfo.getErrorStream(), Paths.get("nul"));
+
 			try (BufferedReader reader = IOUtil.newBufferedReader(jinfo.getInputStream())) {
 				for (String line = null; (line = reader.readLine()) != null;) {
 					if (line.contains(dsSetting.getExecutionPath())) {
