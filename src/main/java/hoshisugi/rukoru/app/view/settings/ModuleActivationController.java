@@ -12,6 +12,8 @@ import com.google.inject.Inject;
 import hoshisugi.rukoru.app.enums.RukoruModule;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
+import hoshisugi.rukoru.app.view.ContentController;
+import hoshisugi.rukoru.app.view.ToolBarController;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
@@ -33,6 +35,12 @@ public class ModuleActivationController extends BaseController implements Prefer
 
 	@Inject
 	private LocalSettingService settingService;
+
+	@Inject
+	private ContentController contentController;
+
+	@Inject
+	private ToolBarController toorBarController;
 
 	private final Map<String, Preference> preferences = new HashMap<>();
 
@@ -79,6 +87,11 @@ public class ModuleActivationController extends BaseController implements Prefer
 	public void apply() {
 		ConcurrentUtil.run(() -> {
 			settingService.savePreferences(preferences.values());
+			Platform.runLater(() -> {
+				contentController.loadContents(preferences);
+				toorBarController.refresh(preferences);
+			});
 		});
 	}
+
 }

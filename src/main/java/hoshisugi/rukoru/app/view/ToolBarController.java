@@ -54,6 +54,15 @@ public class ToolBarController extends BaseController {
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
+		createButtons();
+		ConcurrentUtil.run(() -> {
+			final Map<String, Preference> preferences = service.getPreferencesByCategory("Module");
+			Platform.runLater(() -> showButtons(preferences));
+		});
+		toolBar.selectedToggleProperty().addListener(this::toolBarSelectionChanged);
+	}
+
+	private void createButtons() {
 		for (final RukoruModule module : RukoruModule.values()) {
 			ButtonBase button;
 			if (module.getControllerClass() != null) {
@@ -83,12 +92,11 @@ public class ToolBarController extends BaseController {
 			button.setAlignment(Pos.TOP_LEFT);
 			buttons.put(module, button);
 		}
-		ConcurrentUtil.run(() -> {
-			final Map<String, Preference> preferences = service.getPreferencesByCategory("Module");
-			Platform.runLater(() -> Stream.of(RukoruModule.values()).filter(m -> isActive(m, preferences))
-					.map(buttons::get).forEach(layoutRoot.getChildren()::add));
-		});
-		toolBar.selectedToggleProperty().addListener(this::toolBarSelectionChanged);
+	}
+
+	public void refresh(final Map<String, Preference> preferences) {
+		layoutRoot.getChildren().clear();
+		showButtons(preferences);
 	}
 
 	private void onMCButtonClick(final ActionEvent event) {
@@ -136,6 +144,11 @@ public class ToolBarController extends BaseController {
 		if (newValue == null) {
 			Platform.runLater(contentController::showHome);
 		}
+	}
+
+	private void showButtons(final Map<String, Preference> preferences) {
+		Stream.of(RukoruModule.values()).filter(m -> isActive(m, preferences)).map(buttons::get)
+				.forEach(layoutRoot.getChildren()::add);
 	}
 
 	private boolean isActive(final RukoruModule rukoruModule, final Map<String, Preference> preferences) {

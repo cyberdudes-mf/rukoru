@@ -54,8 +54,7 @@ public class ContentController extends BaseController {
 
 		ConcurrentUtil.run(() -> {
 			final Map<String, Preference> preferences = service.getPreferencesByCategory("Module");
-			Stream.of(RukoruModule.values()).filter(m -> m.getControllerClass() != null)
-					.filter(m -> isActive(m, preferences)).forEach(this::loadContent);
+			loadContents(preferences);
 		});
 	}
 
@@ -76,7 +75,15 @@ public class ContentController extends BaseController {
 		AnchorPane.setBottomAnchor(node, 0.0);
 	}
 
+	public void loadContents(final Map<String, Preference> preferences) {
+		Stream.of(RukoruModule.values()).filter(m -> m.getControllerClass() != null)
+				.filter(m -> isActive(m, preferences)).forEach(this::loadContent);
+	}
+
 	private void loadContent(final RukoruModule rukoruModule) {
+		if (contents.containsKey(rukoruModule)) {
+			return;
+		}
 		try {
 			final Parent parent = FXMLLoader.load(FXUtil.getURL(rukoruModule.getControllerClass()));
 			contents.put(rukoruModule, parent);
