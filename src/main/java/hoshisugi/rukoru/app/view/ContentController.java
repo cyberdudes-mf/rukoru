@@ -9,17 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
+import hoshisugi.rukoru.app.enums.RukoruModule;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
-import hoshisugi.rukoru.app.view.ds.DSContentController;
-import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
-import hoshisugi.rukoru.app.view.redmine.TaskboardController;
-import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
-import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.inject.Injector;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
@@ -41,7 +38,7 @@ import javafx.scene.layout.Region;
 
 public class ContentController extends BaseController {
 
-	private final Map<Class<? extends BaseController>, Parent> contents = new HashMap<>();
+	private final Map<RukoruModule, Parent> contents = new HashMap<>();
 
 	@FXML
 	private AnchorPane layoutRoot;
@@ -54,17 +51,16 @@ public class ContentController extends BaseController {
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
 		showTopImage();
+
 		ConcurrentUtil.run(() -> {
-			loadContent(DSContentController.class);
-			loadContent(EC2ContentController.class);
-			loadContent(RepositoryDBContentController.class);
-			loadContent(S3ExplorerController.class);
-			loadContent(TaskboardController.class);
+			final Map<String, Preference> preferences = service.getPreferencesByCategory("Module");
+			Stream.of(RukoruModule.values()).filter(m -> m.getControllerClass() != null)
+					.filter(m -> isActive(m, preferences)).forEach(this::loadContent);
 		});
 	}
 
-	public void showContent(final Class<? extends BaseController> controller) {
-		setContent(contents.get(controller));
+	public void showContent(final RukoruModule rukoruModule) {
+		setContent(contents.get(rukoruModule));
 	}
 
 	public void showHome() {
@@ -80,13 +76,18 @@ public class ContentController extends BaseController {
 		AnchorPane.setBottomAnchor(node, 0.0);
 	}
 
-	private void loadContent(final Class<? extends BaseController> controller) {
+	private void loadContent(final RukoruModule rukoruModule) {
 		try {
-			final Parent parent = FXMLLoader.load(FXUtil.getURL(controller));
-			contents.put(controller, parent);
+			final Parent parent = FXMLLoader.load(FXUtil.getURL(rukoruModule.getControllerClass()));
+			contents.put(rukoruModule, parent);
 		} catch (final IOException e) {
 			throw new UncheckedIOException(e);
 		}
+	}
+
+	private boolean isActive(final RukoruModule rukoruModule, final Map<String, Preference> preferences) {
+		final Preference preference = preferences.get(rukoruModule.toString());
+		return preference == null || Boolean.parseBoolean(preference.getValue());
 	}
 
 	private void showTopImage() {
