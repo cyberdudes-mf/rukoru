@@ -10,7 +10,6 @@ import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
-import hoshisugi.rukoru.framework.util.DialogUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -55,10 +54,6 @@ public class CredentialSettingController extends BaseController implements Prefe
 
 	@Override
 	public void apply() {
-		try {
-			service.saveCredential(entity);
-		} catch (final Exception e) {
-			DialogUtil.showErrorDialog(e);
-		}
+		ConcurrentUtil.run(() -> service.saveCredential(entity));
 	}
 }

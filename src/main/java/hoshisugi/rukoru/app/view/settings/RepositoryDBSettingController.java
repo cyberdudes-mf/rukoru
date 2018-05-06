@@ -17,7 +17,6 @@ import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.PropertyListCell;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
-import hoshisugi.rukoru.framework.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -107,15 +106,13 @@ public class RepositoryDBSettingController extends BaseController implements Pre
 
 	@Override
 	public void apply() {
-		try {
+		ConcurrentUtil.run(() -> {
 			entity.setInstanceName(instance.getValue().getInstanceName());
 			entity.setEndpoint(endpoint.getText());
 			entity.setPort(Integer.parseInt(port.getText()));
 			entity.setUsername(username.getText());
 			entity.setPassword(password.getText());
 			settingService.saveRepositoryDBConnection(entity);
-		} catch (final Exception e) {
-			DialogUtil.showErrorDialog(e);
-		}
+		});
 	}
 }
