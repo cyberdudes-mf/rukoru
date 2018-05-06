@@ -70,6 +70,7 @@ public class PreferencesController extends BaseController {
 		registerContent(root, DSSettingsController.class);
 		registerContent(root, RedminePreferenceController.class);
 		registerContent(root, ModuleActivationController.class);
+		registerContent(root, RepositoryDBSettingController.class);
 	}
 
 	private void registerContent(final TreeItem<String> root, final Class<? extends BaseController> controller) {
