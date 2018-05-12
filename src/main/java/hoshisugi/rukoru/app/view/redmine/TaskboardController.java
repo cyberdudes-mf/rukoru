@@ -195,8 +195,8 @@ public class TaskboardController extends BaseController {
 				showLoading();
 			});
 		} else {
-			Platform.runLater(() -> showContent(
-					new Label("Redmine のログイン情報を設定してください。\n[メニュー] - [Settings] - [Preferences] - [Redmine]")));
+			Platform.runLater(() -> showContent(new Label(
+					"Redmine のログイン情報を設定してください。\n[メニュー] - [Settings] - [Preferences] - [Authentication] - [Redmine]")));
 		}
 	}
 
