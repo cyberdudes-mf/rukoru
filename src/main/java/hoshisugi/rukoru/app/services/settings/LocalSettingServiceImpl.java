@@ -164,7 +164,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	public void saveDSSettings(final List<DSSetting> settings) throws SQLException {
 		try (final H2Database h2 = new H2Database()) {
 			if (!h2.exists("PREFERENCES")) {
-				h2.create(CreateBuilder.table("PREFERENCES"));
+				h2.create(CreateBuilder.table("preferences"));
 			}
 			if (!h2.exists("DS_SETTINGS")) {
 				h2.create(CreateBuilder.table("ds_settings_sequence"));
@@ -203,6 +203,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			return h2.select(from("ds_settings"), DSSetting::new);
 		}
 	}
+
 	private int getDSSettingsSequence(final H2Database h2) throws SQLException {
 		return h2.find(from("ds_settings_sequence"), this::getInt).get() + 1;
 	}
