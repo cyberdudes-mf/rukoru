@@ -28,7 +28,7 @@
 					</GridPane.margin>
 				</TextField>
 				<Label text="DS_HOME" GridPane.rowIndex="1" />
-				<TextField fx:id="executionPath" editable="false" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="205.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+				<TextField fx:id="executionPath" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="205.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 				<Button fx:id="directoryChooserButton" mnemonicParsing="false" onAction="#onDirectoryChooserButtonClick" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 				<Label text="起動方法" GridPane.rowIndex="2" />
 				<ComboBox fx:id="executionType" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="2" />
