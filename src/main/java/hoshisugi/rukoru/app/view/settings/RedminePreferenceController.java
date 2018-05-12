@@ -26,19 +26,17 @@ import hoshisugi.rukoru.app.services.redmine.RedmineService;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.redmine.TaskboardController;
 import hoshisugi.rukoru.framework.annotations.FXController;
-import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.PropertyListCell;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 @FXController(title = "Redmine")
-public class RedminePreferenceController extends BaseController implements PreferenceContent {
+public class RedminePreferenceController extends PreferenceControllerBase {
 
 	@FXML
 	private TextField loginId;
@@ -101,11 +99,6 @@ public class RedminePreferenceController extends BaseController implements Prefe
 				selectDefaultVersion();
 			});
 		});
-	}
-
-	@FXML
-	private void onApplyButtonClick(final ActionEvent event) {
-		apply();
 	}
 
 	@Override

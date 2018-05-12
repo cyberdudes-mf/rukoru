@@ -14,19 +14,17 @@ import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.app.services.rds.RDSService;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
-import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.PropertyListCell;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 @FXController(title = "RepositoryDB")
-public class RepositoryDBSettingController extends BaseController implements PreferenceContent {
+public class RepositoryDBSettingController extends PreferenceControllerBase {
 
 	@FXML
 	private ComboBox<RDSInstance> instance;
@@ -97,11 +95,6 @@ public class RepositoryDBSettingController extends BaseController implements Pre
 				username.textProperty().bind(newValue.usernameProperty());
 			}
 		}
-	}
-
-	@FXML
-	private void onApplyButtonClick(final ActionEvent event) {
-		apply();
 	}
 
 	@Override

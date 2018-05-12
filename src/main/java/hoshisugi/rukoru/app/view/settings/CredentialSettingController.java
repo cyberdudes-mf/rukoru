@@ -8,14 +8,12 @@ import com.google.inject.Inject;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
-import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
 @FXController(title = "Credential")
-public class CredentialSettingController extends BaseController implements PreferenceContent {
+public class CredentialSettingController extends PreferenceControllerBase {
 
 	@FXML
 	private TextField account;
@@ -45,11 +43,6 @@ public class CredentialSettingController extends BaseController implements Prefe
 		account.textProperty().bindBidirectional(entity.accountProperty());
 		accessKeyId.textProperty().bindBidirectional(entity.accessKeyIdProperty());
 		secretAccessKey.textProperty().bindBidirectional(entity.secretAccessKeyProperty());
-	}
-
-	@FXML
-	private void onApplyButtonClick(final ActionEvent event) {
-		apply();
 	}
 
 	@Override
