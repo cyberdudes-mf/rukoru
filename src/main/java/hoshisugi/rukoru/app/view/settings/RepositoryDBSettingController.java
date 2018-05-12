@@ -14,22 +14,17 @@ import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.app.services.rds.RDSService;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
-import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.PropertyListCell;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
-import hoshisugi.rukoru.framework.util.DialogUtil;
-import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
-@FXController(title = "リポジトリDB設定")
-public class RepositoryDBSettingController extends BaseController {
+@FXController(title = "RepositoryDB")
+public class RepositoryDBSettingController extends PreferenceControllerBase {
 
 	@FXML
 	private ComboBox<RDSInstance> instance;
@@ -46,9 +41,6 @@ public class RepositoryDBSettingController extends BaseController {
 	@FXML
 	private PasswordField password;
 
-	@FXML
-	private Button saveButton;
-
 	@Inject
 	private RDSService rdsService;
 
@@ -62,8 +54,6 @@ public class RepositoryDBSettingController extends BaseController {
 		instance.setCellFactory(PropertyListCell.forListView(RDSInstance::getInstanceName));
 		instance.setButtonCell(instance.getCellFactory().call(null));
 		instance.getSelectionModel().selectedItemProperty().addListener(this::onInstanceSelectionChanged);
-		saveButton.disableProperty().bind(instance.getSelectionModel().selectedItemProperty().isNull()
-				.or(username.textProperty().isEmpty()).or(password.textProperty().isEmpty()));
 		loadEntity();
 		loadInstances();
 	}
@@ -92,26 +82,6 @@ public class RepositoryDBSettingController extends BaseController {
 		});
 	}
 
-	@FXML
-	private void onSaveButtonClick(final ActionEvent event) {
-		try {
-			entity.setInstanceName(instance.getValue().getInstanceName());
-			entity.setEndpoint(endpoint.getText());
-			entity.setPort(Integer.parseInt(port.getText()));
-			entity.setUsername(username.getText());
-			entity.setPassword(password.getText());
-			settingService.saveRepositoryDBConnection(entity);
-		} catch (final Exception e) {
-			DialogUtil.showErrorDialog(e);
-		}
-		FXUtil.getStage(event).close();
-	}
-
-	@FXML
-	private void onCancelButtonClick(final ActionEvent event) {
-		FXUtil.getStage(event).close();
-	}
-
 	private void onInstanceSelectionChanged(final ObservableValue<? extends RDSInstance> observable,
 			final RDSInstance oldValue, final RDSInstance newValue) {
 		if (newValue != null) {
@@ -125,5 +95,17 @@ public class RepositoryDBSettingController extends BaseController {
 				username.textProperty().bind(newValue.usernameProperty());
 			}
 		}
+	}
+
+	@Override
+	public void apply() {
+		ConcurrentUtil.run(() -> {
+			entity.setInstanceName(instance.getValue().getInstanceName());
+			entity.setEndpoint(endpoint.getText());
+			entity.setPort(Integer.parseInt(port.getText()));
+			entity.setUsername(username.getText());
+			entity.setPassword(password.getText());
+			settingService.saveRepositoryDBConnection(entity);
+		});
 	}
 }

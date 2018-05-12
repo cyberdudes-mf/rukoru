@@ -68,7 +68,13 @@ public class PreferencesController extends BaseController {
 	private void addTreeItems(final TreeItem<String> root) {
 		registerContent(root, HomePreferenceController.class);
 		registerContent(root, DSSettingsController.class);
-		registerContent(root, RedminePreferenceController.class);
+		{
+			final TreeItem<String> child = new TreeItem<>("Authentication");
+			registerContent(child, RedminePreferenceController.class);
+			registerContent(child, CredentialSettingController.class);
+			registerContent(child, RepositoryDBSettingController.class);
+			root.getChildren().add(child);
+		}
 		registerContent(root, ModuleActivationController.class);
 	}
 

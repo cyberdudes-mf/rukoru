@@ -106,7 +106,8 @@ public class ToolBarController extends BaseController {
 				BrowserUtil.browse(
 						String.format("https://%s.signin.aws.amazon.com/console", authSetting.get().getAccount()));
 			} else {
-				Platform.runLater(() -> DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]"));
+				Platform.runLater(() -> DialogUtil.showWarningDialog(
+						"認証情報を設定してください。\n[メニュー] - [Settings] - [Preferences] - [Authentication] - [認証設定]"));
 			}
 		});
 	}

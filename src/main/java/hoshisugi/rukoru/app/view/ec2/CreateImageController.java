@@ -61,7 +61,8 @@ public class CreateImageController extends BaseController {
 
 		ConcurrentUtil.run(() -> {
 			if (!Credential.hasCredential()) {
-				DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+				DialogUtil.showWarningDialog(
+						"認証情報を設定してください。\n[メニュー] - [Settings] - [Preferences] - [Authentication] - [認証設定]");
 				return;
 			}
 

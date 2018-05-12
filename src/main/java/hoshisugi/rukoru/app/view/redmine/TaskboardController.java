@@ -195,8 +195,8 @@ public class TaskboardController extends BaseController {
 				showLoading();
 			});
 		} else {
-			Platform.runLater(() -> showContent(
-					new Label("Redmine のログイン情報を設定してください。\n[メニュー] - [Settings] - [Preferences] - [Redmine]")));
+			Platform.runLater(() -> showContent(new Label(
+					"Redmine のログイン情報を設定してください。\n[メニュー] - [Settings] - [Preferences] - [Authentication] - [Redmine]")));
 		}
 	}
 
@@ -242,7 +242,7 @@ public class TaskboardController extends BaseController {
 			if (!preferences.isEmpty()) {
 				ConcurrentUtil.run(() -> {
 					final Projects projects = redmineService.listProjects(new ProjectsRequest());
-					project.getItems().setAll(projects.getProjects());
+					Platform.runLater(() -> project.getItems().setAll(projects.getProjects()));
 					selectProject();
 				});
 				this.preferences.putAll(preferences.values().stream()
