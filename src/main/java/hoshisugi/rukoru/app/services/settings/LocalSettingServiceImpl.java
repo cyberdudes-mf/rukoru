@@ -229,8 +229,9 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	private void insertDSSettingsToPreferences(final H2Database h2, final DSSetting setting, final String sequence)
 			throws SQLException {
 		final int nextKey = h2
-				.find(SelectBuilder.query("select MAX(key) from preferences where category='DSSetting'"), this::getInt)
-				.get() + 1;
+				.find(SelectBuilder.query(
+						"select MAX(CAST(key AS INT)) + 1 from preferences where category='DSSetting'"), this::getInt)
+				.get();
 		final Preference p = new Preference("DSSetting", Integer.toString(nextKey), sequence);
 		savePreferences(Arrays.asList(p));
 	}
