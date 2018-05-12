@@ -242,7 +242,7 @@ public class TaskboardController extends BaseController {
 			if (!preferences.isEmpty()) {
 				ConcurrentUtil.run(() -> {
 					final Projects projects = redmineService.listProjects(new ProjectsRequest());
-					project.getItems().setAll(projects.getProjects());
+					Platform.runLater(() -> project.getItems().setAll(projects.getProjects()));
 					selectProject();
 				});
 				this.preferences.putAll(preferences.values().stream()

@@ -121,7 +121,7 @@ public class InstanceTabController extends BaseController {
 			if (Credential.hasCredential()) {
 				final List<EC2Instance> instances = ec2Service.listInstances();
 				instances.stream().forEach(i -> i.autoStopProperty().addListener(this::onAutoStopChanged));
-				items.addAll(instances);
+				Platform.runLater(() -> items.addAll(instances));
 			}
 		} finally {
 			Platform.runLater(() -> refreshButton.setDisable(false));
