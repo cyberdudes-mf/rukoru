@@ -77,7 +77,7 @@ public class VideoController extends BaseController {
 		muteButton.setGraphic(new ImageView());
 		muteButton.setTooltip(new Tooltip());
 		setMuteMode();
-		fullScreenButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/selection.png")));
+		fullScreenButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/full_screen.png")));
 		fullScreenButton.setTooltip(new Tooltip("Full screen"));
 
 		final Path path = Paths.get(
@@ -208,14 +208,14 @@ public class VideoController extends BaseController {
 
 	private void setMuteMode() {
 		final ImageView image = (ImageView) muteButton.getGraphic();
-		// image.setImage(AssetUtil.getImage("16x16/mute.png"));
+		image.setImage(AssetUtil.getImage("16x16/mute.png"));
 		muteButton.getTooltip().setText("Mute");
 		muteButton.setUserData(MuteOrUnmute.Mute);
 	}
 
 	private void setUnmuteMode() {
 		final ImageView image = (ImageView) muteButton.getGraphic();
-		// image.setImage(AssetUtil.getImage("16x16/volume.png"));
+		image.setImage(AssetUtil.getImage("16x16/volume.png"));
 		muteButton.getTooltip().setText("Unmute");
 		muteButton.setUserData(MuteOrUnmute.Unmute);
 	}
