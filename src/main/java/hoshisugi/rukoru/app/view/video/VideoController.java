@@ -47,7 +47,7 @@ public class VideoController extends BaseController {
 	private Label progressText;
 
 	@FXML
-	private Button volumeButton;
+	private Button muteButton;
 
 	@FXML
 	private Slider volumeSlider;
@@ -59,16 +59,31 @@ public class VideoController extends BaseController {
 	private final StringProperty totalDuration = new SimpleStringProperty("00:00");
 	private final StringProperty currentTime = new SimpleStringProperty("00:00");
 
+	private enum PlayOrPause {
+		Play, Pause;
+	}
+
+	private enum MuteOrUnmute {
+		Mute, Unmute;
+	}
+
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
-		playButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/run.png")));
-		playButton.setTooltip(new Tooltip("Play"));
+		playButton.setGraphic(new ImageView());
+		playButton.setTooltip(new Tooltip());
+		setPlayMode();
 		stopButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/stop.png")));
 		stopButton.setTooltip(new Tooltip("Stop"));
+		muteButton.setGraphic(new ImageView());
+		muteButton.setTooltip(new Tooltip());
+		setMuteMode();
 		fullScreenButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/selection.png")));
 		fullScreenButton.setTooltip(new Tooltip("Full screen"));
 
-		final Path path = Paths.get("【ここに動画ファイルのパスを指定する】");
+		final Path path = Paths.get(
+				// "G:/アニメ/[アニメ BD] 冴えない彼女の育てかた (1920x1080 x264 AAC オーディオコメンタリー切替可)/[アニメ BD]
+				// 冴えない彼女の育てかた 1巻 映像特典 02／05 「ノンクレジットエンディング」 (1920x1080 x264 AAC).mp4");
+				"G:/アニメ/[アニメ BD] 冴えない彼女の育てかた (1920x1080 x264 AAC オーディオコメンタリー切替可)/[アニメ BD] 冴えない彼女の育てかた 1巻 映像特典 01／05 「ノンクレジットオープニング」 (1920x1080 x264 AAC).mp4");
 
 		final Media media = new Media(path.toUri().toString());
 		final MediaPlayer player = new MediaPlayer(media);
@@ -85,12 +100,31 @@ public class VideoController extends BaseController {
 
 	@FXML
 	private void onPlayButtonClick(final ActionEvent event) {
-		mediaView.getMediaPlayer().play();
+		if (playButton.getUserData() == PlayOrPause.Play) {
+			mediaView.getMediaPlayer().play();
+			setPauseMode();
+		} else {
+			mediaView.getMediaPlayer().pause();
+			setPlayMode();
+		}
 	}
 
 	@FXML
 	private void onStopButtonClick(final ActionEvent event) {
 		mediaView.getMediaPlayer().stop();
+		setPlayMode();
+	}
+
+	@FXML
+	private void onMuteButtonClick(final ActionEvent event) {
+		final MediaPlayer player = mediaView.getMediaPlayer();
+		if (muteButton.getUserData() == MuteOrUnmute.Mute) {
+			player.setMute(true);
+			setUnmuteMode();
+		} else {
+			player.setMute(false);
+			setMuteMode();
+		}
 	}
 
 	private void onEndOfMedia() {
@@ -101,6 +135,7 @@ public class VideoController extends BaseController {
 
 	private void onReady() {
 		final MediaPlayer player = mediaView.getMediaPlayer();
+		setPlayMode();
 		playButton.setDisable(false);
 		final Duration total = player.getTotalDuration();
 		progressSlider.setMax(total.toSeconds());
@@ -122,16 +157,15 @@ public class VideoController extends BaseController {
 		playButton.setDisable(false);
 		stopButton.setDisable(false);
 		progressSlider.setDisable(false);
-		volumeButton.setDisable(false);
+		muteButton.setDisable(false);
 		volumeSlider.setDisable(false);
 		fullScreenButton.setDisable(false);
 	}
 
 	private void onStopped() {
-		playButton.setDisable(false);
 		stopButton.setDisable(true);
 		progressSlider.setDisable(true);
-		volumeButton.setDisable(true);
+		muteButton.setDisable(true);
 		volumeSlider.setDisable(true);
 		fullScreenButton.setDisable(true);
 	}
@@ -156,5 +190,33 @@ public class VideoController extends BaseController {
 			final Number newValue) {
 		final MediaPlayer player = mediaView.getMediaPlayer();
 		player.setVolume(newValue.doubleValue());
+	}
+
+	private void setPlayMode() {
+		final ImageView image = (ImageView) playButton.getGraphic();
+		image.setImage(AssetUtil.getImage("16x16/run.png"));
+		playButton.getTooltip().setText("Play");
+		playButton.setUserData(PlayOrPause.Play);
+	}
+
+	private void setPauseMode() {
+		final ImageView image = (ImageView) playButton.getGraphic();
+		image.setImage(AssetUtil.getImage("16x16/pause.png"));
+		playButton.getTooltip().setText("Pause");
+		playButton.setUserData(PlayOrPause.Pause);
+	}
+
+	private void setMuteMode() {
+		final ImageView image = (ImageView) muteButton.getGraphic();
+		// image.setImage(AssetUtil.getImage("16x16/mute.png"));
+		muteButton.getTooltip().setText("Mute");
+		muteButton.setUserData(MuteOrUnmute.Mute);
+	}
+
+	private void setUnmuteMode() {
+		final ImageView image = (ImageView) muteButton.getGraphic();
+		// image.setImage(AssetUtil.getImage("16x16/volume.png"));
+		muteButton.getTooltip().setText("Unmute");
+		muteButton.setUserData(MuteOrUnmute.Unmute);
 	}
 }
