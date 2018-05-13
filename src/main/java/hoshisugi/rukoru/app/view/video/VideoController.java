@@ -1,14 +1,19 @@
 package hoshisugi.rukoru.app.view.video;
 
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.DialogUtil;
+import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -16,7 +21,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
@@ -69,6 +76,57 @@ public class VideoController extends BaseController {
 
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
+		mediaView.setOnContextMenuRequested(e -> {
+			final ContextMenu contextMenu = new ContextMenu();
+			final MenuItem localPath = new MenuItem("ローカル");
+			localPath.setOnAction(event -> {
+				final Optional<String> result = DialogUtil.showTextInputDialog("読み込み", "パスを指定してください。");
+				result.ifPresent(url -> {
+					loadVideo(url(Paths.get(url)));
+				});
+			});
+			final MenuItem remotePath = new MenuItem("URL");
+			remotePath.setOnAction(event -> {
+				final Optional<String> result = DialogUtil.showTextInputDialog("読み込み", "URLを指定してください。");
+				result.ifPresent(url -> {
+					loadVideo(url(url));
+				});
+			});
+
+			contextMenu.getItems().addAll(localPath, remotePath);
+			contextMenu.show(FXUtil.getStage(e));
+		});
+		setUpButtons();
+		mediaView.fitWidthProperty().bind(layoutRoot.widthProperty());
+		progressSlider.valueProperty().addListener(this::onProgressValueChanged);
+		volumeSlider.valueProperty().addListener(this::onVolumeChanged);
+	}
+
+	private void loadVideo(final URL url) {
+		final MediaPlayer old = mediaView.getMediaPlayer();
+		if (old != null) {
+			old.stop();
+			old.dispose();
+		}
+
+		final Media media = new Media(url.toString());
+		final MediaPlayer player = new MediaPlayer(media);
+		mediaView.setMediaPlayer(player);
+
+		player.setOnEndOfMedia(this::onEndOfMedia);
+		player.setOnReady(this::onReady);
+		player.setOnPlaying(this::onPlaying);
+		player.setOnStopped(this::onStopped);
+		player.setOnHalted(() -> {
+			System.out.println("Halted");
+		});
+		player.setOnStalled(() -> {
+			System.out.println("Stalled");
+		});
+		player.currentTimeProperty().addListener(this::onCurrentTimeChanged);
+	}
+
+	private void setUpButtons() {
 		playButton.setGraphic(new ImageView());
 		playButton.setTooltip(new Tooltip());
 		setPlayMode();
@@ -79,23 +137,6 @@ public class VideoController extends BaseController {
 		setMuteMode();
 		fullScreenButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/full_screen.png")));
 		fullScreenButton.setTooltip(new Tooltip("Full screen"));
-
-		final Path path = Paths.get(
-				// "G:/アニメ/[アニメ BD] 冴えない彼女の育てかた (1920x1080 x264 AAC オーディオコメンタリー切替可)/[アニメ BD]
-				// 冴えない彼女の育てかた 1巻 映像特典 02／05 「ノンクレジットエンディング」 (1920x1080 x264 AAC).mp4");
-				"G:/アニメ/[アニメ BD] 冴えない彼女の育てかた (1920x1080 x264 AAC オーディオコメンタリー切替可)/[アニメ BD] 冴えない彼女の育てかた 1巻 映像特典 01／05 「ノンクレジットオープニング」 (1920x1080 x264 AAC).mp4");
-
-		final Media media = new Media(path.toUri().toString());
-		final MediaPlayer player = new MediaPlayer(media);
-		mediaView.setMediaPlayer(player);
-		mediaView.fitWidthProperty().bind(layoutRoot.widthProperty());
-		player.setOnEndOfMedia(this::onEndOfMedia);
-		player.setOnReady(this::onReady);
-		player.setOnPlaying(this::onPlaying);
-		player.setOnStopped(this::onStopped);
-		player.currentTimeProperty().addListener(this::onCurrentTimeChanged);
-		progressSlider.valueProperty().addListener(this::onProgressValueChanged);
-		volumeSlider.valueProperty().addListener(this::onVolumeChanged);
 	}
 
 	@FXML
@@ -218,5 +259,21 @@ public class VideoController extends BaseController {
 		image.setImage(AssetUtil.getImage("16x16/volume.png"));
 		muteButton.getTooltip().setText("Unmute");
 		muteButton.setUserData(MuteOrUnmute.Unmute);
+	}
+
+	private URL url(final Path path) {
+		try {
+			return path.toUri().toURL();
+		} catch (final MalformedURLException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	private URL url(final String url) {
+		try {
+			return new URL(url);
+		} catch (final MalformedURLException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 }
