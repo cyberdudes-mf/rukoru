@@ -12,4 +12,4 @@ inner join ds_settings
   on  preferences.category = 'DSSetting'
   and ds_settings.id = preferences.value
 order by
-  preferences.key
+  cast(preferences.key as int)

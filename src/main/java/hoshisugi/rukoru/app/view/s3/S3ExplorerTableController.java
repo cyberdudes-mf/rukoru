@@ -436,7 +436,8 @@ public class S3ExplorerTableController extends BaseController {
 	private boolean checkAuth() {
 		final boolean hasSetting = Credential.hasCredential();
 		if (!hasSetting) {
-			DialogUtil.showWarningDialog("認証情報を設定してください。\n[メニュー] - [Settings] - [認証設定]");
+			DialogUtil.showWarningDialog(
+					"認証情報を設定してください。\n[メニュー] - [Settings] - [Preferences] - [Authentication] - [認証設定]");
 		}
 		return hasSetting;
 	}

@@ -88,7 +88,7 @@ public class ImageTabController extends BaseController {
 			items.clear();
 			if (Credential.hasCredential()) {
 				final List<MachineImage> images = ec2Service.listImages();
-				items.addAll(images);
+				Platform.runLater(() -> items.addAll(images));
 			}
 		} finally {
 			Platform.runLater(() -> refreshButton.setDisable(false));

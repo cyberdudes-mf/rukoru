@@ -13,15 +13,13 @@ import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.framework.annotations.FXController;
-import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
 @FXController(title = "Home")
-public class HomePreferenceController extends BaseController implements PreferenceContent {
+public class HomePreferenceController extends PreferenceControllerBase {
 
 	@FXML
 	private TextField imageUrl;
@@ -48,11 +46,6 @@ public class HomePreferenceController extends BaseController implements Preferen
 			}
 			Platform.runLater(() -> imageUrl.textProperty().bindBidirectional(preferences.get(key).valueProperty()));
 		});
-	}
-
-	@FXML
-	private void onApplyButtonClick(final ActionEvent event) {
-		apply();
 	}
 
 	@Override

@@ -87,13 +87,8 @@ public class DSServiceImpl extends BaseService implements DSService {
 		}
 		final CLIState cliState = CLI.command("sc").options("start", dsSetting.getServiceName().get())
 				.callback(callback).execute();
-		try (BufferedReader br = IOUtil.newBufferedReader(cliState.getInputStream())) {
-			for (String line = null; (line = br.readLine()) != null;) {
-				writer.writeLine(line);
-			}
-		} finally {
-			writer.shutDown();
-		}
+		logAsync(writer, cliState.getErrorStream());
+		log(writer, cliState.getInputStream());
 	}
 
 	@Override
@@ -162,14 +157,8 @@ public class DSServiceImpl extends BaseService implements DSService {
 			throws IOException {
 		final CLIState state = CLI.command("C:\\Program Files (x86)\\Internet Explorer\\iexplore.exe")
 				.options(dsSetting.getWPFUrl()).callback(callback).execute();
-		ConcurrentUtil.run(() -> {
-			try (final BufferedReader br = IOUtil.newBufferedReader(state.getInputStream())) {
-				for (String line = null; (line = br.readLine()) != null;) {
-					writer.writeLine(line);
-				}
-				writer.shutDown();
-			}
-		});
+		logAsync(writer, state.getInputStream());
+		logAsync(writer, state.getErrorStream());
 	}
 
 	@Override
@@ -291,12 +280,8 @@ public class DSServiceImpl extends BaseService implements DSService {
 		final CLIState cliState = CLI.command(dsSetting.getServerExecutorName())
 				.directory(dsSetting.getPath("server/bin")).successCondition(s -> s.contains("正常に起動しました。"))
 				.failureCondition(s -> s.contains("起動に失敗しました。")).callback(callback).execute();
-		try (final BufferedReader br = IOUtil.newBufferedReader(cliState.getInputStream())) {
-			for (String line = null; (line = br.readLine()) != null;) {
-				writer.writeLine(line);
-			}
-			writer.shutDown();
-		}
+		logAsync(writer, cliState.getErrorStream());
+		log(writer, cliState.getInputStream());
 	}
 
 	private void startStudio(final DSSetting dsSetting, final DSLogWriter writer, final Consumer<CLIState> callback)
@@ -309,14 +294,8 @@ public class DSServiceImpl extends BaseService implements DSService {
 		}
 		final CLIState cliState = CLI.command(dsSetting.getStudioExecutorName())
 				.directory(dsSetting.getPath("client/bin")).callback(callback).execute();
-		ConcurrentUtil.run(() -> {
-			try (final BufferedReader br = IOUtil.newBufferedReader(cliState.getInputStream())) {
-				for (String line = null; (line = br.readLine()) != null;) {
-					writer.writeLine(line);
-				}
-				writer.shutDown();
-			}
-		});
+		logAsync(writer, cliState.getInputStream());
+		logAsync(writer, cliState.getErrorStream());
 		callback.accept(cliState);
 	}
 
@@ -332,6 +311,20 @@ public class DSServiceImpl extends BaseService implements DSService {
 		} catch (final Exception e) {
 		}
 		return Optional.empty();
+	}
+
+	private static void log(final DSLogWriter writer, final InputStream stream) throws IOException {
+		try (final BufferedReader reader = IOUtil.newBufferedReader(stream)) {
+			for (String line = null; (line = reader.readLine()) != null;) {
+				writer.writeLine(line);
+			}
+		} finally {
+			writer.shutDown();
+		}
+	}
+
+	private static void logAsync(final DSLogWriter writer, final InputStream stream) {
+		ConcurrentUtil.run(() -> log(writer, stream));
 	}
 
 	static class WindowsProcess {

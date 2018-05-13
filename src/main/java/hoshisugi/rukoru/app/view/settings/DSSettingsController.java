@@ -15,7 +15,6 @@ import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ds.DSContentController;
 import hoshisugi.rukoru.framework.annotations.FXController;
-import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
@@ -36,7 +35,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
 
 @FXController(title = "DSSetting")
-public class DSSettingsController extends BaseController implements PreferenceContent {
+public class DSSettingsController extends PreferenceControllerBase {
 
 	@Inject
 	private LocalSettingService service;
@@ -76,6 +75,7 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
 		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
 		nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+		executionPathColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		executionTypeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(ExecutionType.values()));
 		studioModeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(StudioMode.values()));
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -107,11 +107,6 @@ public class DSSettingsController extends BaseController implements PreferenceCo
 		}
 		selectedItems.forEach(s -> s.setState(DSSettingOperation.Delete));
 		dssettings.replaceAll(UnaryOperator.identity());
-	}
-
-	@FXML
-	private void onApplyButtonClick(final ActionEvent e) {
-		apply();
 	}
 
 	@Override

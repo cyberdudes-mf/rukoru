@@ -15,12 +15,10 @@ import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.app.view.ToolBarController;
 import hoshisugi.rukoru.framework.annotations.FXController;
-import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.image.ImageView;
@@ -28,7 +26,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
 @FXController(title = "Module")
-public class ModuleActivationController extends BaseController implements PreferenceContent {
+public class ModuleActivationController extends PreferenceControllerBase {
 
 	@FXML
 	private VBox vbox;
@@ -76,11 +74,6 @@ public class ModuleActivationController extends BaseController implements Prefer
 				}
 			});
 		});
-	}
-
-	@FXML
-	private void onApplyButtonClick(final ActionEvent event) {
-		apply();
 	}
 
 	@Override
