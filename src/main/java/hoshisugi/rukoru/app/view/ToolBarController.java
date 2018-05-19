@@ -62,6 +62,7 @@ public class ToolBarController extends BaseController {
 		toolBar.selectedToggleProperty().addListener(this::toolBarSelectionChanged);
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	private void createButtons() {
 		for (final RukoruModule module : RukoruModule.values()) {
 			ButtonBase button;

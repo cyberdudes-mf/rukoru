@@ -18,8 +18,12 @@ import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -27,10 +31,12 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class VideoController extends BaseController {
@@ -61,6 +67,8 @@ public class VideoController extends BaseController {
 
 	@FXML
 	private Button fullScreenButton;
+
+	private MediaPlayer player;
 
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("mm:ss");
 	private final StringProperty totalDuration = new SimpleStringProperty("00:00");
@@ -96,69 +104,60 @@ public class VideoController extends BaseController {
 			contextMenu.getItems().addAll(localPath, remotePath);
 			contextMenu.show(FXUtil.getStage(e));
 		});
-		setUpButtons();
-		mediaView.fitWidthProperty().bind(layoutRoot.widthProperty());
+		initializeButtons();
+
 		progressSlider.valueProperty().addListener(this::onProgressValueChanged);
 		volumeSlider.valueProperty().addListener(this::onVolumeChanged);
 	}
 
-	private void loadVideo(final URL url) {
-		final MediaPlayer old = mediaView.getMediaPlayer();
-		if (old != null) {
-			old.stop();
-			old.dispose();
-		}
-
-		final Media media = new Media(url.toString());
-		final MediaPlayer player = new MediaPlayer(media);
-		mediaView.setMediaPlayer(player);
-
-		player.setOnEndOfMedia(this::onEndOfMedia);
-		player.setOnReady(this::onReady);
-		player.setOnPlaying(this::onPlaying);
-		player.setOnStopped(this::onStopped);
-		player.setOnHalted(() -> {
-			System.out.println("Halted");
-		});
-		player.setOnStalled(() -> {
-			System.out.println("Stalled");
-		});
-		player.currentTimeProperty().addListener(this::onCurrentTimeChanged);
-	}
-
-	private void setUpButtons() {
+	private void initializeButtons() {
 		playButton.setGraphic(new ImageView());
 		playButton.setTooltip(new Tooltip());
-		setPlayMode();
 		stopButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/stop.png")));
 		stopButton.setTooltip(new Tooltip("Stop"));
 		muteButton.setGraphic(new ImageView());
 		muteButton.setTooltip(new Tooltip());
-		setMuteMode();
 		fullScreenButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/full_screen.png")));
 		fullScreenButton.setTooltip(new Tooltip("Full screen"));
+		setPlayMode();
+		setMuteMode();
+	}
+
+	private void loadVideo(final URL url) {
+		if (player != null) {
+			player.stop();
+			player.dispose();
+		}
+
+		player = new MediaPlayer(new Media(url.toString()));
+		mediaView.setMediaPlayer(player);
+
+		player.setOnReady(this::onReady);
+		player.setOnPlaying(this::onPlaying);
+		player.setOnPaused(this::onPaused);
+		player.setOnStopped(this::onStopped);
+		player.setOnEndOfMedia(this::onEndOfMedia);
+		player.currentTimeProperty().addListener(this::onCurrentTimeChanged);
 	}
 
 	@FXML
 	private void onPlayButtonClick(final ActionEvent event) {
 		if (playButton.getUserData() == PlayOrPause.Play) {
-			mediaView.getMediaPlayer().play();
+			player.play();
 			setPauseMode();
 		} else {
-			mediaView.getMediaPlayer().pause();
+			player.pause();
 			setPlayMode();
 		}
 	}
 
 	@FXML
 	private void onStopButtonClick(final ActionEvent event) {
-		mediaView.getMediaPlayer().stop();
-		setPlayMode();
+		player.stop();
 	}
 
 	@FXML
 	private void onMuteButtonClick(final ActionEvent event) {
-		final MediaPlayer player = mediaView.getMediaPlayer();
 		if (muteButton.getUserData() == MuteOrUnmute.Mute) {
 			player.setMute(true);
 			setUnmuteMode();
@@ -168,14 +167,35 @@ public class VideoController extends BaseController {
 		}
 	}
 
-	private void onEndOfMedia() {
-		final MediaPlayer player = mediaView.getMediaPlayer();
-		player.stop();
-		player.play();
+	@FXML
+	private void onFullScreenButtonClick(final ActionEvent event) {
+		final Stage stage = FXUtil.getStage(event);
+		final Scene scene = stage.getScene();
+		final Parent origRoot = scene.getRoot();
+		final int origIndex = layoutRoot.getChildrenUnmodifiable().indexOf(mediaView);
+		final double origFitWidth = mediaView.getFitWidth();
+		final double origFitHeight = mediaView.getFitHeight();
+		final StackPane root = new StackPane(mediaView);
+		scene.setRoot(root);
+		mediaView.fitWidthProperty().bind(root.widthProperty());
+		mediaView.fitHeightProperty().bind(root.heightProperty());
+		stage.setFullScreen(true);
+		FXUtil.setOnChangedForOnce(stage.fullScreenProperty(), (observable, oldValue, newValue) -> {
+			if (!newValue) {
+				scene.setRoot(origRoot);
+				final ObservableList<Node> children = layoutRoot.getChildren();
+				if (!children.contains(mediaView)) {
+					children.add(origIndex, mediaView);
+					mediaView.fitWidthProperty().unbind();
+					mediaView.fitHeightProperty().unbind();
+					mediaView.setFitWidth(origFitWidth);
+					mediaView.setFitHeight(origFitHeight);
+				}
+			}
+		});
 	}
 
 	private void onReady() {
-		final MediaPlayer player = mediaView.getMediaPlayer();
 		setPlayMode();
 		playButton.setDisable(false);
 		final Duration total = player.getTotalDuration();
@@ -195,7 +215,7 @@ public class VideoController extends BaseController {
 	}
 
 	private void onPlaying() {
-		playButton.setDisable(false);
+		setPauseMode();
 		stopButton.setDisable(false);
 		progressSlider.setDisable(false);
 		muteButton.setDisable(false);
@@ -203,7 +223,12 @@ public class VideoController extends BaseController {
 		fullScreenButton.setDisable(false);
 	}
 
+	private void onPaused() {
+		setPlayMode();
+	}
+
 	private void onStopped() {
+		setPlayMode();
 		stopButton.setDisable(true);
 		progressSlider.setDisable(true);
 		muteButton.setDisable(true);
@@ -219,9 +244,12 @@ public class VideoController extends BaseController {
 		}
 	}
 
+	private void onEndOfMedia() {
+		player.stop();
+	}
+
 	private void onProgressValueChanged(final ObservableValue<? extends Number> observable, final Number oldValue,
 			final Number newValue) {
-		final MediaPlayer player = mediaView.getMediaPlayer();
 		if (Math.abs(player.getCurrentTime().toSeconds() - newValue.doubleValue()) > 3.0) {
 			player.seek(Duration.seconds(newValue.doubleValue()));
 		}
@@ -229,7 +257,6 @@ public class VideoController extends BaseController {
 
 	private void onVolumeChanged(final ObservableValue<? extends Number> observable, final Number oldValue,
 			final Number newValue) {
-		final MediaPlayer player = mediaView.getMediaPlayer();
 		player.setVolume(newValue.doubleValue());
 	}
 

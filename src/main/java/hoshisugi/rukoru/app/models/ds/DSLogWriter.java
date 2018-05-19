@@ -3,7 +3,7 @@ package hoshisugi.rukoru.app.models.ds;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import hoshisugi.rukoru.framework.util.ShutdownHandler;
+import hoshisugi.rukoru.framework.event.ShutdownHandler;
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 

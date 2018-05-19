@@ -10,7 +10,7 @@
 
 <VBox fx:id="layoutRoot" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.video.VideoController">
    <children>
-      <MediaView fx:id="mediaView" fitHeight="450.0" fitWidth="800.0" VBox.vgrow="ALWAYS" />
+      <MediaView fx:id="mediaView" fitHeight="495.0" fitWidth="880.0" VBox.vgrow="ALWAYS" />
       <HBox alignment="CENTER_LEFT" spacing="2.0">
          <children>
             <Button fx:id="playButton" disable="true" mnemonicParsing="false" onAction="#onPlayButtonClick" />
@@ -19,7 +19,7 @@
             <Label fx:id="progressText" disable="true" text="0.00/0.00" />
             <Button fx:id="muteButton" disable="true" mnemonicParsing="false" onAction="#onMuteButtonClick" />
             <Slider fx:id="volumeSlider" blockIncrement="0.1" disable="true" majorTickUnit="0.1" max="1.0" minorTickCount="1" prefWidth="70.0" value="1.0" />
-            <Button fx:id="fullScreenButton" disable="true" mnemonicParsing="false" />
+            <Button fx:id="fullScreenButton" disable="true" mnemonicParsing="false" onAction="#onFullScreenButtonClick" />
          </children>
          <padding>
             <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />

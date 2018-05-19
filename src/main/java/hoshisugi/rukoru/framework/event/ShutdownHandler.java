@@ -1,10 +1,11 @@
-package hoshisugi.rukoru.framework.util;
+package hoshisugi.rukoru.framework.event;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;

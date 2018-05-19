@@ -5,7 +5,7 @@ import static com.amazonaws.services.s3.model.CannedAccessControlList.PublicRead
 import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Doing;
 import static hoshisugi.rukoru.app.models.s3.AsyncResult.Status.Done;
 import static hoshisugi.rukoru.app.models.s3.S3Item.DELIMITER;
-import static hoshisugi.rukoru.framework.util.ShutdownHandler.isShuttingDown;
+import static hoshisugi.rukoru.framework.event.ShutdownHandler.isShuttingDown;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.READ;
 
