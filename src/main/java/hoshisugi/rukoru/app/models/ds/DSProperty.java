@@ -4,17 +4,26 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 public class DSProperty {
-	private BooleanProperty isEnable = new SimpleBooleanProperty(this, "isEnable");
-	private StringProperty key = new SimpleStringProperty(this, "key");
-	private StringProperty value = new SimpleStringProperty(this, "value");
 
-	public DSProperty(final String property) {
+	private final StringProperty statement = new SimpleStringProperty();
+	private final BooleanProperty isEnable = new SimpleBooleanProperty(this, "isEnable");
+	private final StringProperty key = new SimpleStringProperty(this, "key");
+	private final StringProperty value = new SimpleStringProperty(this, "value");
+
+	public DSProperty(final String property, final ChangeListener<String> listener) {
 		parseProperty(property);
+		statement.set((isEnable.get() ? "" : "#") + key.get() + "=" + value.get());
+		isEnable.addListener(this::onPropertyChenged);
+		key.addListener(this::onPropertyChenged);
+		value.addListener(this::onPropertyChenged);
+		statement.addListener(listener);
 	}
 
-	public boolean getIsEnable() {
+	public Boolean getIsEnable() {
 		return isEnable.get();
 	}
 
@@ -38,28 +47,25 @@ public class DSProperty {
 		this.value.set(value);
 	}
 
-	public BooleanProperty getIsEnableProperty() {
+	public StringProperty statementProperty() {
+		return statement;
+	}
+
+	public BooleanProperty isEnableProperty() {
 		return isEnable;
 	}
 
-	public void setIsEnableProperty(final BooleanProperty isEnable) {
-		this.isEnable = isEnable;
-	}
-
-	public StringProperty getKeyProperty() {
+	public StringProperty keyProperty() {
 		return key;
 	}
 
-	public void setKeyProperty(final StringProperty key) {
-		this.key = key;
-	}
-
-	public StringProperty getValueProperty() {
+	public StringProperty valueProperty() {
 		return value;
 	}
 
-	public void setValueProperty(final StringProperty value) {
-		this.value = value;
+	@Override
+	public String toString() {
+		return statement.get();
 	}
 
 	private void parseProperty(String property) {
@@ -77,4 +83,10 @@ public class DSProperty {
 			setValue("");
 		}
 	}
+
+	private <S> void onPropertyChenged(final ObservableValue<? extends S> observable, final S oldValue,
+			final S newValue) {
+		statement.set((isEnable.get() ? "" : "#") + key.get() + "=" + value.get());
+	}
+
 }

@@ -3,10 +3,12 @@ package hoshisugi.rukoru.app.view.ds;
 import static hoshisugi.rukoru.app.enums.DSProperties.Properties;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -22,6 +24,8 @@ import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -32,12 +36,16 @@ import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 
 @FXController(title = "Properties")
 public class DSPropertiesController extends BaseController {
 
 	@FXML
 	private TreeView<DSProperties> treeView;
+
+	@FXML
+	private VBox layoutRoot;
 
 	@FXML
 	private TableView<DSProperty> tableView;
@@ -62,6 +70,10 @@ public class DSPropertiesController extends BaseController {
 
 	private DSSetting dsSetting;
 
+	private final StringBuilder tmp = new StringBuilder();
+
+	private final ObservableList<DSProperty> items = FXCollections.observableArrayList();
+
 	public void setDSSetting(final DSSetting dsSetting) {
 		this.dsSetting = dsSetting;
 	}
@@ -69,9 +81,10 @@ public class DSPropertiesController extends BaseController {
 	@Override
 	public void initialize(final URL arg0, final ResourceBundle arg1) {
 		createTree();
-		treeView.getSelectionModel().select(0);
-		treeView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
 		createTablePane();
+		addButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/add.png")));
+		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
+		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
 	}
 
 	private void createTree() {
@@ -80,15 +93,15 @@ public class DSPropertiesController extends BaseController {
 		Stream.of(DSProperties.values()).filter(v -> v.getPath() != null).map(p -> new TreeItem<>(p))
 				.forEach(t -> root.getChildren().add(t));
 		treeView.setRoot(root);
+		treeView.getSelectionModel().select(0);
+		treeView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
 	}
 
 	private void createTablePane() {
 		isEnableColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isEnableColumn));
-		isEnableColumn.setCellValueFactory(param -> param.getValue().getIsEnableProperty());
 		keyColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-		addButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/add.png")));
-		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
+		tableView.setItems(items);
 	}
 
 	@FXML
@@ -109,16 +122,24 @@ public class DSPropertiesController extends BaseController {
 
 	private void loadProperties(final DSProperties properties) throws IOException {
 		if (properties.getPath() == null) {
+			layoutRoot.setVisible(false);
 			return;
 		}
+		layoutRoot.setVisible(true);
 		try (final BufferedReader br = Files
 				.newBufferedReader(Paths.get(dsSetting.getExecutionPath(), properties.getPath()))) {
-			final List<DSProperty> list = br.lines().filter(s -> s.matches("(#)?[\\w.]*=[\\w\'#/:,-. ]*"))
-					.map(DSProperty::new).collect(Collectors.toList());
+			tmp.delete(0, tmp.length() + 1);
+			br.lines().forEach(s -> tmp.append(s + System.lineSeparator()));
+			final List<DSProperty> list = Stream.of(tmp.toString().split(System.lineSeparator()))
+					.filter(s -> s.matches("(#)?[\\w.]*=[\\w\'#/:,-. ${}]*"))
+					.map(p -> new DSProperty(p, this::onPropertyChanged)).collect(Collectors.toList());
 			Platform.runLater(() -> {
 				tableView.getItems().clear();
 				tableView.getItems().addAll(list);
 			});
+		} catch (final IOException e) {
+			layoutRoot.setVisible(false);
+			throw new IOException(properties.toString() + "が見つかりませんでした。");
 		}
 	}
 
@@ -127,8 +148,19 @@ public class DSPropertiesController extends BaseController {
 		ConcurrentUtil.run(() -> loadProperties(newValue.getValue()));
 	}
 
-	private void Apply() {
+	private void onPropertyChanged(final ObservableValue<? extends String> observable, final String oldValue,
+			final String newValue) {
+		tmp.replace(tmp.indexOf(oldValue), tmp.indexOf(oldValue) + oldValue.length(), newValue);
+	}
 
+	private void Apply() {
+		ConcurrentUtil.run(() -> {
+			final DSProperties prop = treeView.getSelectionModel().getSelectedItem().getValue();
+			try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(dsSetting.getExecutionPath(), prop.getPath()),
+					StandardOpenOption.WRITE)) {
+				bw.write(tmp.toString());
+			}
+		});
 	}
 
 }
