@@ -76,6 +76,7 @@ public class PreferencesController extends BaseController {
 			root.getChildren().add(child);
 		}
 		registerContent(root, ModuleActivationController.class);
+		registerContent(root, VideoSettingController.class);
 	}
 
 	private void registerContent(final TreeItem<String> root, final Class<? extends BaseController> controller) {

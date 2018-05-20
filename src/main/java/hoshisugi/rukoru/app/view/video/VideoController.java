@@ -4,16 +4,15 @@ import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
+import javafx.application.Platform;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -21,19 +20,21 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
@@ -68,6 +69,11 @@ public class VideoController extends BaseController {
 	@FXML
 	private Button fullScreenButton;
 
+	@FXML
+	private Button expandButton;
+
+	private AnchorPane contentsView;
+
 	private MediaPlayer player;
 
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("mm:ss");
@@ -84,28 +90,7 @@ public class VideoController extends BaseController {
 
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
-		mediaView.setOnContextMenuRequested(e -> {
-			final ContextMenu contextMenu = new ContextMenu();
-			final MenuItem localPath = new MenuItem("ローカル");
-			localPath.setOnAction(event -> {
-				final Optional<String> result = DialogUtil.showTextInputDialog("読み込み", "パスを指定してください。");
-				result.ifPresent(url -> {
-					loadVideo(url(Paths.get(url)));
-				});
-			});
-			final MenuItem remotePath = new MenuItem("URL");
-			remotePath.setOnAction(event -> {
-				final Optional<String> result = DialogUtil.showTextInputDialog("読み込み", "URLを指定してください。");
-				result.ifPresent(url -> {
-					loadVideo(url(url));
-				});
-			});
-
-			contextMenu.getItems().addAll(localPath, remotePath);
-			contextMenu.show(FXUtil.getStage(e));
-		});
 		initializeButtons();
-
 		progressSlider.valueProperty().addListener(this::onProgressValueChanged);
 		volumeSlider.valueProperty().addListener(this::onVolumeChanged);
 	}
@@ -119,18 +104,40 @@ public class VideoController extends BaseController {
 		muteButton.setTooltip(new Tooltip());
 		fullScreenButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/full_screen.png")));
 		fullScreenButton.setTooltip(new Tooltip("Full screen"));
+		expandButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/navigate_left.png")));
 		setPlayMode();
 		setMuteMode();
 	}
 
-	private void loadVideo(final URL url) {
+	public void loadVideo(final Path path) {
+		try {
+			loadVideo(path.toUri().toURL());
+		} catch (final MalformedURLException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	public void loadVideo(final URL url) {
 		if (player != null) {
 			player.stop();
 			player.dispose();
+			onStopped();
+			playButton.setDisable(true);
 		}
 
-		player = new MediaPlayer(new Media(url.toString()));
-		mediaView.setMediaPlayer(player);
+		try {
+			final Media media = new Media(url.toString());
+			media.setOnError(() -> {
+				Platform.runLater(() -> {
+					DialogUtil.showWarningDialog("動画を読み込めませんでした。\n" + url.toString());
+				});
+			});
+			player = new MediaPlayer(media);
+			mediaView.setMediaPlayer(player);
+		} catch (final MediaException e) {
+			DialogUtil.showErrorDialog(e);
+			return;
+		}
 
 		player.setOnReady(this::onReady);
 		player.setOnPlaying(this::onPlaying);
@@ -172,7 +179,8 @@ public class VideoController extends BaseController {
 		final Stage stage = FXUtil.getStage(event);
 		final Scene scene = stage.getScene();
 		final Parent origRoot = scene.getRoot();
-		final int origIndex = layoutRoot.getChildrenUnmodifiable().indexOf(mediaView);
+		final Pane parent = (Pane) mediaView.getParent();
+		final int origIndex = parent.getChildrenUnmodifiable().indexOf(mediaView);
 		final double origFitWidth = mediaView.getFitWidth();
 		final double origFitHeight = mediaView.getFitHeight();
 		final StackPane root = new StackPane(mediaView);
@@ -183,7 +191,7 @@ public class VideoController extends BaseController {
 		FXUtil.setOnChangedForOnce(stage.fullScreenProperty(), (observable, oldValue, newValue) -> {
 			if (!newValue) {
 				scene.setRoot(origRoot);
-				final ObservableList<Node> children = layoutRoot.getChildren();
+				final ObservableList<Node> children = parent.getChildren();
 				if (!children.contains(mediaView)) {
 					children.add(origIndex, mediaView);
 					mediaView.fitWidthProperty().unbind();
@@ -193,6 +201,25 @@ public class VideoController extends BaseController {
 				}
 			}
 		});
+	}
+
+	@FXML
+	private void onExpandButtonClick(final ActionEvent event) {
+		final Pane parent = (Pane) expandButton.getParent();
+		final ObservableList<Node> children = parent.getChildren();
+		if (children.contains(contentsView)) {
+			children.remove(contentsView);
+			expandButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/navigate_left.png")));
+		} else {
+			if (contentsView == null) {
+				contentsView = FXUtil.load(VideoContentsController.class);
+				contentsView.setMaxWidth(300);
+				contentsView.setMaxHeight(parent.getHeight() - expandButton.getHeight() - 5);
+				StackPane.setAlignment(contentsView, Pos.BOTTOM_RIGHT);
+			}
+			children.add(contentsView);
+			expandButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/navigate_right.png")));
+		}
 	}
 
 	private void onReady() {
@@ -288,19 +315,4 @@ public class VideoController extends BaseController {
 		muteButton.setUserData(MuteOrUnmute.Unmute);
 	}
 
-	private URL url(final Path path) {
-		try {
-			return path.toUri().toURL();
-		} catch (final MalformedURLException e) {
-			throw new UncheckedIOException(e);
-		}
-	}
-
-	private URL url(final String url) {
-		try {
-			return new URL(url);
-		} catch (final MalformedURLException e) {
-			throw new UncheckedIOException(e);
-		}
-	}
 }

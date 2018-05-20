@@ -22,6 +22,7 @@ import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
+import hoshisugi.rukoru.app.models.settings.S3VideoCredential;
 import hoshisugi.rukoru.framework.base.BaseService;
 import hoshisugi.rukoru.framework.database.builder.Column;
 import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
@@ -201,6 +202,47 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 				return new ArrayList<>();
 			}
 			return h2.select(from("ds_settings"), DSSetting::new);
+		}
+	}
+
+	@Override
+	public Optional<S3VideoCredential> loadS3VideoCredential() throws SQLException {
+		try (final H2Database h2 = new H2Database()) {
+			return loadS3VideoCredential(h2);
+		}
+	}
+
+	public Optional<S3VideoCredential> loadS3VideoCredential(final H2Database h2) throws SQLException {
+		if (!h2.exists("S3_VIDEO_CREDENTIAL")) {
+			return Optional.empty();
+		}
+		return h2.find(from("s3_video_credential"), S3VideoCredential::new);
+	}
+
+	@Override
+	public void saveS3VideoCredential(final S3VideoCredential credential) throws Exception {
+		try (H2Database h2 = new H2Database()) {
+			if (!h2.exists("S3_VIDEO_CREDENTIAL")) {
+				h2.create(CreateBuilder.table("s3_video_credential"));
+			}
+			if (credential.getId() == null) {
+				if (loadS3VideoCredential(h2).isPresent()) {
+					throw new IllegalStateException("Record has been updated from other thread.");
+				}
+				h2.insert(into("s3_video_credential").values($("access_key_id", credential.getAccessKeyId()),
+						$("secret_access_key", credential.getSecretAccessKey()), $("bucket", credential.getBucket())));
+				loadS3VideoCredential(h2).ifPresent(c -> credential.setId(c.getId()));
+			} else {
+				final int result = h2.update(table("s3_video_credential")
+						.set($("access_key_id", credential.getAccessKeyId()),
+								$("secret_access_key", credential.getSecretAccessKey()),
+								$("bucket", credential.getBucket()))
+						.where($("id", credential.getId()), $("updated_at", credential.getUpdatedAt())));
+				if (result == 0) {
+					throw new IllegalStateException("Record has been updated from other thread.");
+				}
+			}
+			S3VideoCredential.reload();
 		}
 	}
 
