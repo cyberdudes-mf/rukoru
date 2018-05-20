@@ -8,11 +8,13 @@ import com.google.inject.Inject;
 import hoshisugi.rukoru.app.models.settings.S3VideoCredential;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.annotations.FXController;
+import hoshisugi.rukoru.framework.annotations.Hidden;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
+@Hidden
 @FXController(title = "Video")
 public class VideoSettingController extends PreferenceControllerBase {
 
