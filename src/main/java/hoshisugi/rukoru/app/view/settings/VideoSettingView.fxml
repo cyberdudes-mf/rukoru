@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/9.0.1" fx:controller="hoshisugi.rukoru.app.view.settings.VideoSettingController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="hoshisugi.rukoru.app.view.settings.VideoSettingController">
    <children>
       <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="5.0">
          <columnConstraints>
