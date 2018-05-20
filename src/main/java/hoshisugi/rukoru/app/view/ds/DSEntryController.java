@@ -100,6 +100,7 @@ public class DSEntryController extends BaseController implements DSEntry {
 				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
 		controlAllButton.graphicProperty().bind(when(controlAllButton.selectedProperty().not())
 				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
+		settingPropertiesButton.setGraphic(new ImageView(getImage("32x32/gear.png")));
 		controlServerButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
 		controlStudioButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
 		{
@@ -170,6 +171,7 @@ public class DSEntryController extends BaseController implements DSEntry {
 			controlStudioButton.setSelected(service.isStudioRunning(dsSetting));
 			port.setDisable(!dsSetting.isServerInstalled());
 			changePortButton.setDisable(!dsSetting.isStudioInstalled());
+			settingPropertiesButton.setDisable(!dsSetting.isServerInstalled());
 		});
 		this.dsSetting = dsSetting;
 	}
