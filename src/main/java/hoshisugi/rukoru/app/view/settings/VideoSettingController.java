@@ -10,6 +10,7 @@ import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.video.VideoController;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.annotations.Hidden;
+import hoshisugi.rukoru.framework.inject.Injector;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -31,9 +32,6 @@ public class VideoSettingController extends PreferenceControllerBase {
 	@Inject
 	private LocalSettingService settingService;
 
-	@Inject
-	private VideoController videoController;
-
 	private S3VideoCredential credential;
 
 	@Override
@@ -45,10 +43,12 @@ public class VideoSettingController extends PreferenceControllerBase {
 	public void apply() {
 		ConcurrentUtil.run(() -> {
 			settingService.saveS3VideoCredential(credential);
+			final VideoController videoController = Injector.getInstance(VideoController.class);
 			if (videoController != null) {
 				Platform.runLater(() -> videoController.refreshContents());
 			}
 		});
+
 	}
 
 	private void loadPreferences() {
