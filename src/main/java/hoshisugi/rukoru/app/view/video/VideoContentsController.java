@@ -49,13 +49,15 @@ public class VideoContentsController extends BaseController {
 	public void initialize(final URL location, final ResourceBundle resources) {
 		openButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/folder.png")));
 		if (S3VideoCredential.hasCredential()) {
-			ConcurrentUtil.run(() -> {
-				final VideoItem root = videoService.getVideos();
-				final TreeItem<VideoItem> rootItem = root.toTreeItem();
-				rootItem.setExpanded(true);
-				Platform.runLater(() -> treeView.setRoot(rootItem));
-			});
+			ConcurrentUtil.run(() -> loadS3Videos());
 		}
+	}
+
+	private void loadS3Videos() {
+		final VideoItem root = videoService.getVideos();
+		final TreeItem<VideoItem> rootItem = root.toTreeItem();
+		rootItem.setExpanded(true);
+		Platform.runLater(() -> treeView.setRoot(rootItem));
 	}
 
 	@FXML
@@ -81,6 +83,12 @@ public class VideoContentsController extends BaseController {
 		if (item.getValue() instanceof VideoFile) {
 			final VideoFile video = (VideoFile) item.getValue();
 			videoController.loadVideo(video.getUrl());
+		}
+	}
+
+	public void refresh() {
+		if (S3VideoCredential.hasCredential()) {
+			ConcurrentUtil.run(() -> loadS3Videos());
 		}
 	}
 }

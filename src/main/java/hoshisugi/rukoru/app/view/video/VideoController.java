@@ -315,4 +315,11 @@ public class VideoController extends BaseController {
 		muteButton.setUserData(MuteOrUnmute.Unmute);
 	}
 
+	public void refreshContents() {
+		if (contentsView == null) {
+			return;
+		}
+		final VideoContentsController controller = (VideoContentsController) contentsView.getUserData();
+		controller.refresh();
+	}
 }
