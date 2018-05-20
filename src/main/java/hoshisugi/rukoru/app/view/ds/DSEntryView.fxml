@@ -43,6 +43,7 @@
                      <children>
                         <TextField fx:id="port" maxWidth="1.7976931348623157E308" prefWidth="50.0" />
                         <Button fx:id="changePortButton" mnemonicParsing="false" onAction="#onChangePortButtonClick" text="変更" />
+                        <Button fx:id="settingPropertiesButton" mnemonicParsing="false" onAction="#onSettingPropertiesButtonClick" text="プロパティ" />
                      </children>
                   </HBox>
 					</children>

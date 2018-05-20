@@ -79,6 +79,9 @@ public class DSEntryController extends BaseController implements DSEntry {
 	@FXML
 	private Button changePortButton;
 
+	@FXML
+	private Button settingPropertiesButton;
+
 	@Inject
 	private DSService service;
 
@@ -149,6 +152,12 @@ public class DSEntryController extends BaseController implements DSEntry {
 			service.changePort(dsSetting, port.getText());
 			Platform.runLater(() -> FXUtil.showTooltip("ポートを変更しました。", event));
 		});
+	}
+
+	@FXML
+	private void onSettingPropertiesButtonClick(final ActionEvent event) {
+		final DSPropertiesController controller = FXUtil.popup(DSPropertiesController.class, FXUtil.getStage(event));
+		controller.setDSSetting(dsSetting);
 	}
 
 	public void loadSetting(final DSSetting dsSetting) {
