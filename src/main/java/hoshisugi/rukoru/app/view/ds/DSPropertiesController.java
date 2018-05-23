@@ -2,7 +2,6 @@ package hoshisugi.rukoru.app.view.ds;
 
 import static hoshisugi.rukoru.app.enums.DSProperties.Properties;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URL;
@@ -16,13 +15,13 @@ import java.util.stream.Stream;
 
 import hoshisugi.rukoru.app.enums.DSProperties;
 import hoshisugi.rukoru.app.models.ds.DSProperty;
+import hoshisugi.rukoru.app.models.ds.DSPropertyManager;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
-import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -70,7 +69,7 @@ public class DSPropertiesController extends BaseController {
 
 	private DSSetting dsSetting;
 
-	private final StringBuilder tmp = new StringBuilder();
+	private DSPropertyManager manager;
 
 	private final ObservableList<DSProperty> items = FXCollections.observableArrayList();
 
@@ -125,18 +124,17 @@ public class DSPropertiesController extends BaseController {
 			layoutRoot.setVisible(false);
 			return;
 		}
+		manager = new DSPropertyManager();
 		layoutRoot.setVisible(true);
-		try (final BufferedReader br = Files
-				.newBufferedReader(Paths.get(dsSetting.getExecutionPath(), properties.getPath()))) {
-			tmp.delete(0, tmp.length() + 1);
-			br.lines().forEach(s -> tmp.append(s + System.lineSeparator()));
-			final List<DSProperty> list = Stream.of(tmp.toString().split(System.lineSeparator()))
+		try {
+			manager.load(Paths.get(dsSetting.getExecutionPath(), properties.getPath()));
+
+			// Manager のほうでやるのと分けたい（もしくは全部Managerに突っ込みたい）
+			final List<DSProperty> list = Stream.of(manager.generate().split(System.lineSeparator()))
 					.filter(s -> s.matches("(#)?[\\w.]*=[\\w\'#/:,-. ${}]*"))
 					.map(p -> new DSProperty(p, this::onPropertyChanged)).collect(Collectors.toList());
-			Platform.runLater(() -> {
-				tableView.getItems().clear();
-				tableView.getItems().addAll(list);
-			});
+			tableView.getItems().clear();
+			tableView.getItems().addAll(list);
 		} catch (final IOException e) {
 			layoutRoot.setVisible(false);
 			throw new IOException(properties.toString() + "が見つかりませんでした。");
@@ -150,15 +148,17 @@ public class DSPropertiesController extends BaseController {
 
 	private void onPropertyChanged(final ObservableValue<? extends String> observable, final String oldValue,
 			final String newValue) {
-		tmp.replace(tmp.indexOf(oldValue), tmp.indexOf(oldValue) + oldValue.length(), newValue);
+		manager.replace(oldValue, newValue);
 	}
 
 	private void Apply() {
 		ConcurrentUtil.run(() -> {
 			final DSProperties prop = treeView.getSelectionModel().getSelectedItem().getValue();
+
+			// ここもManager のほうでやりたい
 			try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(dsSetting.getExecutionPath(), prop.getPath()),
 					StandardOpenOption.WRITE)) {
-				bw.write(tmp.toString());
+				bw.write(manager.generate());
 			}
 		});
 	}
