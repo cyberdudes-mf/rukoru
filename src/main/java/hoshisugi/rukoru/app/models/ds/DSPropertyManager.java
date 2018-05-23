@@ -21,17 +21,14 @@ public class DSPropertyManager {
 		try (BufferedReader br = Files.newBufferedReader(path)) {
 			statement.addAll(br.lines().collect(Collectors.toList()));
 		}
-		statement.stream().forEach(System.out::println);
 	}
 
 	public void replace(final String target, final String newValue) {
 		statement.set(statement.indexOf(target), newValue);
-		statement.stream().forEach(System.out::println);
 	}
 
 	public void reflesh() {
 		statement.clear();
-		statement.stream().forEach(System.out::println);
 	}
 
 	public void write() throws IOException {
@@ -39,13 +36,11 @@ public class DSPropertyManager {
 				new OutputStreamWriter(new FileOutputStream(path.toFile())))) {
 			bw.write(generate());
 		}
-		statement.stream().forEach(System.out::println);
 	}
 
 	public String generate() {
 		final StringBuilder builder = new StringBuilder();
 		statement.stream().forEach(s -> builder.append(s + System.lineSeparator()));
-		System.out.println(builder.toString());
 		return builder.toString();
 	}
 
