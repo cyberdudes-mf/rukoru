@@ -2,12 +2,9 @@ package hoshisugi.rukoru.app.view.ds;
 
 import static hoshisugi.rukoru.app.enums.DSProperties.Properties;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -129,9 +126,7 @@ public class DSPropertiesController extends BaseController {
 		try {
 			manager.load(Paths.get(dsSetting.getExecutionPath(), properties.getPath()));
 
-			// Manager のほうでやるのと分けたい（もしくは全部Managerに突っ込みたい）
-			final List<DSProperty> list = Stream.of(manager.generate().split(System.lineSeparator()))
-					.filter(s -> s.matches("(#)?[\\w.]*=[\\w\'#/:,-. ${}]*"))
+			final List<DSProperty> list = manager.generateProperties().stream()
 					.map(p -> new DSProperty(p, this::onPropertyChanged)).collect(Collectors.toList());
 			tableView.getItems().clear();
 			tableView.getItems().addAll(list);
@@ -153,13 +148,7 @@ public class DSPropertiesController extends BaseController {
 
 	private void Apply() {
 		ConcurrentUtil.run(() -> {
-			final DSProperties prop = treeView.getSelectionModel().getSelectedItem().getValue();
-
-			// ここもManager のほうでやりたい
-			try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(dsSetting.getExecutionPath(), prop.getPath()),
-					StandardOpenOption.WRITE)) {
-				bw.write(manager.generate());
-			}
+			manager.write();
 		});
 	}
 
