@@ -131,7 +131,9 @@ public class DSPropertiesController extends BaseController {
 
 	private void onSelectedItemChanged(final ObservableValue<? extends TreeItem<String>> observable,
 			final TreeItem<String> oldValue, final TreeItem<String> newValue) {
-		ConcurrentUtil.run(() -> loadProperties(newValue.getValue()));
+		if (newValue != null) {
+			ConcurrentUtil.run(() -> loadProperties(newValue.getValue()));
+		}
 	}
 
 	private void onPropertyChanged(final ObservableValue<? extends String> observable, final String oldValue,
