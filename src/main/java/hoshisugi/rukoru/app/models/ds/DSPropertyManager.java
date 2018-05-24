@@ -12,23 +12,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DSPropertyManager {
+	private final String PATTERN = "(#)?[\\w.]*=[\\w\'#/:,-. ${}]*";
+
 	private final List<String> statement = new ArrayList<>();
 	private Path path;
 
-	public void load(final Path path) throws IOException {
-		reflesh();
+	public List<DSProperty> load(final Path path) throws IOException {
+		statement.clear();
 		this.path = path;
 		try (BufferedReader br = Files.newBufferedReader(path)) {
 			statement.addAll(br.lines().collect(Collectors.toList()));
 		}
+		return statement.stream().filter(s -> s.matches(PATTERN)).map(s -> new DSProperty(s, this))
+				.collect(Collectors.toList());
 	}
 
 	public void replace(final String target, final String newValue) {
 		statement.set(statement.indexOf(target), newValue);
-	}
-
-	public void reflesh() {
-		statement.clear();
 	}
 
 	public void write() throws IOException {
@@ -42,10 +42,6 @@ public class DSPropertyManager {
 		final StringBuilder builder = new StringBuilder();
 		statement.stream().forEach(s -> builder.append(s + System.lineSeparator()));
 		return builder.toString();
-	}
-
-	public List<String> generateProperties() {
-		return statement.stream().filter(s -> s.matches("(#)?[\\w.]*=[\\w\'#/:,-. ${}]*")).collect(Collectors.toList());
 	}
 
 }

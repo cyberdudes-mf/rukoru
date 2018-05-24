@@ -4,7 +4,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
 public class DSProperty {
@@ -13,14 +12,16 @@ public class DSProperty {
 	private final BooleanProperty enable = new SimpleBooleanProperty(this, "enable");
 	private final StringProperty key = new SimpleStringProperty(this, "key");
 	private final StringProperty value = new SimpleStringProperty(this, "value");
+	private final DSPropertyManager manager;
 
-	public DSProperty(final String property, final ChangeListener<String> listener) {
+	public DSProperty(final String property, final DSPropertyManager manager) {
+		this.manager = manager;
 		parseProperty(property);
 		updateStatement();
 		enable.addListener(this::onPropertyChenged);
 		key.addListener(this::onPropertyChenged);
 		value.addListener(this::onPropertyChenged);
-		statement.addListener(listener);
+		statement.addListener(this::onStatementPropertyChanged);
 	}
 
 	public String getStatement() {
@@ -94,6 +95,11 @@ public class DSProperty {
 	private <S> void onPropertyChenged(final ObservableValue<? extends S> observable, final S oldValue,
 			final S newValue) {
 		updateStatement();
+	}
+
+	private void onStatementPropertyChanged(final ObservableValue<? extends String> observable, final String oldValue,
+			final String newValue) {
+		manager.replace(oldValue, newValue);
 	}
 
 }

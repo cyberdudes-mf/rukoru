@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import hoshisugi.rukoru.app.enums.DSProperties;
@@ -64,7 +63,7 @@ public class DSPropertiesController extends BaseController {
 
 	private DSSetting dsSetting;
 
-	private DSPropertyManager manager;
+	private final DSPropertyManager manager = new DSPropertyManager();
 
 	public void setDSSetting(final DSSetting dsSetting) {
 		this.dsSetting = dsSetting;
@@ -116,12 +115,10 @@ public class DSPropertiesController extends BaseController {
 			layoutRoot.setVisible(false);
 			return;
 		}
-		manager = new DSPropertyManager();
+
 		layoutRoot.setVisible(true);
 		try {
-			manager.load(Paths.get(dsSetting.getExecutionPath(), path.get()));
-			final List<DSProperty> list = manager.generateProperties().stream()
-					.map(p -> new DSProperty(p, this::onPropertyChanged)).collect(Collectors.toList());
+			final List<DSProperty> list = manager.load(Paths.get(dsSetting.getExecutionPath(), path.get()));
 			tableView.getItems().setAll(list);
 		} catch (final IOException e) {
 			layoutRoot.setVisible(false);
@@ -134,11 +131,6 @@ public class DSPropertiesController extends BaseController {
 		if (newValue != null) {
 			ConcurrentUtil.run(() -> loadProperties(newValue.getValue()));
 		}
-	}
-
-	private void onPropertyChanged(final ObservableValue<? extends String> observable, final String oldValue,
-			final String newValue) {
-		manager.replace(oldValue, newValue);
 	}
 
 	private void apply() {
