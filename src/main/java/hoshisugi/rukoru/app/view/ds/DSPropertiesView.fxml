@@ -8,9 +8,10 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.ds.DSPropertiesController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.ds.DSPropertiesController">
 	<children>
 		<SplitPane dividerPositions="0.25" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
 			<items>
@@ -19,14 +20,17 @@
 						<TreeView fx:id="treeView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
 					</children>
 				</VBox>
-				<VBox fx:id="layoutRoot" visible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+				<VBox fx:id="layoutRoot" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" visible="false">
 					<children>
-						<ButtonBar buttonMinWidth="24.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0" prefWidth="200.0">
-							<buttons>
-								<Button fx:id="deleteButton" mnemonicParsing="false" />
-								<Button fx:id="addButton" mnemonicParsing="false" />
-							</buttons>
-						</ButtonBar>
+                  <HBox prefHeight="40.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
+                     <children>
+      								<Button fx:id="addButton" mnemonicParsing="false" />
+      								<Button fx:id="deleteButton" mnemonicParsing="false" />
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
 						<TableView fx:id="tableView" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
 							<columns>
 								<TableColumn fx:id="isEnableColumn" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" sortable="false" text="Enable">
@@ -55,6 +59,9 @@
                      </buttons>
                   </ButtonBar>
 					</children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
 				</VBox>
 			</items>
 		</SplitPane>
