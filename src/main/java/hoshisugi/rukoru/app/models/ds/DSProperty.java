@@ -9,7 +9,7 @@ import javafx.beans.value.ObservableValue;
 
 public class DSProperty {
 
-	private final StringProperty statement = new SimpleStringProperty();
+	private final StringProperty statement = new SimpleStringProperty(this, "statement");
 	private final BooleanProperty enable = new SimpleBooleanProperty(this, "enable");
 	private final StringProperty key = new SimpleStringProperty(this, "key");
 	private final StringProperty value = new SimpleStringProperty(this, "value");
@@ -31,12 +31,12 @@ public class DSProperty {
 		this.statement.set(statement);
 	}
 
-	public Boolean getEnable() {
+	public Boolean isEnable() {
 		return enable.get();
 	}
 
-	public void setEnable(final boolean isEnable) {
-		this.enable.set(isEnable);
+	public void setEnable(final boolean enable) {
+		this.enable.set(enable);
 	}
 
 	public String getKey() {
@@ -88,7 +88,7 @@ public class DSProperty {
 	}
 
 	private void updateStatement() {
-		statement.set((getEnable() ? "" : "#") + getKey() + "=" + getValue());
+		statement.set((isEnable() ? "" : "#") + getKey() + "=" + getValue());
 	}
 
 	private <S> void onPropertyChenged(final ObservableValue<? extends S> observable, final S oldValue,
