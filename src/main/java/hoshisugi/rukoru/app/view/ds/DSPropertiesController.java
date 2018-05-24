@@ -1,7 +1,5 @@
 package hoshisugi.rukoru.app.view.ds;
 
-import static hoshisugi.rukoru.app.enums.DSProperties.Properties;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -38,7 +36,7 @@ import javafx.scene.layout.VBox;
 public class DSPropertiesController extends BaseController {
 
 	@FXML
-	private TreeView<DSProperties> treeView;
+	private TreeView<String> treeView;
 
 	@FXML
 	private VBox layoutRoot;
@@ -84,12 +82,11 @@ public class DSPropertiesController extends BaseController {
 	}
 
 	private void createTree() {
-		final TreeItem<DSProperties> root = new TreeItem<>(Properties);
+		final TreeItem<String> root = new TreeItem<>("Properties");
 		root.setExpanded(true);
-		Stream.of(DSProperties.values()).filter(v -> v.getPath() != null).map(p -> new TreeItem<>(p))
-				.forEach(t -> root.getChildren().add(t));
+		Stream.of(DSProperties.values()).map(s -> new TreeItem<>(s.getDisplayName())).forEach(root.getChildren()::add);
 		treeView.setRoot(root);
-		treeView.getSelectionModel().select(0);
+		treeView.getSelectionModel().selectFirst();
 		treeView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
 	}
 
@@ -116,28 +113,27 @@ public class DSPropertiesController extends BaseController {
 		FXUtil.getStage(event).close();
 	}
 
-	private void loadProperties(final DSProperties properties) throws IOException {
-		if (properties.getPath() == null) {
+	private void loadProperties(final String properties) throws IOException {
+		if (DSProperties.of(properties).getPath() == null) {
 			layoutRoot.setVisible(false);
 			return;
 		}
 		manager = new DSPropertyManager();
 		layoutRoot.setVisible(true);
 		try {
-			manager.load(Paths.get(dsSetting.getExecutionPath(), properties.getPath()));
-
+			manager.load(Paths.get(dsSetting.getExecutionPath(), DSProperties.of(properties).getPath()));
 			final List<DSProperty> list = manager.generateProperties().stream()
 					.map(p -> new DSProperty(p, this::onPropertyChanged)).collect(Collectors.toList());
 			tableView.getItems().clear();
 			tableView.getItems().addAll(list);
 		} catch (final IOException e) {
 			layoutRoot.setVisible(false);
-			throw new IOException(properties.toString() + "が見つかりませんでした。");
+			throw new IOException(properties + "が見つかりませんでした。");
 		}
 	}
 
-	private void onSelectedItemChanged(final ObservableValue<? extends TreeItem<DSProperties>> observable,
-			final TreeItem<DSProperties> oldValue, final TreeItem<DSProperties> newValue) {
+	private void onSelectedItemChanged(final ObservableValue<? extends TreeItem<String>> observable,
+			final TreeItem<String> oldValue, final TreeItem<String> newValue) {
 		ConcurrentUtil.run(() -> loadProperties(newValue.getValue()));
 	}
 
