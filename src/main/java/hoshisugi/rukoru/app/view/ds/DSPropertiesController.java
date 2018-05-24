@@ -100,7 +100,9 @@ public class DSPropertiesController extends BaseController {
 
 	@FXML
 	private void onDeleteButtonClick(final ActionEvent event) {
-
+		final DSProperty item = tableView.getSelectionModel().getSelectedItem();
+		manager.deleteProperty(item.getStatement());
+		tableView.getItems().remove(item);
 	}
 
 	@FXML

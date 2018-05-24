@@ -32,6 +32,10 @@ public class DSPropertyManager {
 		return new DSProperty(value, this);
 	}
 
+	public void deleteProperty(final String value) {
+		statement.remove(value);
+	}
+
 	public void replace(final String target, final String newValue) {
 		statement.set(statement.indexOf(target), newValue);
 	}

@@ -19,7 +19,7 @@ public class DSProperty {
 		parseProperty(property);
 		updateStatement();
 		enable.addListener(this::onPropertyChenged);
-		key.addListener(this::onPropertyChenged);
+		key.addListener(this::onKeyPropertyChenged);
 		value.addListener(this::onPropertyChenged);
 		statement.addListener(this::onStatementPropertyChanged);
 	}
@@ -90,6 +90,15 @@ public class DSProperty {
 
 	private void updateStatement() {
 		statement.set((isEnable() ? "" : "#") + getKey() + "=" + getValue());
+	}
+
+	private void onKeyPropertyChenged(final ObservableValue<? extends String> observable, final String oldValue,
+			final String newValue) {
+		if (newValue.isEmpty()) {
+			setKey(oldValue);
+			return;
+		}
+		updateStatement();
 	}
 
 	private <S> void onPropertyChenged(final ObservableValue<? extends S> observable, final S oldValue,
