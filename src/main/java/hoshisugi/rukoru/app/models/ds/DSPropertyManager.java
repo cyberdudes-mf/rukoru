@@ -27,11 +27,16 @@ public class DSPropertyManager {
 				.collect(Collectors.toList());
 	}
 
+	public DSProperty addProperty(final String value) {
+		statement.add(value);
+		return new DSProperty(value, this);
+	}
+
 	public void replace(final String target, final String newValue) {
 		statement.set(statement.indexOf(target), newValue);
 	}
 
-	public void write() throws IOException {
+	public void save() throws IOException {
 		try (final BufferedWriter bw = new BufferedWriter(
 				new OutputStreamWriter(new FileOutputStream(path.toFile())))) {
 			bw.write(generate());

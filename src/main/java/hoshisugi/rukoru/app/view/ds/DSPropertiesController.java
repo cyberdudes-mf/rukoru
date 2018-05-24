@@ -94,6 +94,16 @@ public class DSPropertiesController extends BaseController {
 	}
 
 	@FXML
+	private void onAddButtonClick(final ActionEvent event) {
+		tableView.getItems().add(manager.addProperty("#new="));
+	}
+
+	@FXML
+	private void onDeleteButtonClick(final ActionEvent event) {
+
+	}
+
+	@FXML
 	private void onApplyButtonClick(final ActionEvent event) {
 		apply();
 	}
@@ -134,7 +144,7 @@ public class DSPropertiesController extends BaseController {
 	}
 
 	private void apply() {
-		ConcurrentUtil.run(manager::write);
+		ConcurrentUtil.run(manager::save);
 	}
 
 	private void close(final ActionEvent event) {
