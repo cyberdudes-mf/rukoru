@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -16,10 +17,9 @@ import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
+import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -66,8 +66,6 @@ public class DSPropertiesController extends BaseController {
 
 	private DSPropertyManager manager;
 
-	private final ObservableList<DSProperty> items = FXCollections.observableArrayList();
-
 	public void setDSSetting(final DSSetting dsSetting) {
 		this.dsSetting = dsSetting;
 	}
@@ -82,10 +80,10 @@ public class DSPropertiesController extends BaseController {
 	}
 
 	private void createTree() {
-		final TreeItem<String> root = new TreeItem<>("Properties");
-		root.setExpanded(true);
+		final TreeItem<String> root = new TreeItem<>();
 		Stream.of(DSProperties.values()).map(s -> new TreeItem<>(s.getDisplayName())).forEach(root.getChildren()::add);
 		treeView.setRoot(root);
+		treeView.setShowRoot(false);
 		treeView.getSelectionModel().selectFirst();
 		treeView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
 	}
@@ -94,7 +92,6 @@ public class DSPropertiesController extends BaseController {
 		isEnableColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isEnableColumn));
 		keyColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-		tableView.setItems(items);
 	}
 
 	@FXML
@@ -105,30 +102,30 @@ public class DSPropertiesController extends BaseController {
 	@FXML
 	private void onApplyAndCloseButtonClick(final ActionEvent event) {
 		apply();
-		FXUtil.getStage(event).close();
+		close(event);
 	}
 
 	@FXML
 	private void onCloseButtonClick(final ActionEvent event) {
-		FXUtil.getStage(event).close();
+		close(event);
 	}
 
 	private void loadProperties(final String properties) throws IOException {
-		if (DSProperties.of(properties).getPath() == null) {
+		final Optional<String> path = Optional.ofNullable(DSProperties.of(properties).getPath());
+		if (!path.isPresent()) {
 			layoutRoot.setVisible(false);
 			return;
 		}
 		manager = new DSPropertyManager();
 		layoutRoot.setVisible(true);
 		try {
-			manager.load(Paths.get(dsSetting.getExecutionPath(), DSProperties.of(properties).getPath()));
+			manager.load(Paths.get(dsSetting.getExecutionPath(), path.get()));
 			final List<DSProperty> list = manager.generateProperties().stream()
 					.map(p -> new DSProperty(p, this::onPropertyChanged)).collect(Collectors.toList());
-			tableView.getItems().clear();
-			tableView.getItems().addAll(list);
+			tableView.getItems().setAll(list);
 		} catch (final IOException e) {
 			layoutRoot.setVisible(false);
-			throw new IOException(properties + "が見つかりませんでした。");
+			DialogUtil.showWarningDialog(properties + "が見つかりませんでした。");
 		}
 	}
 
@@ -144,6 +141,10 @@ public class DSPropertiesController extends BaseController {
 
 	private void apply() {
 		ConcurrentUtil.run(manager::write);
+	}
+
+	private void close(final ActionEvent event) {
+		FXUtil.getStage(event).close();
 	}
 
 }
