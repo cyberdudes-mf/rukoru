@@ -31,7 +31,7 @@
 							<columns>
 								<TableColumn fx:id="isEnableColumn" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" sortable="false" text="Enable">
 									<cellValueFactory>
-										<PropertyValueFactory property="isEnable" />
+										<PropertyValueFactory property="enable" />
 									</cellValueFactory>
 								</TableColumn>
 								<TableColumn fx:id="keyColumn" prefWidth="230.0" text="Key">
@@ -60,7 +60,7 @@
 		</SplitPane>
 		<ButtonBar prefHeight="40.0" prefWidth="200.0">
 			<buttons>
-            <Button mnemonicParsing="false" onAction="#onApplyandCloseButtonClick" text="Apply and Close" />
+            <Button mnemonicParsing="false" onAction="#onApplyAndCloseButtonClick" text="Apply and Close" />
 				<Button fx:id="CloseButton" mnemonicParsing="false" onAction="#onCloseButtonClick" text="Close" />
 			</buttons>
 			<padding>

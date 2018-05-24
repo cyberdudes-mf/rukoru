@@ -10,25 +10,33 @@ import javafx.beans.value.ObservableValue;
 public class DSProperty {
 
 	private final StringProperty statement = new SimpleStringProperty();
-	private final BooleanProperty isEnable = new SimpleBooleanProperty(this, "isEnable");
+	private final BooleanProperty enable = new SimpleBooleanProperty(this, "enable");
 	private final StringProperty key = new SimpleStringProperty(this, "key");
 	private final StringProperty value = new SimpleStringProperty(this, "value");
 
 	public DSProperty(final String property, final ChangeListener<String> listener) {
 		parseProperty(property);
-		statement.set((isEnable.get() ? "" : "#") + key.get() + "=" + value.get());
-		isEnable.addListener(this::onPropertyChenged);
+		updateStatement();
+		enable.addListener(this::onPropertyChenged);
 		key.addListener(this::onPropertyChenged);
 		value.addListener(this::onPropertyChenged);
 		statement.addListener(listener);
 	}
 
-	public Boolean getIsEnable() {
-		return isEnable.get();
+	public String getStatement() {
+		return statement.get();
 	}
 
-	public void setIsEnable(final boolean isEnable) {
-		this.isEnable.set(isEnable);
+	public void setStatement(final String statement) {
+		this.statement.set(statement);
+	}
+
+	public Boolean getEnable() {
+		return enable.get();
+	}
+
+	public void setEnable(final boolean isEnable) {
+		this.enable.set(isEnable);
 	}
 
 	public String getKey() {
@@ -51,8 +59,8 @@ public class DSProperty {
 		return statement;
 	}
 
-	public BooleanProperty isEnableProperty() {
-		return isEnable;
+	public BooleanProperty enableProperty() {
+		return enable;
 	}
 
 	public StringProperty keyProperty() {
@@ -63,17 +71,12 @@ public class DSProperty {
 		return value;
 	}
 
-	@Override
-	public String toString() {
-		return statement.get();
-	}
-
 	private void parseProperty(String property) {
 		if (property.startsWith("#")) {
 			property = property.substring(1);
-			setIsEnable(false);
+			setEnable(false);
 		} else {
-			setIsEnable(true);
+			setEnable(true);
 		}
 		final String[] s = property.split("=");
 		setKey(s[0]);
@@ -84,9 +87,13 @@ public class DSProperty {
 		}
 	}
 
+	private void updateStatement() {
+		statement.set((getEnable() ? "" : "#") + getKey() + "=" + getValue());
+	}
+
 	private <S> void onPropertyChenged(final ObservableValue<? extends S> observable, final S oldValue,
 			final S newValue) {
-		statement.set((isEnable.get() ? "" : "#") + key.get() + "=" + value.get());
+		updateStatement();
 	}
 
 }

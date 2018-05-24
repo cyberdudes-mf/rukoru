@@ -99,12 +99,12 @@ public class DSPropertiesController extends BaseController {
 
 	@FXML
 	private void onApplyButtonClick(final ActionEvent event) {
-		Apply();
+		apply();
 	}
 
 	@FXML
-	private void onApplyandCloseButtonClick(final ActionEvent event) {
-		Apply();
+	private void onApplyAndCloseButtonClick(final ActionEvent event) {
+		apply();
 		FXUtil.getStage(event).close();
 	}
 
@@ -142,10 +142,8 @@ public class DSPropertiesController extends BaseController {
 		manager.replace(oldValue, newValue);
 	}
 
-	private void Apply() {
-		ConcurrentUtil.run(() -> {
-			manager.write();
-		});
+	private void apply() {
+		ConcurrentUtil.run(manager::write);
 	}
 
 }
