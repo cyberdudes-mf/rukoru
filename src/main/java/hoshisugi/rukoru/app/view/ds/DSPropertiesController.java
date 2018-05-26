@@ -82,12 +82,11 @@ public class DSPropertiesController extends BaseController {
 		final TreeItem<String> root = new TreeItem<>();
 		Stream.of(DSProperties.values()).map(s -> new TreeItem<>(s.getDisplayName())).forEach(root.getChildren()::add);
 		treeView.setRoot(root);
-		treeView.setShowRoot(false);
-		treeView.getSelectionModel().selectFirst();
 		treeView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
 	}
 
 	private void createTablePane() {
+		layoutRoot.visibleProperty().bind(treeView.getSelectionModel().selectedItemProperty().isNotNull());
 		isEnableColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isEnableColumn));
 		keyColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -123,12 +122,6 @@ public class DSPropertiesController extends BaseController {
 
 	private void loadProperties(final String properties) throws IOException {
 		final Optional<String> path = Optional.ofNullable(DSProperties.of(properties).getPath());
-		if (!path.isPresent()) {
-			layoutRoot.setVisible(false);
-			return;
-		}
-
-		layoutRoot.setVisible(true);
 		try {
 			final List<DSProperty> list = manager.load(Paths.get(dsSetting.getExecutionPath(), path.get()));
 			tableView.getItems().setAll(list);
@@ -146,7 +139,9 @@ public class DSPropertiesController extends BaseController {
 	}
 
 	private void apply() {
-		ConcurrentUtil.run(manager::save);
+		if (!treeView.getSelectionModel().isEmpty()) {
+			ConcurrentUtil.run(manager::save);
+		}
 	}
 
 	private void close(final ActionEvent event) {
