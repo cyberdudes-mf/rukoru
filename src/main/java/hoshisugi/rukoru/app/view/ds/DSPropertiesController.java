@@ -94,7 +94,7 @@ public class DSPropertiesController extends BaseController {
 
 	@FXML
 	private void onAddButtonClick(final ActionEvent event) {
-		tableView.getItems().add(manager.addProperty("#new="));
+		tableView.getItems().add(manager.addProperty("#", "new", ""));
 	}
 
 	@FXML

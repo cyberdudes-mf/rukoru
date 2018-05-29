@@ -14,13 +14,15 @@ public class DSProperty {
 	private final StringProperty value = new SimpleStringProperty(this, "value");
 	private final DSPropertyManager manager;
 
-	public DSProperty(final String property, final DSPropertyManager manager) {
+	public DSProperty(final String enable, final String key, final String value, final DSPropertyManager manager) {
+		setEnable(enable == null);
+		setKey(key);
+		setValue(value);
 		this.manager = manager;
-		parseProperty(property);
 		updateStatement();
-		enable.addListener(this::onPropertyChenged);
-		key.addListener(this::onKeyPropertyChenged);
-		value.addListener(this::onPropertyChenged);
+		this.enable.addListener(this::onPropertyChenged);
+		this.key.addListener(this::onKeyPropertyChenged);
+		this.value.addListener(this::onPropertyChenged);
 		statement.addListener(this::onStatementPropertyChanged);
 	}
 
@@ -70,22 +72,6 @@ public class DSProperty {
 
 	public StringProperty valueProperty() {
 		return value;
-	}
-
-	private void parseProperty(String property) {
-		if (property.startsWith("#")) {
-			property = property.substring(1);
-			setEnable(false);
-		} else {
-			setEnable(true);
-		}
-		final String[] s = property.split("=");
-		setKey(s[0]);
-		if (s.length == 2) {
-			setValue(s[1]);
-		} else {
-			setValue("");
-		}
 	}
 
 	private void updateStatement() {
