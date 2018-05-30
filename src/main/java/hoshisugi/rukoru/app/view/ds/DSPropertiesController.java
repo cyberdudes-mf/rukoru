@@ -63,7 +63,7 @@ public class DSPropertiesController extends BaseController {
 
 	private DSSetting dsSetting;
 
-	private final DSPropertyManager manager = new DSPropertyManager();
+	private DSPropertyManager manager;
 
 	public void setDSSetting(final DSSetting dsSetting) {
 		this.dsSetting = dsSetting;
@@ -123,7 +123,8 @@ public class DSPropertiesController extends BaseController {
 	private void loadProperties(final String properties) throws IOException {
 		final Optional<String> path = Optional.ofNullable(DSProperties.of(properties).getPath());
 		try {
-			final List<DSProperty> list = manager.load(Paths.get(dsSetting.getExecutionPath(), path.get()));
+			manager = new DSPropertyManager(Paths.get(dsSetting.getExecutionPath(), path.get()));
+			final List<DSProperty> list = manager.load();
 			tableView.getItems().setAll(list);
 		} catch (final IOException e) {
 			layoutRoot.setVisible(false);

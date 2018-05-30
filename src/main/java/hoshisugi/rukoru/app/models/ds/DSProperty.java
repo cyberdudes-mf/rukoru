@@ -12,13 +12,13 @@ public class DSProperty {
 	private final BooleanProperty enable = new SimpleBooleanProperty(this, "enable");
 	private final StringProperty key = new SimpleStringProperty(this, "key");
 	private final StringProperty value = new SimpleStringProperty(this, "value");
-	private final DSPropertyManager manager;
+	private DSPropertyManager manager;
 
 	public DSProperty(final String enable, final String key, final String value, final DSPropertyManager manager) {
 		setEnable(enable == null);
 		setKey(key);
 		setValue(value);
-		this.manager = manager;
+		setManager(manager);
 		updateArticle();
 		this.enable.addListener(this::onPropertyChenged);
 		this.key.addListener(this::onKeyPropertyChenged);
@@ -56,6 +56,14 @@ public class DSProperty {
 
 	public void setValue(final String value) {
 		this.value.set(value);
+	}
+
+	public DSPropertyManager getManager() {
+		return manager;
+	}
+
+	public void setManager(final DSPropertyManager manager) {
+		this.manager = manager;
 	}
 
 	public StringProperty articleProperty() {
