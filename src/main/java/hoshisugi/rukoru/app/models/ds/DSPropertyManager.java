@@ -16,16 +16,16 @@ import java.util.stream.Collectors;
 public class DSPropertyManager {
 	private static final Pattern PATTERN = Pattern.compile("(?<enable>#)?(?<key>\\S+)=(?<value>\\S*)");
 
-	private final List<String> statement = new ArrayList<>();
+	private final List<String> tmp = new ArrayList<>();
 	private Path path;
 
 	public List<DSProperty> load(final Path path) throws IOException {
-		statement.clear();
+		tmp.clear();
 		this.path = path;
 		try (BufferedReader br = Files.newBufferedReader(path)) {
-			statement.addAll(br.lines().collect(Collectors.toList()));
+			tmp.addAll(br.lines().collect(Collectors.toList()));
 		}
-		return statement.stream().map(PATTERN::matcher).filter(Matcher::matches).map(m -> {
+		return tmp.stream().map(PATTERN::matcher).filter(Matcher::matches).map(m -> {
 			final String enable = m.group("enable");
 			final String key = m.group("key");
 			final String value = m.group("value");
@@ -34,29 +34,25 @@ public class DSPropertyManager {
 	}
 
 	public DSProperty addProperty(final String enable, final String key, final String value) {
-		statement.add(enable + key + "=" + value);
+		tmp.add(enable + key + "=" + value);
 		return new DSProperty(enable, key, value, this);
 	}
 
-	public void deleteProperty(final String value) {
-		statement.remove(value);
+	public void deleteProperty(final String statement) {
+		tmp.remove(statement);
 	}
 
-	public void replace(final String target, final String newValue) {
-		statement.set(statement.indexOf(target), newValue);
+	public void replace(final String oldArticle, final String newArticle) {
+		tmp.set(tmp.indexOf(oldArticle), newArticle);
 	}
 
 	public void save() throws IOException {
 		try (final BufferedWriter bw = new BufferedWriter(
 				new OutputStreamWriter(new FileOutputStream(path.toFile())))) {
-			bw.write(generate());
+			for (final String line : tmp) {
+				bw.write(line + System.lineSeparator());
+			}
 		}
-	}
-
-	public String generate() {
-		final StringBuilder builder = new StringBuilder();
-		statement.stream().forEach(s -> builder.append(s + System.lineSeparator()));
-		return builder.toString();
 	}
 
 }

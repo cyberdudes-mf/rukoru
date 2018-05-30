@@ -8,7 +8,7 @@ import javafx.beans.value.ObservableValue;
 
 public class DSProperty {
 
-	private final StringProperty statement = new SimpleStringProperty(this, "statement");
+	private final StringProperty article = new SimpleStringProperty(this, "article");
 	private final BooleanProperty enable = new SimpleBooleanProperty(this, "enable");
 	private final StringProperty key = new SimpleStringProperty(this, "key");
 	private final StringProperty value = new SimpleStringProperty(this, "value");
@@ -19,19 +19,19 @@ public class DSProperty {
 		setKey(key);
 		setValue(value);
 		this.manager = manager;
-		updateStatement();
+		updateArticle();
 		this.enable.addListener(this::onPropertyChenged);
 		this.key.addListener(this::onKeyPropertyChenged);
 		this.value.addListener(this::onPropertyChenged);
-		statement.addListener(this::onStatementPropertyChanged);
+		article.addListener(this::onArticlePropertyChanged);
 	}
 
-	public String getStatement() {
-		return statement.get();
+	public String getArticle() {
+		return article.get();
 	}
 
-	public void setStatement(final String statement) {
-		this.statement.set(statement);
+	public void setArticle(final String article) {
+		this.article.set(article);
 	}
 
 	public Boolean isEnable() {
@@ -58,8 +58,8 @@ public class DSProperty {
 		this.value.set(value);
 	}
 
-	public StringProperty statementProperty() {
-		return statement;
+	public StringProperty articleProperty() {
+		return article;
 	}
 
 	public BooleanProperty enableProperty() {
@@ -74,8 +74,8 @@ public class DSProperty {
 		return value;
 	}
 
-	private void updateStatement() {
-		statement.set((isEnable() ? "" : "#") + getKey() + "=" + getValue());
+	private void updateArticle() {
+		article.set((isEnable() ? "" : "#") + getKey() + "=" + getValue());
 	}
 
 	private void onKeyPropertyChenged(final ObservableValue<? extends String> observable, final String oldValue,
@@ -84,15 +84,15 @@ public class DSProperty {
 			setKey(oldValue);
 			return;
 		}
-		updateStatement();
+		updateArticle();
 	}
 
 	private <S> void onPropertyChenged(final ObservableValue<? extends S> observable, final S oldValue,
 			final S newValue) {
-		updateStatement();
+		updateArticle();
 	}
 
-	private void onStatementPropertyChanged(final ObservableValue<? extends String> observable, final String oldValue,
+	private void onArticlePropertyChanged(final ObservableValue<? extends String> observable, final String oldValue,
 			final String newValue) {
 		manager.replace(oldValue, newValue);
 	}

@@ -16,7 +16,7 @@ public enum DSProperties {
 	private static final Map<String, DSProperties> index = Stream.of(values())
 			.collect(Collectors.toMap(DSProperties::getDisplayName, Function.identity()));
 
-	DSProperties(final String displayName, final String path) {
+	private DSProperties(final String displayName, final String path) {
 		this.displayName = displayName;
 		this.path = path;
 	}

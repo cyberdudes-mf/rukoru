@@ -70,7 +70,7 @@ public class DSPropertiesController extends BaseController {
 	}
 
 	@Override
-	public void initialize(final URL arg0, final ResourceBundle arg1) {
+	public void initialize(final URL url, final ResourceBundle resource) {
 		createTree();
 		createTablePane();
 		addButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/add.png")));
@@ -100,7 +100,7 @@ public class DSPropertiesController extends BaseController {
 	@FXML
 	private void onDeleteButtonClick(final ActionEvent event) {
 		final DSProperty item = tableView.getSelectionModel().getSelectedItem();
-		manager.deleteProperty(item.getStatement());
+		manager.deleteProperty(item.getArticle());
 		tableView.getItems().remove(item);
 	}
 
