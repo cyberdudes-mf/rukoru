@@ -78,6 +78,11 @@ public class DSProperties implements DSPropertiesTreeNode {
 	}
 
 	public void save() throws IOException {
+		final Path target = path.get();
+		final Path bak = target.getParent().resolve(getFileName() + ".bak");
+		if (!Files.exists(bak)) {
+			Files.copy(target, bak);
+		}
 		try (BufferedWriter writer = Files.newBufferedWriter(path.get(), WRITE, TRUNCATE_EXISTING)) {
 			for (final DSPropertiesContent content : contents) {
 				content.write(writer);
