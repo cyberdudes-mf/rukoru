@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.models.s3;
 
+import hoshisugi.rukoru.app.models.common.AsyncResult;
+
 public class UploadObjectResult extends AsyncResult {
 
 	private S3Item item;

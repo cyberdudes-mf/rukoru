@@ -1,6 +1,7 @@
 package hoshisugi.rukoru.app.models.video;
 
 import java.net.URL;
+import java.util.function.Supplier;
 
 import hoshisugi.rukoru.framework.util.AssetUtil;
 import javafx.scene.control.TreeItem;
@@ -9,11 +10,11 @@ import javafx.scene.image.ImageView;
 
 public class VideoFile extends VideoItem {
 
-	private final URL url;
+	private final Supplier<URL> urlSupplier;
 
-	public VideoFile(final String name, final URL url) {
+	public VideoFile(final String name, final Supplier<URL> urlSupplier) {
 		super(name);
-		this.url = url;
+		this.urlSupplier = urlSupplier;
 	}
 
 	@Override
@@ -27,7 +28,7 @@ public class VideoFile extends VideoItem {
 	}
 
 	public URL getUrl() {
-		return url;
+		return urlSupplier.get();
 	}
 
 	@Override

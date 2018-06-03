@@ -60,7 +60,7 @@ public class S3VideoServiceImpl extends BaseService implements VideoService {
 			result = client.listObjects(request);
 			result.getObjectSummaries().stream().filter(s -> isFile(s.getKey())).forEach(s -> {
 				final String key = s.getKey();
-				final VideoFile value = new VideoFile(getBaseName(key), generateUrl(s));
+				final VideoFile value = new VideoFile(getBaseName(key), () -> generateUrl(s));
 				putItem(items, key, value);
 			});
 			request.setMarker(result.getNextMarker());

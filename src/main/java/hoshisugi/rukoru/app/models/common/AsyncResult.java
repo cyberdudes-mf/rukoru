@@ -1,4 +1,4 @@
-package hoshisugi.rukoru.app.models.s3;
+package hoshisugi.rukoru.app.models.common;
 
 import static javafx.beans.binding.DoubleExpression.doubleExpression;
 

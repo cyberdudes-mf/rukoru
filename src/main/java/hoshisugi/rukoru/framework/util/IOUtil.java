@@ -1,15 +1,28 @@
 package hoshisugi.rukoru.framework.util;
 
+import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Doing;
+import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Done;
+import static java.nio.file.StandardOpenOption.CREATE;
+
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.function.Supplier;
+
+import hoshisugi.rukoru.app.models.common.AsyncResult;
+import hoshisugi.rukoru.app.models.common.ContentInfo;
 
 public class IOUtil {
 
@@ -49,5 +62,44 @@ public class IOUtil {
 				writer.newLine();
 			}
 		}
+	}
+
+	public static AsyncResult downloadContent(final URL url, final Path destination) throws IOException {
+		final Supplier<ContentInfo> contentSupplier = () -> {
+			try {
+				final URLConnection conn = url.openConnection();
+				final int contentLength = Integer.parseInt(conn.getHeaderField("Content-Length"));
+				final InputStream inputStream = conn.getInputStream();
+				return new ContentInfo(contentLength, inputStream);
+			} catch (final IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		};
+		return downloadContent(contentSupplier, destination);
+	}
+
+	public static AsyncResult downloadContent(final Supplier<ContentInfo> contentSupplier, final Path destination) {
+		final AsyncResult result = new AsyncResult();
+
+		ConcurrentUtil.run(() -> {
+			final ContentInfo content = contentSupplier.get();
+			result.setName(destination.getFileName().toString());
+			result.setSize(content.getContentLength());
+			final byte[] buff = new byte[1048576];
+			try (InputStream input = content.getInputStream();
+					OutputStream output = new BufferedOutputStream(Files.newOutputStream(destination, CREATE))) {
+				result.setStatus(Doing);
+				int read;
+				while ((read = input.read(buff)) >= 0) {
+					output.write(buff, 0, read);
+					result.addBytes(read);
+				}
+			} catch (final Throwable e) {
+				result.setThrown(e);
+			} finally {
+				result.setStatus(Done);
+			}
+		});
+		return result;
 	}
 }

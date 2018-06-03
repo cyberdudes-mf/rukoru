@@ -1,5 +1,7 @@
 package hoshisugi.rukoru.app.view.video;
 
+import static java.lang.Double.MAX_VALUE;
+
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -8,8 +10,10 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
+import hoshisugi.rukoru.app.models.common.AsyncResult;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
@@ -26,6 +30,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
@@ -71,6 +76,9 @@ public class VideoController extends BaseController {
 
 	@FXML
 	private Button expandButton;
+
+	@FXML
+	private VBox bottom;
 
 	private AnchorPane contentsView;
 
@@ -321,5 +329,25 @@ public class VideoController extends BaseController {
 		}
 		final VideoContentsController controller = (VideoContentsController) contentsView.getUserData();
 		controller.refresh();
+	}
+
+	public void showProgressBar(final AsyncResult result) {
+		final ProgressBar progressBar = createProgressBar(result);
+		bottom.getChildren().add(progressBar);
+		ConcurrentUtil.run(() -> {
+			result.waitFor();
+			Platform.runLater(() -> {
+				bottom.getChildren().remove(progressBar);
+				result.checkResult();
+			});
+		});
+	}
+
+	private ProgressBar createProgressBar(final AsyncResult result) {
+		final ProgressBar progressBar = new ProgressBar();
+		progressBar.progressProperty().bind(result.progressProperty());
+		progressBar.setPrefHeight(25);
+		progressBar.setMaxWidth(MAX_VALUE);
+		return progressBar;
 	}
 }

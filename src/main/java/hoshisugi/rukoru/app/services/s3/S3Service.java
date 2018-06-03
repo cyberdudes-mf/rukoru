@@ -3,7 +3,7 @@ package hoshisugi.rukoru.app.services.s3;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import hoshisugi.rukoru.app.models.s3.AsyncResult;
+import hoshisugi.rukoru.app.models.common.AsyncResult;
 import hoshisugi.rukoru.app.models.s3.S3Bucket;
 import hoshisugi.rukoru.app.models.s3.S3Folder;
 import hoshisugi.rukoru.app.models.s3.S3Item;
