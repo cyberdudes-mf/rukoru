@@ -16,6 +16,7 @@ import hoshisugi.rukoru.app.services.ds.DSService;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.cli.CLI;
 import hoshisugi.rukoru.framework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.BrowserUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
@@ -82,6 +83,9 @@ public class DSEntryController extends BaseController implements DSEntry {
 	@FXML
 	private Button settingPropertiesButton;
 
+	@FXML
+	private Button showHelpButton;
+
 	@Inject
 	private DSService service;
 
@@ -101,6 +105,8 @@ public class DSEntryController extends BaseController implements DSEntry {
 		controlAllButton.graphicProperty().bind(when(controlAllButton.selectedProperty().not())
 				.then(new ImageView(getImage("32x32/run.png"))).otherwise(new ImageView(getImage("32x32/stop.png"))));
 		settingPropertiesButton.setGraphic(new ImageView(getImage("32x32/gear.png")));
+		showHelpButton.setGraphic(new ImageView(getImage("32x32/help.png")));
+		showHelpButton.disableProperty().bind(controlServerButton.selectedProperty().not());
 		controlServerButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
 		controlStudioButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
 		{
@@ -159,6 +165,11 @@ public class DSEntryController extends BaseController implements DSEntry {
 	private void onSettingPropertiesButtonClick(final ActionEvent event) {
 		final DSPropertiesController controller = FXUtil.popup(DSPropertiesController.class, FXUtil.getStage(event));
 		controller.setDSSetting(dsSetting);
+	}
+
+	@FXML
+	private void onShowHelpButtonClick(final ActionEvent event) {
+		BrowserUtil.browse(dsSetting.getHelpUrl());
 	}
 
 	public void loadSetting(final DSSetting dsSetting) {

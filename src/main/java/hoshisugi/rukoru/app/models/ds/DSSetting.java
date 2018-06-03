@@ -218,6 +218,10 @@ public class DSSetting extends DBEntity {
 		return getStudioForWebUrl() + "publish/Studio.application";
 	}
 
+	public String getHelpUrl() {
+		return getStudioForWebUrl() + "doc/help/index_ja.html";
+	}
+
 	public String getServerId() {
 		return String.format("server(%s)", getId());
 	}
