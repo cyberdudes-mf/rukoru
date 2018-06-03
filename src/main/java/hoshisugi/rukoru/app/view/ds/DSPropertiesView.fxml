@@ -33,7 +33,7 @@
                   </HBox>
 						<TableView fx:id="tableView" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
 							<columns>
-								<TableColumn fx:id="isEnableColumn" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" sortable="false" text="Enable">
+								<TableColumn fx:id="enableColumn" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" sortable="false" text="Enable">
 									<cellValueFactory>
 										<PropertyValueFactory property="enable" />
 									</cellValueFactory>

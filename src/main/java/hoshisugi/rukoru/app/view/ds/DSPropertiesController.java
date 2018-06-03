@@ -2,15 +2,14 @@ package hoshisugi.rukoru.app.view.ds;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Stream;
 
-import hoshisugi.rukoru.app.enums.DSProperties;
-import hoshisugi.rukoru.app.models.ds.DSProperty;
-import hoshisugi.rukoru.app.models.ds.DSPropertyManager;
+import hoshisugi.rukoru.app.enums.DSPropertiesGroup;
+import hoshisugi.rukoru.app.models.ds.DSProperties;
+import hoshisugi.rukoru.app.models.ds.DSPropertiesContent.Property;
+import hoshisugi.rukoru.app.models.ds.DSPropertiesTreeNode;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
@@ -19,6 +18,7 @@ import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -35,22 +35,22 @@ import javafx.scene.layout.VBox;
 public class DSPropertiesController extends BaseController {
 
 	@FXML
-	private TreeView<String> treeView;
+	private TreeView<DSPropertiesTreeNode> treeView;
 
 	@FXML
 	private VBox layoutRoot;
 
 	@FXML
-	private TableView<DSProperty> tableView;
+	private TableView<Property> tableView;
 
 	@FXML
-	private TableColumn<DSProperty, Boolean> isEnableColumn;
+	private TableColumn<Property, Boolean> enableColumn;
 
 	@FXML
-	private TableColumn<DSProperty, String> keyColumn;
+	private TableColumn<Property, String> keyColumn;
 
 	@FXML
-	private TableColumn<DSProperty, String> valueColumn;
+	private TableColumn<Property, String> valueColumn;
 
 	@FXML
 	private Button addButton;
@@ -61,47 +61,58 @@ public class DSPropertiesController extends BaseController {
 	@FXML
 	private Button CloseButton;
 
-	private DSSetting dsSetting;
-
-	private DSPropertyManager manager;
-
 	public void setDSSetting(final DSSetting dsSetting) {
-		this.dsSetting = dsSetting;
+		createTree(dsSetting);
 	}
 
 	@Override
 	public void initialize(final URL url, final ResourceBundle resource) {
-		createTree();
 		createTablePane();
 		addButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/add.png")));
 		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
 		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
 	}
 
-	private void createTree() {
-		final TreeItem<String> root = new TreeItem<>();
-		Stream.of(DSProperties.values()).map(s -> new TreeItem<>(s.getDisplayName())).forEach(root.getChildren()::add);
+	private void createTree(final DSSetting dsSetting) {
+		final TreeItem<DSPropertiesTreeNode> root = new TreeItem<>();
+		for (final DSPropertiesGroup group : DSPropertiesGroup.values()) {
+			final TreeItem<DSPropertiesTreeNode> groupNode = new TreeItem<>(group);
+			groupNode.setExpanded(true);
+			final ObservableList<TreeItem<DSPropertiesTreeNode>> children = groupNode.getChildren();
+			final List<DSProperties> files = group.loadFiles(dsSetting);
+			if (!files.isEmpty()) {
+				group.loadFiles(dsSetting).stream().map(TreeItem<DSPropertiesTreeNode>::new).forEach(children::add);
+				root.getChildren().add(groupNode);
+			}
+		}
 		treeView.setRoot(root);
 		treeView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
 	}
 
 	private void createTablePane() {
 		layoutRoot.visibleProperty().bind(treeView.getSelectionModel().selectedItemProperty().isNotNull());
-		isEnableColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isEnableColumn));
+		enableColumn.setCellFactory(CheckBoxTableCell.forTableColumn(enableColumn));
 		keyColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 	}
 
 	@FXML
 	private void onAddButtonClick(final ActionEvent event) {
-		tableView.getItems().add(manager.addProperty("#", "new", ""));
+		final Optional<DSProperties> properties = getSelectedProperties();
+		properties.ifPresent(p -> {
+			final Property item = p.add("key", "value");
+			tableView.getItems().add(item);
+		});
 	}
 
 	@FXML
 	private void onDeleteButtonClick(final ActionEvent event) {
-		final DSProperty item = tableView.getSelectionModel().getSelectedItem();
-		manager.deleteProperty(item.getArticle());
-		tableView.getItems().remove(item);
+		final Property item = tableView.getSelectionModel().getSelectedItem();
+		final Optional<DSProperties> properties = getSelectedProperties();
+		properties.ifPresent(p -> {
+			p.remove(item.getKey());
+			tableView.getItems().remove(item);
+		});
 	}
 
 	@FXML
@@ -120,33 +131,40 @@ public class DSPropertiesController extends BaseController {
 		close(event);
 	}
 
-	private void loadProperties(final String properties) throws IOException {
-		final Optional<String> path = Optional.ofNullable(DSProperties.of(properties).getPath());
+	private void loadProperties(final DSProperties properties) throws IOException {
 		try {
-			manager = new DSPropertyManager(Paths.get(dsSetting.getExecutionPath(), path.get()));
-			final List<DSProperty> list = manager.load();
-			tableView.getItems().setAll(list);
+			final List<Property> items = properties.loadProperties();
+			tableView.getItems().setAll(items);
 		} catch (final IOException e) {
 			layoutRoot.setVisible(false);
 			DialogUtil.showWarningDialog(properties + "が見つかりませんでした。");
 		}
 	}
 
-	private void onSelectedItemChanged(final ObservableValue<? extends TreeItem<String>> observable,
-			final TreeItem<String> oldValue, final TreeItem<String> newValue) {
+	private void onSelectedItemChanged(final ObservableValue<? extends TreeItem<DSPropertiesTreeNode>> observable,
+			final TreeItem<DSPropertiesTreeNode> oldValue, final TreeItem<DSPropertiesTreeNode> newValue) {
 		if (newValue != null) {
-			ConcurrentUtil.run(() -> loadProperties(newValue.getValue()));
+			final DSPropertiesTreeNode node = newValue.getValue();
+			if (node instanceof DSProperties) {
+				ConcurrentUtil.run(() -> loadProperties((DSProperties) node));
+			}
 		}
 	}
 
 	private void apply() {
-		if (!treeView.getSelectionModel().isEmpty()) {
-			ConcurrentUtil.run(manager::save);
-		}
+		getSelectedProperties().ifPresent(p -> ConcurrentUtil.run(p::save));
 	}
 
 	private void close(final ActionEvent event) {
 		FXUtil.getStage(event).close();
 	}
 
+	private Optional<DSProperties> getSelectedProperties() {
+		final DSPropertiesTreeNode node = treeView.getSelectionModel().getSelectedItem().getValue();
+		if (node instanceof DSProperties) {
+			return Optional.of((DSProperties) node);
+		} else {
+			return Optional.empty();
+		}
+	}
 }
