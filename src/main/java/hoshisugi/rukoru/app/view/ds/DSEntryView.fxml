@@ -16,29 +16,39 @@
 	<panes>
 		<TitledPane fx:id="titledPane" animated="true" minHeight="-Infinity" minWidth="-Infinity">
 			<graphic>
-				<HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0">
+				<HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0">
 					<children>
 						<Button fx:id="openHomeButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onOpenHomeButtonClick">
 							<HBox.margin>
 								<Insets />
 							</HBox.margin>
 						</Button>
-						<Label fx:id="name" maxWidth="1.7976931348623157E308" prefWidth="300.0" />
-						<ToggleButton fx:id="controlServerButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onControlServerButtonClick" text="Server" HBox.hgrow="ALWAYS">
+						<Label fx:id="name" maxWidth="1.7976931348623157E308" minWidth="350.0" HBox.hgrow="ALWAYS" />
+						<ToggleButton fx:id="controlServerButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onControlServerButtonClick" prefWidth="90.0" text="Server" HBox.hgrow="ALWAYS">
 							<HBox.margin>
 								<Insets />
 							</HBox.margin>
 						</ToggleButton>
-						<ToggleButton fx:id="controlStudioButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onControlStudioButtonClick" text="Studio" HBox.hgrow="ALWAYS">
+						<ToggleButton fx:id="controlStudioButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onControlStudioButtonClick" prefWidth="90.0" text="Studio" HBox.hgrow="ALWAYS">
 							<HBox.margin>
 								<Insets />
 							</HBox.margin>
 						</ToggleButton>
-						<ToggleButton fx:id="controlAllButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onControlAllButtonClick" text="Server &amp; Studio" HBox.hgrow="ALWAYS">
+						<ToggleButton fx:id="controlAllButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onControlAllButtonClick" prefWidth="90.0" text="Both" HBox.hgrow="ALWAYS">
 							<HBox.margin>
 								<Insets />
 							</HBox.margin>
 						</ToggleButton>
+                  <Button fx:id="showHelpButton" mnemonicParsing="false" onAction="#onShowHelpButtonClick">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="settingPropertiesButton" mnemonicParsing="false" onAction="#onSettingPropertiesButtonClick">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </Button>
                   <HBox alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                      <children>
                         <TextField fx:id="port" maxWidth="1.7976931348623157E308" prefWidth="50.0" />
