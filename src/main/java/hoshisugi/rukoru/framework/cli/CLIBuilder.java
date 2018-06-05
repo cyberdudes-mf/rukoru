@@ -2,6 +2,7 @@ package hoshisugi.rukoru.framework.cli;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -21,6 +22,11 @@ public class CLIBuilder {
 
 	public CLIBuilder directory(final Path directory) {
 		parameter.setDirectory(directory.toFile());
+		return this;
+	}
+
+	public CLIBuilder env(final Consumer<Map<String, String>> consumer) {
+		parameter.setEnv(consumer);
 		return this;
 	}
 

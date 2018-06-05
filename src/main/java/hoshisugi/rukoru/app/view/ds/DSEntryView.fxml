@@ -49,7 +49,6 @@
                         <Insets />
                      </HBox.margin>
                   </Button>
-                  <Button fx:id="startConsoleButton" mnemonicParsing="false" onAction="#onStartConsoleButtonClick" />
                   <HBox alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                      <children>
                         <TextField fx:id="port" maxWidth="1.7976931348623157E308" prefWidth="50.0" />

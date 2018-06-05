@@ -2,6 +2,7 @@ package hoshisugi.rukoru.framework.cli;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -11,6 +12,7 @@ class CLIParameter {
 	private final String command;
 	private Collection<String> options;
 	private File directory;
+	private Consumer<Map<String, String>> env;
 	private long timeout;
 	private TimeUnit timeoutUnit;
 	private Predicate<String> successCondition;
@@ -47,6 +49,14 @@ class CLIParameter {
 
 	void setDirectory(final File directory) {
 		this.directory = directory;
+	}
+
+	public void setEnv(final Consumer<Map<String, String>> env) {
+		this.env = env;
+	}
+
+	public Consumer<Map<String, String>> getEnv() {
+		return env;
 	}
 
 	void timeout(final long timeout, final TimeUnit timeoutUnit) {
