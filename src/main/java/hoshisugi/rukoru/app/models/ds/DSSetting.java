@@ -54,7 +54,7 @@ public class DSSetting extends DBEntity {
 		try {
 			setId(rs.getInt("id"));
 			setName(rs.getString("name"));
-			setExecutionPath(rs.getString("executionPath"));
+			setExecutionPath(rs.getString("executionpath"));
 			setExecutionType(ExecutionType.of(rs.getString("executiontype")));
 			setStudioMode(StudioMode.of(rs.getString("studiomode")));
 			setCreatedAt(rs.getTimestamp("created_at"));
