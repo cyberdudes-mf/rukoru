@@ -4,6 +4,7 @@ import static hoshisugi.rukoru.framework.util.AssetUtil.getImage;
 import static javafx.beans.binding.Bindings.when;
 
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 import com.google.inject.Inject;
@@ -86,6 +87,9 @@ public class DSEntryController extends BaseController implements DSEntry {
 	@FXML
 	private Button showHelpButton;
 
+	@FXML
+	private Button startConsoleButton;
+
 	@Inject
 	private DSService service;
 
@@ -107,6 +111,7 @@ public class DSEntryController extends BaseController implements DSEntry {
 		settingPropertiesButton.setGraphic(new ImageView(getImage("32x32/gear.png")));
 		showHelpButton.setGraphic(new ImageView(getImage("32x32/help.png")));
 		showHelpButton.disableProperty().bind(controlServerButton.selectedProperty().not());
+		startConsoleButton.setGraphic(new ImageView(getImage("32x32/console.png")));
 		controlServerButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
 		controlStudioButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
 		{
@@ -170,6 +175,11 @@ public class DSEntryController extends BaseController implements DSEntry {
 	@FXML
 	private void onShowHelpButtonClick(final ActionEvent event) {
 		BrowserUtil.browse(dsSetting.getHelpUrl());
+	}
+
+	@FXML
+	private void onStartConsoleButtonClick(final ActionEvent event) {
+		CLI.command("start").options("cmd").directory(Paths.get(dsSetting.getExecutionPath())).execute();
 	}
 
 	public void loadSetting(final DSSetting dsSetting) {
