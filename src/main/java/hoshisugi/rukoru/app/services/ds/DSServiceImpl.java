@@ -205,7 +205,7 @@ public class DSServiceImpl extends BaseService implements DSService {
 		getJavaHome(dsSetting).ifPresent(p -> builder.env(e -> {
 			e.put("JAVA_HOME", p.toString());
 			final Path binPath = getJavaBinPath(dsSetting).get();
-			e.put("PATH", binPath.toString() + ";" + e.get("PATH"));
+			e.put("PATH", binPath.toString() + ";" + System.getenv("PATH"));
 		}));
 		builder.execute();
 	}
