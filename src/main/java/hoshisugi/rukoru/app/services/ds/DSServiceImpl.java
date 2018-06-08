@@ -314,8 +314,8 @@ public class DSServiceImpl extends BaseService implements DSService {
 	private Optional<Path> getJavaHome(final DSSetting setting) {
 		final Path setenv = setting.getPath("client/bin/setenv.bat");
 		try (final Stream<String> lines = Files.lines(setenv)) {
-			final Pattern pattern = Pattern.compile(".*JAVA_HOME=(.*)");
-			return lines.map(pattern::matcher).filter(Matcher::matches).map(m -> m.group(1)).map(Paths::get)
+			final Pattern pattern = Pattern.compile(".*JAVA_HOME=(?<javahome>.*)");
+			return lines.map(pattern::matcher).filter(Matcher::matches).map(m -> m.group("javahome")).map(Paths::get)
 					.findFirst();
 		} catch (final Exception e) {
 		}

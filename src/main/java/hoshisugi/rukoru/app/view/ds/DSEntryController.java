@@ -93,7 +93,7 @@ public class DSEntryController extends BaseController implements DSEntry {
 	private Button showHelpButton;
 
 	@Inject
-	private DSService dsSservice;
+	private DSService dsService;
 
 	@Inject
 	private LocalSettingService settingService;
@@ -167,7 +167,7 @@ public class DSEntryController extends BaseController implements DSEntry {
 	@FXML
 	private void onChangePortButtonClick(final ActionEvent event) {
 		ConcurrentUtil.run(() -> {
-			dsSservice.changePort(dsSetting, port.getText());
+			dsService.changePort(dsSetting, port.getText());
 			Platform.runLater(() -> FXUtil.showTooltip("ポートを変更しました。", event));
 		});
 	}
@@ -184,7 +184,7 @@ public class DSEntryController extends BaseController implements DSEntry {
 	}
 
 	private void onStartConsoleButtonClick(final ActionEvent event) {
-		dsSservice.startConsole(dsSetting);
+		dsService.startConsole(dsSetting);
 	}
 
 	public void loadSetting(final DSSetting dsSetting) {
@@ -193,8 +193,8 @@ public class DSEntryController extends BaseController implements DSEntry {
 			port.setText(dsSetting.getPort());
 			controlServerButton.setDisable(!dsSetting.isServerInstalled());
 			controlStudioButton.setDisable(!dsSetting.isStudioInstalled());
-			controlServerButton.setSelected(dsSservice.isServerRunning(dsSetting));
-			controlStudioButton.setSelected(dsSservice.isStudioRunning(dsSetting));
+			controlServerButton.setSelected(dsService.isServerRunning(dsSetting));
+			controlStudioButton.setSelected(dsService.isStudioRunning(dsSetting));
 			port.setDisable(!dsSetting.isServerInstalled());
 			changePortButton.setDisable(!dsSetting.isStudioInstalled());
 			settingPropertiesButton.setDisable(!dsSetting.isServerInstalled());

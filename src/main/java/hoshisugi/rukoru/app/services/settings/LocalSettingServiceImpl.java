@@ -25,6 +25,7 @@ import hoshisugi.rukoru.framework.database.builder.Column;
 import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
 import hoshisugi.rukoru.framework.database.builder.DeleteBuilder;
 import hoshisugi.rukoru.framework.database.builder.InsertBuilder;
+import jersey.repackaged.com.google.common.base.Objects;
 
 public class LocalSettingServiceImpl extends BaseService implements LocalSettingService {
 
@@ -164,9 +165,11 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 				h2.create(CreateBuilder.table("ds_settings_sequence"));
 				h2.create(CreateBuilder.table("ds_settings"));
 			}
-			deleteDSSettings(h2, settings);
-			updateDSSettings(h2, settings);
-			insertDSSettings(h2, settings);
+			final Map<String, List<DSSetting>> stateMap = settings.stream()
+					.collect(Collectors.groupingBy(DSSetting::getState));
+			deleteDSSettings(h2, stateMap.get("Delete"));
+			updateDSSettings(h2, stateMap.get("Update"));
+			insertDSSettings(h2, stateMap.get("Insert"));
 		}
 	}
 
@@ -181,17 +184,14 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	private void deleteDSSettings(final H2Database h2, final List<DSSetting> settings) throws SQLException {
-		final List<DSSetting> deleteSettings = settings.stream().filter(t -> t.getState().equals("Delete"))
-				.collect(Collectors.toList());
-		for (final DSSetting setting : deleteSettings) {
-			h2.delete(DeleteBuilder.from("ds_settings").where($("id", setting.getId() != null ? setting.getId() : 0)));
+		for (final DSSetting setting : settings) {
+			final Integer id = Objects.firstNonNull(setting.getId(), 0);
+			h2.delete(DeleteBuilder.from("ds_settings").where($("id", id)));
 		}
 	}
 
 	private void updateDSSettings(final H2Database h2, final List<DSSetting> settings) throws SQLException {
-		final List<DSSetting> updateSettings = settings.stream().filter(t -> t.getState().equals("Update"))
-				.collect(Collectors.toList());
-		for (final DSSetting setting : updateSettings) {
+		for (final DSSetting setting : settings) {
 			h2.update(table("ds_settings")
 					.set($("name", setting.getName()), $("executionpath", setting.getExecutionPath()),
 							$("executiontype", setting.getExecutionType().getId()),
@@ -201,9 +201,7 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	private void insertDSSettings(final H2Database h2, final List<DSSetting> settings) throws SQLException {
-		final List<DSSetting> insertSettings = settings.stream().filter(t -> t.getState().equals("Insert"))
-				.collect(Collectors.toList());
-		for (final DSSetting setting : insertSettings) {
+		for (final DSSetting setting : settings) {
 			setting.setId(h2.find(from("ds_settings_sequence"), this::getInt).get());
 			h2.insert(into("ds_settings").values($("id", setting.getId()), $("name", setting.getName()),
 					$("executionpath", setting.getExecutionPath()),
