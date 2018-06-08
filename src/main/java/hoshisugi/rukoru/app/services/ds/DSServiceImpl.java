@@ -198,6 +198,18 @@ public class DSServiceImpl extends BaseService implements DSService {
 		return Files.exists(dsSetting.getPath("client/bin/.lock"));
 	}
 
+	@Override
+	public void startConsole(final DSSetting dsSetting) {
+		final CLIBuilder builder = CLI.command("start").options("cmd")
+				.directory(Paths.get(dsSetting.getExecutionPath()));
+		getJavaHome(dsSetting).ifPresent(p -> builder.env(e -> {
+			e.put("JAVA_HOME", p.toString());
+			final Path binPath = getJavaBinPath(dsSetting).get();
+			e.put("PATH", binPath.toString() + ";" + System.getenv("PATH"));
+		}));
+		builder.execute();
+	}
+
 	private Optional<Netstat> getServerBatProcess(final DSSetting dsSetting) throws IOException {
 		final CLIState netstatState = CLI.command("netstat")
 				.options("-aon", "|", "find", String.format("\"0.0.0.0:%s\"", dsSetting.getPort())).execute();
@@ -299,16 +311,21 @@ public class DSServiceImpl extends BaseService implements DSService {
 		callback.accept(cliState);
 	}
 
-	private Optional<Path> getJavaBinPath(final DSSetting setting) {
+	private Optional<Path> getJavaHome(final DSSetting setting) {
 		final Path setenv = setting.getPath("client/bin/setenv.bat");
 		try (final Stream<String> lines = Files.lines(setenv)) {
-			final Pattern pattern = Pattern.compile(".*JAVA_HOME=(.*)");
-			final Optional<String> javaHome = lines.map(pattern::matcher).filter(Matcher::matches).map(m -> m.group(1))
+			final Pattern pattern = Pattern.compile(".*JAVA_HOME=(?<javahome>.*)");
+			return lines.map(pattern::matcher).filter(Matcher::matches).map(m -> m.group("javahome")).map(Paths::get)
 					.findFirst();
-			if (javaHome.isPresent()) {
-				return Optional.of(Paths.get(javaHome.get()).resolve("bin"));
-			}
 		} catch (final Exception e) {
+		}
+		return Optional.empty();
+	}
+
+	private Optional<Path> getJavaBinPath(final DSSetting setting) {
+		final Optional<Path> javaHome = getJavaHome(setting);
+		if (javaHome.isPresent()) {
+			return Optional.of(javaHome.get().resolve("bin"));
 		}
 		return Optional.empty();
 	}
@@ -395,5 +412,4 @@ public class DSServiceImpl extends BaseService implements DSService {
 		}
 
 	}
-
 }
