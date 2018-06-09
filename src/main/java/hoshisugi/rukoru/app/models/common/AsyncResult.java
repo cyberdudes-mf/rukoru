@@ -1,9 +1,14 @@
 package hoshisugi.rukoru.app.models.common;
 
+import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Doing;
+import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Done;
+import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Error;
+import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Ready;
 import static javafx.beans.binding.DoubleExpression.doubleExpression;
 
 import java.util.concurrent.CountDownLatch;
 
+import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -17,43 +22,49 @@ import javafx.beans.property.StringProperty;
 public class AsyncResult {
 
 	public enum Status {
-		Ready, Doing, Done;
+		Ready, Doing, Done, Error;
 	}
 
 	private final ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper(this, "progress");
 
-	private final LongProperty size = new SimpleLongProperty(this, "size");
+	private final LongProperty total = new SimpleLongProperty(this, "total");
 
-	private final LongProperty bytes = new SimpleLongProperty(this, "bytes");
+	private final LongProperty current = new SimpleLongProperty(this, "current");
 
 	private final StringProperty name = new SimpleStringProperty(this, "name");
 
 	private Throwable thrown;
 
-	private Status status = Status.Ready;
+	private Status status = Ready;
 
 	private final CountDownLatch latch = new CountDownLatch(1);
 
-	public void addBytes(final int bytes) {
-		this.bytes.set(this.bytes.get() + bytes);
+	public void addCurrent(final int current) {
+		if (status != Doing) {
+			setStatus(Doing);
+		}
+		this.current.set(this.current.get() + current);
+		if (progress.getValue() == 1.0) {
+			setStatus(Done);
+		}
 	}
 
-	public long getBytes() {
-		return bytes.get();
+	public long getCurrent() {
+		return current.get();
 	}
 
 	public double getProgress() {
 		return progress.get();
 	}
 
-	public long getSize() {
-		return size.get();
+	public long getTotal() {
+		return total.get();
 	}
 
-	public void setSize(final long size) {
-		this.size.set(size);
-		if (size != 0) {
-			progress.bind(Bindings.divide(doubleExpression(bytes), doubleExpression(this.size)));
+	public void setTotal(final long total) {
+		this.total.set(total);
+		if (total != 0) {
+			progress.bind(Bindings.divide(doubleExpression(current), doubleExpression(this.total)));
 		}
 	}
 
@@ -75,6 +86,7 @@ public class AsyncResult {
 
 	public void setThrown(final Throwable thrown) {
 		this.thrown = thrown;
+		setStatus(Error);
 	}
 
 	public Status getStatus() {
@@ -83,7 +95,7 @@ public class AsyncResult {
 
 	public void setStatus(final Status status) {
 		this.status = status;
-		if (status == Status.Done) {
+		if (status == Done || status == Error) {
 			latch.countDown();
 		}
 	}
@@ -97,5 +109,12 @@ public class AsyncResult {
 
 	public void waitFor() throws InterruptedException {
 		latch.await();
+	}
+
+	public void callback(final Runnable runnable) {
+		ConcurrentUtil.run(() -> {
+			waitFor();
+			Platform.runLater(runnable);
+		});
 	}
 }

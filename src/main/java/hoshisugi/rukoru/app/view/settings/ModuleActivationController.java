@@ -48,7 +48,7 @@ public class ModuleActivationController extends PreferenceControllerBase {
 	public void initialize(final URL arg0, final ResourceBundle arg1) {
 		for (final RukoruModule rukoruModule : RukoruModule.values()) {
 			final CheckBox checkBox = new CheckBox(rukoruModule.getDisplayName());
-			checkBox.setFont(new Font(15));
+			checkBox.setFont(new Font(12));
 			checkBox.setGraphic(new ImageView(AssetUtil.getImage(rukoruModule.getIconPath())));
 			if (rukoruModule.isHidden()) {
 				checkBox.visibleProperty().bind(Bindings.not(HiddenManager.hiddenProperty())

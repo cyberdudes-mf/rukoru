@@ -151,6 +151,11 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	@Override
+	public void savePreference(final Preference preference) throws SQLException {
+		savePreferences(Arrays.asList(preference));
+	}
+
+	@Override
 	public Optional<Preference> findPreference(final Preferences preference) throws SQLException {
 		try (H2Database h2 = new H2Database()) {
 			if (!h2.exists("PREFERENCES")) {
@@ -292,4 +297,5 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			throw new RuntimeException(e);
 		}
 	}
+
 }

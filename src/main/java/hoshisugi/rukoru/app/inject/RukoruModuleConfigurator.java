@@ -6,6 +6,8 @@ import hoshisugi.rukoru.app.services.ds.DSService;
 import hoshisugi.rukoru.app.services.ds.DSServiceImpl;
 import hoshisugi.rukoru.app.services.ec2.EC2Service;
 import hoshisugi.rukoru.app.services.ec2.EC2ServiceImpl;
+import hoshisugi.rukoru.app.services.excel.ExcelService;
+import hoshisugi.rukoru.app.services.excel.ExcelServiceImpl;
 import hoshisugi.rukoru.app.services.rds.RDSService;
 import hoshisugi.rukoru.app.services.rds.RDSServiceImpl;
 import hoshisugi.rukoru.app.services.redmine.RedmineService;
@@ -31,6 +33,7 @@ import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerMenuController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTableController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTreeController;
+import hoshisugi.rukoru.app.view.trace.ExcelTraceController;
 import hoshisugi.rukoru.app.view.video.VideoController;
 import hoshisugi.rukoru.framework.inject.ModuleConfigurator;
 
@@ -57,6 +60,7 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(S3ExplorerTableController.class);
 		provide(TaskboardController.class);
 		provide(VideoController.class);
+		provide(ExcelTraceController.class);
 	}
 
 	private void configureServices() {
@@ -68,5 +72,6 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		bind(RedmineService.class).toProvider(() -> new RedmineServiceImpl()).in(Singleton.class);
 		bind(DSService.class).toProvider(() -> new DSServiceImpl()).in(Singleton.class);
 		bind(VideoService.class).toProvider(() -> new S3VideoServiceImpl()).in(Singleton.class);
+		bind(ExcelService.class).toProvider(() -> new ExcelServiceImpl()).in(Singleton.class);
 	}
 }

@@ -2,7 +2,6 @@ package hoshisugi.rukoru.app.view.settings;
 
 import static hoshisugi.rukoru.app.enums.ExecutionType.SERVICE;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -15,6 +14,7 @@ import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.controls.PropertyListCell;
 import hoshisugi.rukoru.framework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.ChooserUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,7 +22,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.stage.DirectoryChooser;
 
 @FXController(title = "登録")
 public class EntryDSController extends BaseController {
@@ -58,10 +57,9 @@ public class EntryDSController extends BaseController {
 
 	@FXML
 	private void onDirectoryChooserButtonClick(final ActionEvent event) {
-		final File file = new DirectoryChooser().showDialog(FXUtil.getStage(event));
-		if (file != null) {
-			executionPath.setText(file.getAbsolutePath());
-		}
+		ChooserUtil.showDirectoryDialog(FXUtil.getStage(event)).ifPresent(p -> {
+			executionPath.setText(p.toFile().getAbsolutePath());
+		});
 	}
 
 	public void setOnOkButtonClick(final Consumer<DSSetting> consumer) {

@@ -1,7 +1,5 @@
 package hoshisugi.rukoru.framework.util;
 
-import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Doing;
-import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Done;
 import static java.nio.file.StandardOpenOption.CREATE;
 
 import java.io.BufferedOutputStream;
@@ -84,20 +82,17 @@ public class IOUtil {
 		ConcurrentUtil.run(() -> {
 			final ContentInfo content = contentSupplier.get();
 			result.setName(destination.getFileName().toString());
-			result.setSize(content.getContentLength());
+			result.setTotal(content.getContentLength());
 			final byte[] buff = new byte[1048576];
 			try (InputStream input = content.getInputStream();
 					OutputStream output = new BufferedOutputStream(Files.newOutputStream(destination, CREATE))) {
-				result.setStatus(Doing);
 				int read;
 				while ((read = input.read(buff)) >= 0) {
 					output.write(buff, 0, read);
-					result.addBytes(read);
+					result.addCurrent(read);
 				}
 			} catch (final Throwable e) {
 				result.setThrown(e);
-			} finally {
-				result.setStatus(Done);
 			}
 		});
 		return result;

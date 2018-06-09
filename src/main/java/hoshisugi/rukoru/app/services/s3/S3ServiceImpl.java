@@ -2,8 +2,6 @@ package hoshisugi.rukoru.app.services.s3;
 
 import static com.amazonaws.regions.Regions.AP_NORTHEAST_1;
 import static com.amazonaws.services.s3.model.CannedAccessControlList.PublicRead;
-import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Doing;
-import static hoshisugi.rukoru.app.models.common.AsyncResult.Status.Done;
 import static hoshisugi.rukoru.app.models.s3.S3Item.DELIMITER;
 import static hoshisugi.rukoru.framework.event.ShutdownHandler.isShuttingDown;
 import static java.nio.file.StandardOpenOption.READ;
@@ -135,12 +133,11 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 
 		final UploadObjectResult result = new UploadObjectResult();
 		result.setName(path.getFileName().toString());
-		result.setSize(metadata.getContentLength());
+		result.setTotal(metadata.getContentLength());
 
 		ConcurrentUtil.run(() -> {
 			try (InputStream input = new BufferedInputStream(
-					new MonitorInputStream(Files.newInputStream(path, READ), result::addBytes))) {
-				result.setStatus(Doing);
+					new MonitorInputStream(Files.newInputStream(path, READ), result::addCurrent))) {
 				client.putObject(bucketName, key, input, metadata);
 				listObjects(client, bucketName, key, l -> {
 					final S3Object object = l.getObjectSummaries().stream().filter(this::isObject).map(S3Object::new)
@@ -149,8 +146,6 @@ public class S3ServiceImpl extends BaseService implements S3Service {
 				});
 			} catch (final Throwable e) {
 				result.setThrown(e);
-			} finally {
-				result.setStatus(Done);
 			}
 		});
 		return result;
