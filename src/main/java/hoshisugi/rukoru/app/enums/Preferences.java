@@ -6,6 +6,7 @@ public enum Preferences {
 	RedminePassword("Redmine", "password", null),
 	RedmineDefaultProject("Redmine", "defaultProject", null),
 	RedmineDefaultVersion("Redmine", "defaultVersion", null),
+	DSSettingShowConsole("DSSetting", "showConsole", null),
 	DirectorySelection("FileSelection", "directory", null),
 	;
 

@@ -13,12 +13,14 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
@@ -32,6 +34,7 @@ class CLIExecutor {
 		final ProcessBuilder builder = new ProcessBuilder();
 		setCommand(builder, parameter);
 		setDirectory(builder, parameter);
+		setEnv(builder, parameter);
 		return runProcess(builder, parameter);
 	}
 
@@ -79,6 +82,13 @@ class CLIExecutor {
 		final File directory = parameter.getDirectory();
 		if (directory != null) {
 			builder.directory(directory);
+		}
+	}
+
+	private static void setEnv(final ProcessBuilder builder, final CLIParameter parameter) {
+		final Consumer<Map<String, String>> env = parameter.getEnv();
+		if (env != null) {
+			env.accept(builder.environment());
 		}
 	}
 

@@ -1,5 +1,9 @@
 package hoshisugi.rukoru.app.view.settings;
 
+import static hoshisugi.rukoru.app.enums.Preferences.DSSettingShowConsole;
+import static java.lang.Boolean.FALSE;
+import static java.util.Arrays.asList;
+
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -12,6 +16,7 @@ import hoshisugi.rukoru.app.enums.DSSettingOperation;
 import hoshisugi.rukoru.app.enums.ExecutionType;
 import hoshisugi.rukoru.app.enums.StudioMode;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
+import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ds.DSContentController;
 import hoshisugi.rukoru.framework.annotations.FXController;
@@ -21,6 +26,7 @@ import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -31,9 +37,11 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
+import javafx.util.converter.BooleanStringConverter;
 
 @FXController(title = "DSSetting")
 public class DSSettingsController extends PreferenceControllerBase {
@@ -46,6 +54,9 @@ public class DSSettingsController extends PreferenceControllerBase {
 
 	@FXML
 	private Button deleteButton;
+
+	@FXML
+	private ToggleButton showConsoleButton;
 
 	@FXML
 	private TableView<DSSetting> tableView;
@@ -62,6 +73,8 @@ public class DSSettingsController extends PreferenceControllerBase {
 	@FXML
 	private TableColumn<DSSetting, StudioMode> studioModeColumn;
 
+	private Preference showConsole;
+
 	private final ObservableList<DSSetting> dssettings = FXCollections.observableArrayList();
 
 	private final FilteredList<DSSetting> items = new FilteredList<>(dssettings,
@@ -72,6 +85,7 @@ public class DSSettingsController extends PreferenceControllerBase {
 		createButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/add.png")));
 		deleteButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/delete.png")));
 		deleteButton.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
+		showConsoleButton.setGraphic(new ImageView(AssetUtil.getImage("24x24/console.png")));
 		nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		executionPathColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		executionTypeColumn.setCellFactory(ComboBoxTableCell.forTableColumn(ExecutionType.values()));
@@ -85,6 +99,12 @@ public class DSSettingsController extends PreferenceControllerBase {
 		ConcurrentUtil.run(() -> {
 			dssettings.clear();
 			dssettings.addAll(service.loadDSSettings());
+			showConsole = service.findPreference(DSSettingShowConsole)
+					.orElseGet(() -> new Preference(DSSettingShowConsole.category(), DSSettingShowConsole.key(),
+							FALSE.toString()));
+			showConsoleButton.setSelected(Boolean.parseBoolean(showConsole.getValue()));
+			Bindings.bindBidirectional(showConsole.valueProperty(), showConsoleButton.selectedProperty(),
+					new BooleanStringConverter());
 		});
 	}
 
@@ -111,6 +131,7 @@ public class DSSettingsController extends PreferenceControllerBase {
 	public void apply() {
 		final Predicate<DSSetting> p = t -> t.getState() == "Delete";
 		ConcurrentUtil.run(() -> {
+			service.savePreferences(asList(showConsole));
 			service.saveDSSettings(dssettings);
 			dssettings.removeAll(dssettings.filtered(p));
 			dssettings.forEach(s -> s.setState(DSSettingOperation.Update));
