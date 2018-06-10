@@ -1,5 +1,6 @@
 package hoshisugi.rukoru.app.view.ds;
 
+import static hoshisugi.rukoru.app.enums.Preferences.DSSettingShowConsole;
 import static hoshisugi.rukoru.framework.util.AssetUtil.getImage;
 import static javafx.beans.binding.Bindings.when;
 
@@ -12,7 +13,9 @@ import hoshisugi.rukoru.app.models.ds.DSEntry;
 import hoshisugi.rukoru.app.models.ds.DSLogWriter;
 import hoshisugi.rukoru.app.models.ds.DSManager;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
+import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.ds.DSService;
+import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.cli.CLI;
 import hoshisugi.rukoru.framework.util.AssetUtil;
@@ -22,8 +25,10 @@ import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -35,6 +40,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 
 public class DSEntryController extends BaseController implements DSEntry {
 
@@ -87,7 +93,12 @@ public class DSEntryController extends BaseController implements DSEntry {
 	private Button showHelpButton;
 
 	@Inject
-	private DSService service;
+	private DSService dsService;
+
+	@Inject
+	private LocalSettingService settingService;
+
+	private final Button showConsoleButton = new Button();
 
 	private DSSetting dsSetting;
 
@@ -107,15 +118,15 @@ public class DSEntryController extends BaseController implements DSEntry {
 		settingPropertiesButton.setGraphic(new ImageView(getImage("32x32/gear.png")));
 		showHelpButton.setGraphic(new ImageView(getImage("32x32/help.png")));
 		showHelpButton.disableProperty().bind(controlServerButton.selectedProperty().not());
+		showConsoleButton.setGraphic(new ImageView(getImage("32x32/console.png")));
+		showConsoleButton.setOnAction(this::onStartConsoleButtonClick);
 		controlServerButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
 		controlStudioButton.selectedProperty().addListener(this::onSelectedPropertyCahnged);
-		{
-			final BooleanBinding selected = controlServerButton.selectedProperty()
-					.isNotEqualTo(controlStudioButton.selectedProperty());
-			final BooleanBinding disabled = controlServerButton.disableProperty()
-					.or(controlStudioButton.disableProperty());
-			controlAllButton.disableProperty().bind(selected.or(disabled));
-		}
+
+		final BooleanBinding selected = controlServerButton.selectedProperty()
+				.isNotEqualTo(controlStudioButton.selectedProperty());
+		final BooleanBinding disabled = controlServerButton.disableProperty().or(controlStudioButton.disableProperty());
+		controlAllButton.disableProperty().bind(selected.or(disabled));
 	}
 
 	@FXML
@@ -156,7 +167,7 @@ public class DSEntryController extends BaseController implements DSEntry {
 	@FXML
 	private void onChangePortButtonClick(final ActionEvent event) {
 		ConcurrentUtil.run(() -> {
-			service.changePort(dsSetting, port.getText());
+			dsService.changePort(dsSetting, port.getText());
 			Platform.runLater(() -> FXUtil.showTooltip("ポートを変更しました。", event));
 		});
 	}
@@ -172,19 +183,44 @@ public class DSEntryController extends BaseController implements DSEntry {
 		BrowserUtil.browse(dsSetting.getHelpUrl());
 	}
 
+	private void onStartConsoleButtonClick(final ActionEvent event) {
+		dsService.startConsole(dsSetting);
+	}
+
 	public void loadSetting(final DSSetting dsSetting) {
 		Platform.runLater(() -> {
 			name.setText(dsSetting.getName());
 			port.setText(dsSetting.getPort());
 			controlServerButton.setDisable(!dsSetting.isServerInstalled());
 			controlStudioButton.setDisable(!dsSetting.isStudioInstalled());
-			controlServerButton.setSelected(service.isServerRunning(dsSetting));
-			controlStudioButton.setSelected(service.isStudioRunning(dsSetting));
+			controlServerButton.setSelected(dsService.isServerRunning(dsSetting));
+			controlStudioButton.setSelected(dsService.isStudioRunning(dsSetting));
 			port.setDisable(!dsSetting.isServerInstalled());
 			changePortButton.setDisable(!dsSetting.isStudioInstalled());
 			settingPropertiesButton.setDisable(!dsSetting.isServerInstalled());
 		});
+		showConsoleButtonIfEnabled();
 		this.dsSetting = dsSetting;
+	}
+
+	private void showConsoleButtonIfEnabled() {
+		ConcurrentUtil.run(() -> {
+			final Boolean showConsole = settingService.findPreference(DSSettingShowConsole).map(Preference::getValue)
+					.map(Boolean::parseBoolean).orElse(false);
+			final HBox parent = (HBox) titledPane.getGraphic();
+			final ObservableList<Node> children = parent.getChildren();
+			Platform.runLater(() -> {
+				if (showConsole) {
+					if (!children.contains(showConsoleButton)) {
+						children.add(children.indexOf(port.getParent()), showConsoleButton);
+					}
+				} else {
+					if (children.contains(showConsoleButton)) {
+						parent.getChildren().remove(showConsoleButton);
+					}
+				}
+			});
+		});
 	}
 
 	private void onSelectedPropertyCahnged(final ObservableValue<? extends Boolean> observable, final Boolean oldValue,

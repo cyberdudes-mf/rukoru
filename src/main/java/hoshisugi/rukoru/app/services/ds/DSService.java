@@ -38,4 +38,6 @@ public interface DSService {
 	boolean isServerRunning(DSSetting dsSetting);
 
 	boolean isStudioRunning(DSSetting dsSetting);
+
+	void startConsole(DSSetting dsSetting);
 }
