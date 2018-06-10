@@ -11,6 +11,7 @@ import hoshisugi.rukoru.app.models.ds.DSSetting;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
+import hoshisugi.rukoru.app.models.settings.S3VideoCredential;
 
 public interface LocalSettingService {
 
@@ -31,4 +32,10 @@ public interface LocalSettingService {
 	Optional<Preference> findPreference(Preferences preference) throws SQLException;
 
 	void savePreferences(Collection<Preference> preferences) throws SQLException;
+
+	void savePreference(Preference preference) throws SQLException;
+
+	Optional<S3VideoCredential> loadS3VideoCredential() throws SQLException;
+
+	void saveS3VideoCredential(S3VideoCredential credential) throws Exception;
 }

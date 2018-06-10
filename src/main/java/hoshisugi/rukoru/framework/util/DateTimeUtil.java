@@ -13,6 +13,10 @@ public class DateTimeUtil {
 		return ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 	}
 
+	public static Date toDate(final ZonedDateTime dateTime) {
+		return Date.from(dateTime.toInstant());
+	}
+
 	public static String toString(final Date date) {
 		return formatter.format(toDateTime(date));
 	}

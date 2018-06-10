@@ -2,11 +2,18 @@ package hoshisugi.rukoru.app.view.s3;
 
 import static hoshisugi.rukoru.app.models.s3.S3Item.DELIMITER;
 import static hoshisugi.rukoru.app.models.s3.S3Item.Type.Root;
+import static hoshisugi.rukoru.framework.util.ChooserUtil.ALL;
+import static hoshisugi.rukoru.framework.util.ChooserUtil.ARCHIVE;
+import static hoshisugi.rukoru.framework.util.ChooserUtil.HTML;
+import static hoshisugi.rukoru.framework.util.ChooserUtil.IMAGE;
+import static hoshisugi.rukoru.framework.util.ChooserUtil.TXT;
+import static hoshisugi.rukoru.framework.util.ChooserUtil.chooser;
 import static java.lang.Double.MAX_VALUE;
 import static javafx.scene.input.TransferMode.COPY;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -16,7 +23,7 @@ import com.google.common.net.UrlEscapers;
 import com.google.inject.Inject;
 import com.sun.javafx.scene.control.skin.TableColumnHeader;
 
-import hoshisugi.rukoru.app.models.s3.AsyncResult;
+import hoshisugi.rukoru.app.models.common.AsyncResult;
 import hoshisugi.rukoru.app.models.s3.S3Bucket;
 import hoshisugi.rukoru.app.models.s3.S3Clipboard;
 import hoshisugi.rukoru.app.models.s3.S3Folder;
@@ -50,8 +57,6 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 
 @SuppressWarnings("restriction")
 public class S3ExplorerTableController extends BaseController {
@@ -189,12 +194,8 @@ public class S3ExplorerTableController extends BaseController {
 			return;
 		}
 		final S3Item parent = explorer.getSelection().getSelectedItem();
-		final FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("ダウンロード");
-		final File selectedFile = fileChooser.showOpenDialog(FXUtil.getStage(event));
-		if (selectedFile != null) {
-			uploadFile(parent, selectedFile);
-		}
+		chooser().title("ダウンロード").extensions(TXT, IMAGE, HTML, ARCHIVE, ALL).showOpenDialog(FXUtil.getStage(event))
+				.ifPresent(p -> uploadFile(parent, p.toFile()));
 	}
 
 	private void uploadFile(final S3Item parent, final File selectedFile) {
@@ -204,20 +205,17 @@ public class S3ExplorerTableController extends BaseController {
 					selectedFile.toPath());
 			final ProgressBar progressBar = createProgressBar(result);
 			explorer.addBottom(progressBar);
-			ConcurrentUtil.run(() -> {
-				result.waitFor();
-				Platform.runLater(() -> {
-					explorer.removeBottom(progressBar);
-					if (result.checkResult()) {
-						final S3Item item = result.getItem();
-						final ObservableList<S3Item> items = parent.getItems();
-						if (items.contains(item)) {
-							items.remove(items.indexOf(item));
-						}
-						items.add(item);
-						tableView.refresh();
+			result.callback(() -> {
+				explorer.removeBottom(progressBar);
+				if (result.checkResult()) {
+					final S3Item item = result.getItem();
+					final ObservableList<S3Item> items = parent.getItems();
+					if (items.contains(item)) {
+						items.remove(items.indexOf(item));
 					}
-				});
+					items.add(item);
+					tableView.refresh();
+				}
 			});
 		} catch (final Exception e) {
 			DialogUtil.showErrorDialog(e);
@@ -229,25 +227,21 @@ public class S3ExplorerTableController extends BaseController {
 			return;
 		}
 		final S3Item item = getS3Item((MenuItem) event.getTarget());
-		final FileChooser fileChooser = createFileChooser("ダウンロード");
-		fileChooser.initialFileNameProperty().bind(item.nameProperty());
-		final File selectedFile = fileChooser.showSaveDialog(FXUtil.getStage(event));
-		if (selectedFile != null) {
+		final Optional<Path> selection = chooser().title("ダウンロード").initialFileName(item.getName()).extensions(ALL)
+				.showSaveDialog(FXUtil.getStage(event));
+		selection.ifPresent(s -> {
 			try {
-				final AsyncResult result = s3Service.downloadObject(item, selectedFile.toPath());
+				final AsyncResult result = s3Service.downloadObject(item, s);
 				final ProgressBar progressBar = createProgressBar(result);
 				explorer.addBottom(progressBar);
-				ConcurrentUtil.run(() -> {
-					result.waitFor();
-					Platform.runLater(() -> {
-						explorer.removeBottom(progressBar);
-						result.checkResult();
-					});
+				result.callback(() -> {
+					explorer.removeBottom(progressBar);
+					result.checkResult();
 				});
 			} catch (final Exception e) {
 				DialogUtil.showErrorDialog(e);
 			}
-		}
+		});
 	}
 
 	private ProgressBar createProgressBar(final AsyncResult result) {
@@ -256,16 +250,6 @@ public class S3ExplorerTableController extends BaseController {
 		progressBar.setPrefHeight(25);
 		progressBar.setMaxWidth(MAX_VALUE);
 		return progressBar;
-	}
-
-	private FileChooser createFileChooser(final String title) {
-		final FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle(title);
-		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text Files", "*.txt"),
-				new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
-				new ExtensionFilter("HTML Files", "*.html", "*.htm"),
-				new ExtensionFilter("Archive Files", "*.zip", ".gz", ".tar"), new ExtensionFilter("All Files", "*.*"));
-		return fileChooser;
 	}
 
 	private void onCreateBucketMenuAction(final ActionEvent event) {

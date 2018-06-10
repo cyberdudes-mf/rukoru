@@ -1,7 +1,5 @@
 package hoshisugi.rukoru.app.view.settings;
 
-import static java.lang.Boolean.TRUE;
-
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +8,7 @@ import java.util.ResourceBundle;
 import com.google.inject.Inject;
 
 import hoshisugi.rukoru.app.enums.RukoruModule;
+import hoshisugi.rukoru.app.models.hidden.HiddenManager;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.ContentController;
@@ -19,6 +18,7 @@ import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.image.ImageView;
@@ -47,9 +47,13 @@ public class ModuleActivationController extends PreferenceControllerBase {
 	@Override
 	public void initialize(final URL arg0, final ResourceBundle arg1) {
 		for (final RukoruModule rukoruModule : RukoruModule.values()) {
-			final CheckBox checkBox = new CheckBox(rukoruModule.getDiplayName());
-			checkBox.setFont(new Font(15));
+			final CheckBox checkBox = new CheckBox(rukoruModule.getDisplayName());
+			checkBox.setFont(new Font(12));
 			checkBox.setGraphic(new ImageView(AssetUtil.getImage(rukoruModule.getIconPath())));
+			if (rukoruModule.isHidden()) {
+				checkBox.visibleProperty().bind(Bindings.not(HiddenManager.hiddenProperty())
+						.or(new SimpleBooleanProperty(!rukoruModule.isHidden())));
+			}
 			vbox.getChildren().add(checkBox);
 			checkBoxes.put(rukoruModule, checkBox);
 		}
@@ -63,7 +67,7 @@ public class ModuleActivationController extends PreferenceControllerBase {
 				for (final RukoruModule rukoruModule : RukoruModule.values()) {
 					final String key = rukoruModule.toString();
 					if (!preferences.containsKey(key)) {
-						preferences.put(key, new Preference("Module", key, TRUE.toString()));
+						preferences.put(key, new Preference("Module", key, Boolean.toString(!rukoruModule.isHidden())));
 					}
 					final CheckBox checkBox = checkBoxes.get(rukoruModule);
 					final Preference preference = preferences.get(key);

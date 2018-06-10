@@ -9,9 +9,9 @@ import java.util.function.Consumer;
 import hoshisugi.rukoru.app.enums.StudioMode;
 import hoshisugi.rukoru.app.services.ds.DSService;
 import hoshisugi.rukoru.framework.cli.CLIState;
+import hoshisugi.rukoru.framework.event.ShutdownHandler;
 import hoshisugi.rukoru.framework.inject.Injector;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
-import hoshisugi.rukoru.framework.util.ShutdownHandler;
 import javafx.application.Platform;
 
 abstract class DSManagerBase implements DSManager {

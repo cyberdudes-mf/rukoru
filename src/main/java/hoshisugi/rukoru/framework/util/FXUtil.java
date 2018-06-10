@@ -15,6 +15,8 @@ import com.google.common.base.Strings;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.base.BaseController;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -143,4 +145,25 @@ public class FXUtil {
 			throw new UncheckedIOException(e);
 		}
 	}
+
+	public static <T> void setOnChangedForOnce(final ObservableValue<T> observable, final ChangeListener<T> listener) {
+		observable.addListener(new ChangeListenerForOnce<>(listener));
+	}
+
+	static class ChangeListenerForOnce<T> implements ChangeListener<T> {
+
+		private final ChangeListener<T> listener;
+
+		private ChangeListenerForOnce(final ChangeListener<T> listener) {
+			this.listener = listener;
+		}
+
+		@Override
+		public void changed(final ObservableValue<? extends T> observable, final T oldValue, final T newValue) {
+			listener.changed(observable, oldValue, newValue);
+			observable.removeListener(this);
+		}
+
+	}
+
 }
