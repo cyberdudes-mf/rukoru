@@ -62,6 +62,7 @@ public class ToolBarController extends BaseController {
 		toolBar.selectedToggleProperty().addListener(this::toolBarSelectionChanged);
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	private void createButtons() {
 		for (final RukoruModule module : RukoruModule.values()) {
 			ButtonBase button;
@@ -86,7 +87,7 @@ public class ToolBarController extends BaseController {
 				}
 			}
 			button.setGraphic(new ImageView(AssetUtil.getImage(module.getIconPath())));
-			button.setText(module.getDiplayName());
+			button.setText(module.getDisplayName());
 			button.setGraphicTextGap(10);
 			button.setMinWidth(130);
 			button.setAlignment(Pos.TOP_LEFT);
@@ -154,7 +155,11 @@ public class ToolBarController extends BaseController {
 
 	private boolean isActive(final RukoruModule rukoruModule, final Map<String, Preference> preferences) {
 		final Preference preference = preferences.get(rukoruModule.toString());
-		return preference == null || Boolean.parseBoolean(preference.getValue());
+		if (preference == null) {
+			return !rukoruModule.isHidden();
+		} else {
+			return Boolean.parseBoolean(preference.getValue());
+		}
 	}
 
 	public boolean isSelected() {

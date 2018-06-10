@@ -1,0 +1,9 @@
+select
+  id,
+  access_key_id,
+  secret_access_key,
+  bucket,
+  created_at,
+  updated_at
+from
+  s3_video_credential

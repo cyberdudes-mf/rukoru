@@ -27,6 +27,7 @@ import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.view.redmine.TaskboardController;
 import hoshisugi.rukoru.framework.annotations.FXController;
 import hoshisugi.rukoru.framework.controls.PropertyListCell;
+import hoshisugi.rukoru.framework.inject.Injector;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -49,9 +50,6 @@ public class RedminePreferenceController extends PreferenceControllerBase {
 
 	@FXML
 	private ComboBox<Version> defaultVersion;
-
-	@Inject
-	private TaskboardController controller;
 
 	@Inject
 	private LocalSettingService settingService;
@@ -105,7 +103,10 @@ public class RedminePreferenceController extends PreferenceControllerBase {
 	public void apply() {
 		ConcurrentUtil.run(() -> {
 			settingService.savePreferences(preferences.values());
-			controller.load();
+			final TaskboardController controller = Injector.getInstance(TaskboardController.class);
+			if (controller != null) {
+				controller.load();
+			}
 		});
 	}
 

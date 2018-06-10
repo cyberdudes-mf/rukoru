@@ -16,6 +16,8 @@ import hoshisugi.rukoru.app.services.s3.S3Service;
 import hoshisugi.rukoru.app.services.s3.S3ServiceImpl;
 import hoshisugi.rukoru.app.services.settings.LocalSettingService;
 import hoshisugi.rukoru.app.services.settings.LocalSettingServiceImpl;
+import hoshisugi.rukoru.app.services.video.S3VideoServiceImpl;
+import hoshisugi.rukoru.app.services.video.VideoService;
 import hoshisugi.rukoru.app.view.ContentController;
 import hoshisugi.rukoru.app.view.MainController;
 import hoshisugi.rukoru.app.view.ToolBarController;
@@ -29,6 +31,7 @@ import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerMenuController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTableController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTreeController;
+import hoshisugi.rukoru.app.view.video.VideoController;
 import hoshisugi.rukoru.framework.inject.ModuleConfigurator;
 
 public class RukoruModuleConfigurator extends ModuleConfigurator {
@@ -53,6 +56,7 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(S3ExplorerTreeController.class);
 		provide(S3ExplorerTableController.class);
 		provide(TaskboardController.class);
+		provide(VideoController.class);
 	}
 
 	private void configureServices() {
@@ -63,5 +67,6 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		bind(RepositoryDBService.class).toProvider(() -> new RepositoryDBServiceImpl()).in(Singleton.class);
 		bind(RedmineService.class).toProvider(() -> new RedmineServiceImpl()).in(Singleton.class);
 		bind(DSService.class).toProvider(() -> new DSServiceImpl()).in(Singleton.class);
+		bind(VideoService.class).toProvider(() -> new S3VideoServiceImpl()).in(Singleton.class);
 	}
 }

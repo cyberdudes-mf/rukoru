@@ -16,7 +16,7 @@ import com.google.common.net.UrlEscapers;
 import com.google.inject.Inject;
 import com.sun.javafx.scene.control.skin.TableColumnHeader;
 
-import hoshisugi.rukoru.app.models.s3.AsyncResult;
+import hoshisugi.rukoru.app.models.common.AsyncResult;
 import hoshisugi.rukoru.app.models.s3.S3Bucket;
 import hoshisugi.rukoru.app.models.s3.S3Clipboard;
 import hoshisugi.rukoru.app.models.s3.S3Folder;
