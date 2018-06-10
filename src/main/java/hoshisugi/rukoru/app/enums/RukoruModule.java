@@ -5,6 +5,7 @@ import hoshisugi.rukoru.app.view.ec2.EC2ContentController;
 import hoshisugi.rukoru.app.view.redmine.TaskboardController;
 import hoshisugi.rukoru.app.view.repositorydb.RepositoryDBContentController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
+import hoshisugi.rukoru.app.view.scrum.ScrumController;
 import hoshisugi.rukoru.app.view.trace.ExcelTraceController;
 import hoshisugi.rukoru.app.view.video.VideoController;
 import hoshisugi.rukoru.framework.base.BaseController;
@@ -19,6 +20,7 @@ public enum RukoruModule {
 	RepositoryDB(RepositoryDBContentController.class, "リポジトリDB", "32x32/DB.png", false),
 	S3(S3ExplorerController.class, "S3", "32x32/S3.png", false),
 	Taskboard(TaskboardController.class, "タスクボード", "32x32/Redmine.png", false),
+	Scrum(ScrumController.class, "スクラム", "32x32/scrum.png", false),
 	Video(VideoController.class, "ビデオ", "32x32/Video.png", true),
 	Trace(ExcelTraceController.class, "トレース", "32x32/easel.png", true),
 	;

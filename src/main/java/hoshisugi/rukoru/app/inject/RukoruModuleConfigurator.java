@@ -33,6 +33,7 @@ import hoshisugi.rukoru.app.view.s3.S3ExplorerController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerMenuController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTableController;
 import hoshisugi.rukoru.app.view.s3.S3ExplorerTreeController;
+import hoshisugi.rukoru.app.view.scrum.ScrumController;
 import hoshisugi.rukoru.app.view.trace.ExcelTraceController;
 import hoshisugi.rukoru.app.view.video.VideoController;
 import hoshisugi.rukoru.framework.inject.ModuleConfigurator;
@@ -59,6 +60,7 @@ public class RukoruModuleConfigurator extends ModuleConfigurator {
 		provide(S3ExplorerTreeController.class);
 		provide(S3ExplorerTableController.class);
 		provide(TaskboardController.class);
+		provide(ScrumController.class);
 		provide(VideoController.class);
 		provide(ExcelTraceController.class);
 	}

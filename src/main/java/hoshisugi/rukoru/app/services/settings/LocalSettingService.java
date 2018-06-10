@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import hoshisugi.rukoru.app.enums.Preferences;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
+import hoshisugi.rukoru.app.models.scrum.ToolButton;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
@@ -38,4 +39,8 @@ public interface LocalSettingService {
 	Optional<S3VideoCredential> loadS3VideoCredential() throws SQLException;
 
 	void saveS3VideoCredential(S3VideoCredential credential) throws Exception;
+
+	List<ToolButton> getToolButtons() throws SQLException;
+
+	void saveToolButtons(List<ToolButton> entities) throws SQLException;
 }

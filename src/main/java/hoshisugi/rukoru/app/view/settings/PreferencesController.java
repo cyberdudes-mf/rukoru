@@ -90,9 +90,9 @@ public class PreferencesController extends BaseController {
 			registerContent(authChildren, RepositoryDBSettingController.class);
 			rootChildren.add(child);
 		}
+		registerContent(rootChildren, ScrumSettingController.class);
 		registerContent(rootChildren, ModuleActivationController.class);
 		registerContent(rootChildren, VideoSettingController.class);
-
 	}
 
 	private void registerContent(final ObservableList<TreeItem<String>> children,

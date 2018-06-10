@@ -84,12 +84,14 @@ public class ContentController extends BaseController {
 		if (contents.containsKey(rukoruModule)) {
 			return;
 		}
-		try {
-			final Parent parent = FXMLLoader.load(FXUtil.getURL(rukoruModule.getControllerClass()));
-			contents.put(rukoruModule, parent);
-		} catch (final IOException e) {
-			throw new UncheckedIOException(e);
-		}
+		Platform.runLater(() -> {
+			try {
+				final Parent parent = FXMLLoader.load(FXUtil.getURL(rukoruModule.getControllerClass()));
+				contents.put(rukoruModule, parent);
+			} catch (final IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		});
 	}
 
 	private boolean isActive(final RukoruModule rukoruModule, final Map<String, Preference> preferences) {

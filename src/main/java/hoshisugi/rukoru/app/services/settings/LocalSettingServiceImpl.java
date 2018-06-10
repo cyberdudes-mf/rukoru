@@ -12,17 +12,21 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import hoshisugi.rukoru.app.enums.Preferences;
 import hoshisugi.rukoru.app.models.ds.DSSetting;
+import hoshisugi.rukoru.app.models.scrum.ToolButton;
+import hoshisugi.rukoru.app.models.scrum.ToolButton.Operation;
 import hoshisugi.rukoru.app.models.settings.Credential;
 import hoshisugi.rukoru.app.models.settings.Preference;
 import hoshisugi.rukoru.app.models.settings.RepositoryDBConnection;
 import hoshisugi.rukoru.app.models.settings.S3VideoCredential;
 import hoshisugi.rukoru.framework.base.BaseService;
+import hoshisugi.rukoru.framework.converter.ColorStringConverter;
 import hoshisugi.rukoru.framework.database.builder.Column;
 import hoshisugi.rukoru.framework.database.builder.CreateBuilder;
 import hoshisugi.rukoru.framework.database.builder.DeleteBuilder;
@@ -282,6 +286,69 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 			return rs.getInt(1);
 		} catch (final SQLException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public List<ToolButton> getToolButtons() throws SQLException {
+		try (final H2Database h2 = new H2Database()) {
+			if (!h2.exists("SCRUM_TOOLBUTTONS")) {
+				return Collections.emptyList();
+			}
+			return h2.select(from("scrum_toolbuttons"), ToolButton::new);
+		}
+	}
+
+	@Override
+	public void saveToolButtons(final List<ToolButton> entities) throws SQLException {
+		try (final H2Database h2 = new H2Database()) {
+			if (!h2.exists("SCRUM_TOOLBUTTONS")) {
+				h2.create(CreateBuilder.table("scrum_toolbuttons"));
+			}
+
+			final Map<Operation, List<ToolButton>> group = entities.stream()
+					.filter(t -> Objects.nonNull(t.getOperation()))
+					.collect(Collectors.groupingBy(ToolButton::getOperation));
+			insertToolButtons(h2, group.get(Operation.Add));
+			updateToolButtons(h2, group.get(Operation.Edit));
+			deleteToolButtons(h2, group.get(Operation.Delete));
+		}
+	}
+
+	private void insertToolButtons(final H2Database h2, final List<ToolButton> items) throws SQLException {
+		if (items == null) {
+			return;
+		}
+		final ColorStringConverter converter = new ColorStringConverter();
+		for (final ToolButton item : items) {
+			h2.insert(into("scrum_toolbuttons").values($("id", item.getId()), $("label", item.getLabel()),
+					$("color", converter.toString(item.getColor())), $("url", item.getUrl().toString()),
+					$("sort_order", item.getSortOrder())));
+		}
+	}
+
+	private void updateToolButtons(final H2Database h2, final List<ToolButton> items) throws SQLException {
+		if (items == null) {
+			return;
+		}
+		final ColorStringConverter converter = new ColorStringConverter();
+		for (final ToolButton item : items) {
+			h2.update(table("scrum_toolbuttons")
+					.set($("label", item.getLabel()), $("color", converter.toString(item.getColor())),
+							$("url", item.getUrl().toString()), $("sort_order", item.getSortOrder()))
+					.where($("id", item.getId()), $("updated_at", item.getUpdatedAt())));
+		}
+	}
+
+	private void deleteToolButtons(final H2Database h2, final List<ToolButton> items) throws SQLException {
+		if (items == null) {
+			return;
+		}
+		for (final ToolButton item : items) {
+			if (item.getId() != null) {
+				h2.delete(DeleteBuilder.from("sort_order").where($("id", item.getId()),
+						$("updated_at", item.getUpdatedAt())));
+			}
 		}
 	}
 }
