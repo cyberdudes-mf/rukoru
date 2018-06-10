@@ -42,6 +42,10 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 				h2.insert(into("auth_settings").values($("account", entity.getAccount()),
 						$("access_key_id", entity.getAccessKeyId()),
 						$("secret_access_key", entity.getSecretAccessKey())));
+				loadCredential(h2).ifPresent(c -> {
+					entity.setId(c.getId());
+					entity.setUpdatedAt(c.getUpdatedAt());
+				});
 			} else {
 				final int result = h2.update(table("auth_settings")
 						.set($("account", entity.getAccount()), $("access_key_id", entity.getAccessKeyId()),
@@ -96,6 +100,10 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 				h2.insert(into("repositorydb_settings").values($("instance_name", entity.getInstanceName()),
 						$("endpoint", entity.getEndpoint()), $("port", entity.getPort()),
 						$("username", entity.getUsername()), $("password", entity.getPassword())));
+				loadRepositoryDBConnection(h2).ifPresent(e -> {
+					entity.setId(e.getId());
+					entity.setUpdatedAt(e.getUpdatedAt());
+				});
 			} else {
 				final int result = h2.update(table("repositorydb_settings")
 						.set($("instance_name", entity.getInstanceName()), $("endpoint", entity.getEndpoint()),
@@ -209,7 +217,10 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 				}
 				h2.insert(into("s3_video_credential").values($("access_key_id", credential.getAccessKeyId()),
 						$("secret_access_key", credential.getSecretAccessKey()), $("bucket", credential.getBucket())));
-				loadS3VideoCredential(h2).ifPresent(c -> credential.setId(c.getId()));
+				loadS3VideoCredential(h2).ifPresent(c -> {
+					credential.setId(c.getId());
+					credential.setUpdatedAt(c.getUpdatedAt());
+				});
 			} else {
 				final int result = h2.update(table("s3_video_credential")
 						.set($("access_key_id", credential.getAccessKeyId()),
@@ -225,6 +236,9 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	private void deleteDSSettings(final H2Database h2, final List<DSSetting> settings) throws SQLException {
+		if (settings == null) {
+			return;
+		}
 		for (final DSSetting setting : settings) {
 			final Integer id = Optional.ofNullable(setting.getId()).orElse(0);
 			h2.delete(DeleteBuilder.from("ds_settings").where($("id", id)));
@@ -232,6 +246,9 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	private void updateDSSettings(final H2Database h2, final List<DSSetting> settings) throws SQLException {
+		if (settings == null) {
+			return;
+		}
 		for (final DSSetting setting : settings) {
 			h2.update(table("ds_settings")
 					.set($("name", setting.getName()), $("executionpath", setting.getExecutionPath()),
@@ -242,6 +259,9 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 	}
 
 	private void insertDSSettings(final H2Database h2, final List<DSSetting> settings) throws SQLException {
+		if (settings == null) {
+			return;
+		}
 		for (final DSSetting setting : settings) {
 			setting.setId(h2.find(from("ds_settings_sequence"), this::getInt).get());
 			h2.insert(into("ds_settings").values($("id", setting.getId()), $("name", setting.getName()),
