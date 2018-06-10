@@ -7,6 +7,7 @@ import static hoshisugi.rukoru.framework.database.builder.UpdateBuilder.table;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -153,6 +154,11 @@ public class LocalSettingServiceImpl extends BaseService implements LocalSetting
 				}
 			}
 		}
+	}
+
+	@Override
+	public void savePreference(final Preference preference) throws SQLException {
+		savePreferences(Arrays.asList(preference));
 	}
 
 	@Override

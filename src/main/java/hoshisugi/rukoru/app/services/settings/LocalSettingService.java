@@ -33,6 +33,8 @@ public interface LocalSettingService {
 
 	void savePreferences(Collection<Preference> preferences) throws SQLException;
 
+	void savePreference(Preference preference) throws SQLException;
+
 	Optional<S3VideoCredential> loadS3VideoCredential() throws SQLException;
 
 	void saveS3VideoCredential(S3VideoCredential credential) throws Exception;

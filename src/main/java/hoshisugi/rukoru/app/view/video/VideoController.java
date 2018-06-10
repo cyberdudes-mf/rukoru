@@ -13,7 +13,6 @@ import java.util.ResourceBundle;
 import hoshisugi.rukoru.app.models.common.AsyncResult;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
-import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
 import javafx.application.Platform;
@@ -334,12 +333,9 @@ public class VideoController extends BaseController {
 	public void showProgressBar(final AsyncResult result) {
 		final ProgressBar progressBar = createProgressBar(result);
 		bottom.getChildren().add(progressBar);
-		ConcurrentUtil.run(() -> {
-			result.waitFor();
-			Platform.runLater(() -> {
-				bottom.getChildren().remove(progressBar);
-				result.checkResult();
-			});
+		result.callback(() -> {
+			bottom.getChildren().remove(progressBar);
+			result.checkResult();
 		});
 	}
 

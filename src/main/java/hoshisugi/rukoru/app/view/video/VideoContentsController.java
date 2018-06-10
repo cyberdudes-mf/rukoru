@@ -1,6 +1,7 @@
 package hoshisugi.rukoru.app.view.video;
 
-import java.io.File;
+import static hoshisugi.rukoru.framework.util.ChooserUtil.chooser;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -16,6 +17,7 @@ import hoshisugi.rukoru.app.models.video.VideoItem;
 import hoshisugi.rukoru.app.services.video.VideoService;
 import hoshisugi.rukoru.framework.base.BaseController;
 import hoshisugi.rukoru.framework.util.AssetUtil;
+import hoshisugi.rukoru.framework.util.ChooserUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
@@ -32,7 +34,6 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
 
 public class VideoContentsController extends BaseController {
 
@@ -50,8 +51,6 @@ public class VideoContentsController extends BaseController {
 
 	@Inject
 	private VideoService videoService;
-
-	private Path selection;
 
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
@@ -80,16 +79,11 @@ public class VideoContentsController extends BaseController {
 
 	@FXML
 	private void onOpenButtonClick(final ActionEvent event) {
-		final FileChooser chooser = new FileChooser();
-		if (selection != null) {
-			chooser.setInitialDirectory(selection.getParent().toFile());
-		}
-		final File file = chooser.showOpenDialog(FXUtil.getStage(event));
-		if (file != null) {
-			selection = file.toPath();
-			pathField.setText(selection.getFileName().toString());
-			videoController.loadVideo(selection);
-		}
+		final Optional<Path> selection = ChooserUtil.showOpenDialog(FXUtil.getStage(event));
+		selection.ifPresent(p -> {
+			pathField.setText(p.getFileName().toString());
+			videoController.loadVideo(p);
+		});
 	}
 
 	@FXML
@@ -115,25 +109,16 @@ public class VideoContentsController extends BaseController {
 			return;
 		}
 		final VideoFile video = (VideoFile) videoItem;
-		final Optional<File> destination = requireDownloadDestination(e, videoItem);
-		destination.ifPresent(file -> {
-			selection = file.toPath();
+		final Optional<Path> destination = chooser().initialFileName(videoItem.getName())
+				.showSaveDialog(FXUtil.getStage(e));
+		destination.ifPresent(p -> {
 			try {
-				final AsyncResult result = IOUtil.downloadContent(video.getUrl(), selection);
+				final AsyncResult result = IOUtil.downloadContent(video.getUrl(), p);
 				videoController.showProgressBar(result);
 			} catch (final IOException e1) {
 				DialogUtil.showErrorDialog("エラー", video.getName() + "のダウンロードに失敗しました。", e1);
 			}
 		});
-	}
-
-	private Optional<File> requireDownloadDestination(final ActionEvent e, final VideoItem videoItem) {
-		final FileChooser chooser = new FileChooser();
-		chooser.setInitialFileName(videoItem.getName());
-		if (selection != null) {
-			chooser.setInitialDirectory(selection.getParent().toFile());
-		}
-		return Optional.ofNullable(chooser.showSaveDialog(FXUtil.getStage(e)));
 	}
 
 	public void refresh() {

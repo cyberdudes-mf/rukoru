@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="5.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.trace.ExcelTraceController">
+   <children>
+      <HBox fx:id="urlHbox" alignment="CENTER_LEFT" spacing="5.0">
+         <children>
+            <Label maxWidth="-Infinity" prefWidth="50.0" text="URL:" />
+            <TextField fx:id="urlField" maxWidth="680.0" text="https://s3-ap-northeast-1.amazonaws.com/com.appresso.dsc.rukoru/assets/hoshifuri_sosogu.jpg" HBox.hgrow="ALWAYS" />
+            <Button fx:id="loadButton" mnemonicParsing="false" onAction="#onLoadButtonClick" text="読み込み" />
+         </children>
+      </HBox>
+      <ImageView fx:id="imageView" fitHeight="450.0" fitWidth="800.0" onDragDropped="#onDragDropped" onDragOver="#onDragOver" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
+    <Button fx:id="generateButton" alignment="CENTER" mnemonicParsing="false" onAction="#onGenerateButtonClick" prefWidth="70.0" text="生成" />
+      <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" visible="false" VBox.vgrow="ALWAYS" />
+   </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</VBox>
