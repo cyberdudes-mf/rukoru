@@ -66,7 +66,7 @@ import javafx.stage.StageStyle;
 public class TaskboardController extends BaseController {
 
 	@FXML
-	private Button addUserStoryButton;
+	private Button refreshButton;
 
 	@FXML
 	private ComboBox<Project> project;
@@ -104,7 +104,7 @@ public class TaskboardController extends BaseController {
 
 	@Override
 	public void initialize(final URL location, final ResourceBundle resources) {
-		addUserStoryButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/add.png")));
+		refreshButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/refresh.png")));
 		project.setCellFactory(PropertyListCell.forListView(Project::getName));
 		project.setButtonCell(project.getCellFactory().call(null));
 		project.getSelectionModel().selectedItemProperty().addListener(this::onProjectSelected);
@@ -120,8 +120,8 @@ public class TaskboardController extends BaseController {
 	}
 
 	@FXML
-	private void onAddUserStoryButtonClick(final ActionEvent event) {
-
+	private void onRefreshButtonClick(final ActionEvent event) {
+		engine.reload();
 	}
 
 	@FXML
