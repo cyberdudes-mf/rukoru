@@ -6,11 +6,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.redmine.TaskboardController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoshisugi.rukoru.app.view.redmine.TaskboardController">
    <children>
       <HBox alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
          <children>
-            <Button fx:id="addUserStoryButton" mnemonicParsing="false" onAction="#onAddUserStoryButtonClick" />
+            <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#onRefreshButtonClick" />
             <ComboBox fx:id="project" prefWidth="150.0" promptText="プロジェクト" />
             <ComboBox fx:id="sprint" prefWidth="150.0" promptText="スプリント" />
             <CheckBox fx:id="showClosedSprintCheckBox" mnemonicParsing="false" onAction="#onShowClosedSprintCheckBoxChanged" selected="true" text="完了したスプリントを表示" />
