@@ -17,6 +17,7 @@ import hoshisugi.rukoru.framework.util.AssetUtil;
 import hoshisugi.rukoru.framework.util.ConcurrentUtil;
 import hoshisugi.rukoru.framework.util.DialogUtil;
 import hoshisugi.rukoru.framework.util.FXUtil;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -134,7 +135,7 @@ public class DSPropertiesController extends BaseController {
 	private void loadProperties(final DSProperties properties) throws IOException {
 		try {
 			final List<Property> items = properties.loadProperties();
-			tableView.getItems().setAll(items);
+			Platform.runLater(() -> tableView.getItems().setAll(items));
 		} catch (final IOException e) {
 			layoutRoot.setVisible(false);
 			DialogUtil.showWarningDialog(properties + "が見つかりませんでした。");
