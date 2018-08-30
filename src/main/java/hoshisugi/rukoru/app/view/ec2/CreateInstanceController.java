@@ -83,7 +83,7 @@ public class CreateInstanceController extends BaseController {
 		instanceType.getItems().addAll(InstanceType.values());
 		instanceType.setCellFactory(PropertyListCell.forListView(InstanceType::getDisplayName));
 		instanceType.setButtonCell(instanceType.getCellFactory().call(null));
-		instanceType.getSelectionModel().select(InstanceType.T2Micro);
+		instanceType.getSelectionModel().select(InstanceType.T3Micro);
 		keyColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		addButton.setGraphic(new ImageView(AssetUtil.getImage("16x16/navigate_plus.png")));

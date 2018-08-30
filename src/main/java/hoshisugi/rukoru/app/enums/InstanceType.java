@@ -6,6 +6,10 @@ public enum InstanceType {
 	T2Small("t2.small", com.amazonaws.services.ec2.model.InstanceType.T2Small),
 	T2Medium("t2.medium", com.amazonaws.services.ec2.model.InstanceType.T2Medium),
 	T2Large("t2.large", com.amazonaws.services.ec2.model.InstanceType.T2Large),
+	T3Micro("t3.micro", com.amazonaws.services.ec2.model.InstanceType.T3Micro),
+	T3Small("t3.small", com.amazonaws.services.ec2.model.InstanceType.T3Small),
+	T3Medium("t3.medium", com.amazonaws.services.ec2.model.InstanceType.T3Medium),
+	T3Large("t3.large", com.amazonaws.services.ec2.model.InstanceType.T3Large),
 	M3Medium("m3.medium", com.amazonaws.services.ec2.model.InstanceType.M3Medium),
 	M3Large("m3.large", com.amazonaws.services.ec2.model.InstanceType.M3Large);
 
